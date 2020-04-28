@@ -28,19 +28,19 @@ und den Modals:
 
 ### Welcome Screen
 
-![WelcomeScreen](/home/sascha/Dokumente/02_Studium/HSAalen/Semester3/05_Programmierprojekt/assets/WelcomeScreen.png)
+![](/home/sascha/Dokumente/02_Studium/HSAalen/Semester3/05_Programmierprojekt/BattleShip_GUI/assets/WelcomeScreen.png)
 
 ### Game Screen
 
-![GameScreen](/home/sascha/Dokumente/02_Studium/HSAalen/Semester3/05_Programmierprojekt/assets/GameScreen.png)
+![](/home/sascha/Dokumente/02_Studium/HSAalen/Semester3/05_Programmierprojekt/BattleShip_GUI/assets/GameScreen.png)
 
 ### CreateScreen
 
-![CreateGameScreen](/home/sascha/Dokumente/02_Studium/HSAalen/Semester3/05_Programmierprojekt/assets/CreateGameScreen.png)
+![](/home/sascha/Dokumente/02_Studium/HSAalen/Semester3/05_Programmierprojekt/BattleShip_GUI/assets/CreateGameScreen.png)
 
 ### ResultScreen
 
-![ResultScreen](/home/sascha/Dokumente/02_Studium/HSAalen/Semester3/05_Programmierprojekt/assets/ResultScreen.png)
+![](/home/sascha/Dokumente/02_Studium/HSAalen/Semester3/05_Programmierprojekt/BattleShip_GUI/assets/ResultScreen.png)
 
 ## Schnittstellen
 
