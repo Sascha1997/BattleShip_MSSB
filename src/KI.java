@@ -1,49 +1,58 @@
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
 
 public class KI {
 
     private int[][] game, probs, enemy;
+    private int[] shipsEnemy = new int[4];
     private int[] ships = new int[4];
     private ArrayList<Point> cords = new ArrayList<>();
+    private ArrayList<Point> neighbours = new ArrayList<>(4);
+    private ArrayList<Ship> myShips = new ArrayList<>();
     private Point focusPoint = new Point(-1,-1);
-    private Point probPoint = new Point(0,0);
-    private boolean hit = false, deadEnd = false, gameEnd = false;
+    private Point probPoint = new Point(-1,-1);
+    private Point hitpoint = new Point(-1,-1);
+    private boolean hit = false, deadEnd = false, gameEnd = false, turn = true, neighbousSet = false;
     private int size = 0;
     private int shots = 0, hits = 0;
     private int direction = 0;
+    private int shipSum;
     private PrintWriter out;
     private BufferedReader in;
 
-    public KI(boolean first) throws IOException, ArrayIndexOutOfBoundsException{
+    public KI (String ip, boolean first) throws IOException, ArrayIndexOutOfBoundsException{
 
-        Socket socket = new Socket("localhost", 614);
-        System.out.println("Connection established.");
+        Socket socket = new Socket(ip, 50000);
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.out = new PrintWriter(socket.getOutputStream());
+        this.turn = first;
 
-        if(first){
+        distribute(in.readLine());
+        this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+        Helper.printGame(this.probs, this.enemy);
 
-            distribute(in.readLine());
+        while(true){
 
-            while(true){
+            if(this.gameEnd){ socket.close(); break;}
 
-                if(this.gameEnd){
-                    socket.close();
-                    break;
+            if(first){
+                if(this.turn){
+                    play();
                 }
 
-                play();
+                distribute(in.readLine());
 
-                if(!this.gameEnd) System.out.println("Warte at play");
-                //distribute(in.readLine());
+            }else{
+
+                distribute(in.readLine());
+
+                if(this.turn){
+                    play();
+                }
             }
         }
-
-
     }
 
     private void distribute(String s) throws IOException, ArrayIndexOutOfBoundsException {
@@ -51,12 +60,9 @@ public class KI {
         String[] data = s.split(" ");
 
         switch(data[0]){
-            case "size": setUpGame(data);
-                         distribute(in.readLine());
+            case "setup": setUpGame(data);
                 break;
-            case "ships": setUpShips(data);
-                break;
-            case "shot": //this.out.write("answer " + shot(data) + "\n");
+            case "shot":  shot(data);
                 break;
             case "answer": answers(data);
                 break;
@@ -64,33 +70,43 @@ public class KI {
                 break;
             case "save":
                 break;
+            case "pass": return;
+
             default: System.out.println("Falsche Eingabe");
         }
     }
 
     private void play() throws IOException, ArrayIndexOutOfBoundsException {
 
-        if (this.hit && this.direction == 0) {
+        if(this.hit){
             nextMove(this.probPoint);
         }
 
         if(!this.hit && !this.gameEnd){
-            patternFinding();
-            setProbabilityPoint(this.probPoint);
-            printGame();
+
+            this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+            this.probPoint = Helper.getProbabilityPoint(this.probs);
             kiShot(this.probPoint);
         }
     }
 
     private void checkIfGameOver() throws IOException{
 
-        for (int ship : this.ships) if (ship != 0) return;
+        int s1 = 0;
+        int s2 = 0;
 
-        this.gameEnd = true;
-        System.out.println("Spiel ist vorbei!");
-        System.out.println("Shots: " + this.shots);
-        System.out.println("davon Hits: " + this.hits);
-        System.out.printf("Trefferquote: %.2f%%%n", ((double) this.hits / this.shots) * 100);
+        for(int i = 0; i < this.ships.length; i++){
+            s1 += this.ships[i];
+            s2 += this.shipsEnemy[i];
+        }
+
+        if(s1 == 0 || s2 == 0){
+            this.gameEnd = true;
+            System.out.println("Spiel ist vorbei!");
+            System.out.println("Shots: " + this.shots);
+            System.out.println("davon Hits: " + this.hits);
+            System.out.printf("Trefferquote: %.2f%%%n", ((double) this.hits / this.shots) * 100);
+        }
     }
 
     private void setUpGame(String[] data) {
@@ -100,204 +116,195 @@ public class KI {
         this.enemy = new int[this.size][this.size];
         this.probs = new int[this.size][this.size];
 
-        setArrayTo0(this.enemy);
+        clearArray(this.enemy, 0);
+
+        for(int i = 2; i < data.length; i++){
+
+            int zahl = Integer.parseInt(data[i]);
+            this.shipsEnemy[i-2] = zahl;
+            this.ships[i-2] = zahl;
+            this.shipSum += zahl;
+        }
+
+        placeShips();
+        Helper.printGame(this.game, this.enemy);
     }
 
-    private void setUpShips(String[] data){
+    public void clearArray(int[][] arr, int digit){
 
-        for(int i = 1; i < data.length; i++){
-            switch(data[i]){
-                case "5": this.ships[0]++;
-                    break;
-                case "4": this.ships[1]++;
-                    break;
-                case "3": this.ships[2]++;
-                    break;
-                case "2": this.ships[3]++;
+        for(int i = 0; i < arr.length; i++){
+            for(int j = 0; j < arr.length; j++){
+                if(arr[i][j] == digit) arr[i][j] = 0;
             }
         }
     }
 
-    private String shot(String[] data){
+    private void shot(String[] data) throws IOException {
 
-        String s = "";
-        int x = Integer.parseInt(data[1]);
-        int y = Integer.parseInt(data[2]);
+        String line;
 
-        if(this.game[x - 1][y - 1] == 0)
-            s = "0";
-        else
-            s = "1";
+        int index = -1;
+        Point p = new Point(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
 
-        return s;
+        for(int i = 0; i < this.myShips.size(); i++){
+            if(this.myShips.get(i).containsPoint(p)){
+                this.myShips.get(i).setHit(p);
+                index = i;
+                break;
+            }
+        }
+
+        if(index == -1){
+            line = "answer 0";
+            this.turn = true;
+        }else{
+            if(this.myShips.get(index).checkIfDead()){
+                line = "answer 2";
+                this.turn = false;
+                this.ships[5 - this.myShips.get(index).getSize()]--;
+                checkIfGameOver();
+            }else{
+                line = "answer 1";
+                this.turn = false;
+            }
+        }
+        this.out.write(line + "\n");
+        this.out.flush();
     }
 
     private void kiShot(Point p) throws IOException, ArrayIndexOutOfBoundsException {
 
-        if(!this.gameEnd){
-            this.shots++;
-            this.out.write("shot " + (p.x + 1) + " " + (p.y + 1) + "\n");
-            this.out.flush();
-            distribute(in.readLine());
-        }
+        this.shots++;
+        this.out.write("shot " + p.x + " " + p.y + "\n");
+        this.out.flush();
+        distribute(in.readLine());
     }
 
     private void answers(String[] data) throws IOException, ArrayIndexOutOfBoundsException {
 
         switch(data[1]){
             case "0": this.enemy[this.probPoint.x][this.probPoint.y] = 1;
+                      System.out.println(this.probPoint);
+                      this.turn = false;
                       System.out.println("Kein Hit");
-                      printGame();
-                      if(this.cords.size() != 0) this.deadEnd = true;
-                      System.out.println("Warte");
-                      //dis
+                      this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+                      Helper.printGame(this.probs, this.enemy);
+
+                      this.out.write("pass\n");
+                      this.out.flush();
+
                 break;
             case "1": this.enemy[this.probPoint.x][this.probPoint.y] = 2;
+                      System.out.println(this.probPoint);
                       System.out.println("Hit");
-                      printGame();
-                      if(this.hit && this.direction == 0) setDirection();
-                      patternFinding();
+                      this.turn = true;
+                      this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+                      Helper.printGame(this.probs, this.enemy);
+
+                      this.cords.add(new Point(this.probPoint));
+                      if(this.cords.size() == 2) setDirection();
                       this.hits++;
 
-                      Point temp = new Point();
-                      temp.setLocation(this.probPoint);
-                      this.cords.add(temp);
-
                       this.hit = true;
-                      play();
                 break;
             case "2": this.hit = false;
                       this.enemy[this.probPoint.x][this.probPoint.y] = 2;
+                      System.out.println(this.probPoint);
                       System.out.println("Hit - Versenkt");
-                      printGame();
+                      this.turn = true;
+                      this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+                      neighbours.clear();
+                      neighbousSet = false;
 
-                      Point tempx = new Point();
-                      tempx.setLocation(this.probPoint);
-                      this.cords.add(tempx);
-
+                      this.cords.add(new Point(this.probPoint));
                       this.hits++;
 
                       this.deadEnd = true;
-                      setBorders();
+                      setBorders(this.cords, this.enemy);
+                      Helper.printGame(this.probs, this.enemy);
                       deleteShip();
                       this.direction = 0;
                       checkIfGameOver();
         }
-    }
 
-    private void patternFinding(){
-
-        setArrayTo0(this.probs);
-        for(int o = this.ships.length + 1; o >= 2 ; o--){
-            if(this.ships[this.ships.length + 1 - o] != 0){
-                int k, l;
-                Point[] ar = new Point[o];
-                for(int m = 0; m < 2; m++){
-                    for(int i = 0; i < this.enemy.length; i++){
-                        inner:
-                        for(int j = 0; j < this.enemy.length - o + 1; j++) {
-                            k = 0;
-                            l = j;
-                            while(l < this.enemy.length && k < o){
-                                if ((this.enemy[i][l] != 0 && m == 0)|| (this.enemy[l][i] != 0 && m == 1)){
-                                    j = l;
-                                    continue inner;
-                                }
-                                if(m == 0)
-                                    ar[k++] = new Point(i, l++);
-                                else
-                                    ar[k++] = new Point(l++, i);
-                            }
-                            for(Point p : ar) this.probs[p.x][p.y]++;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void printGame() throws ArrayIndexOutOfBoundsException{
-
-        for(int i = 0; i < this.probs.length; i++){
-            for(int j = 0; j < this.probs.length; j++){
-
-                System.out.print(String.format("%3d", this.probs[i][j]));
-            }
-            System.out.print("   ");
-            for(int j = 0; j < this.probs.length; j++){
-
-                System.out.print(String.format("%3d", this.enemy[i][j]));
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
-    private void setProbabilityPoint(Point p){
-
-        ArrayList<Point> points = new ArrayList<>();
-
-        int max = 0;
-        for(int i = 0; i < this.probs.length; i++){
-            for(int j = 0; j < this.probs.length; j++){
-                if(this.probs[i][j] > max){
-                    points.clear();
-                    points.add(new Point(i,j));
-                    max = this.probs[i][j];
-                }else if(this.probs[i][j] == max){
-                    points.add(new Point(i,j));
-                }
-            }
-        }
-
-        p.setLocation(points.get((int) (Math.random() * points.size())));
-        System.out.println(p.getLocation());
-    }
-
-    private void setArrayTo0(int[][] arr){
-
-        for (int i = 0; i < arr.length; i++) {
-            for (int j = 0; j < arr.length; j++) {
-               arr[i][j] = 0;
-            }
-        }
     }
 
     private void nextMove(Point p) throws IOException {
 
-        Point pmax;
-
         if(this.direction == 0){
 
-            ArrayList<Point> temp = new ArrayList<>(4);
-            temp.add(new Point(p.x - 1,p.y));
-            temp.add(new Point(p.x + 1,p.y));
-            temp.add(new Point(p.x,p.y - 1));
-            temp.add(new Point(p.x,p.y + 1));
+            if(!neighbousSet){
 
-            for(int i = 0; i < temp.size(); i++){
-                Point tempPoint = temp.get(i);
-                if(tempPoint.x < 0 || tempPoint.x >= this.size || tempPoint.y < 0 || tempPoint.y >= this.size || this.enemy[tempPoint.x][tempPoint.y] == 1){
-                    temp.remove(tempPoint);
-                }
+                this.hitpoint = p;
+                this.neighbours.add(new Point(p.x - 1, p.y));
+                this.neighbours.add(new Point(p.x + 1, p.y));
+                this.neighbours.add(new Point(p.x, p.y - 1));
+                this.neighbours.add(new Point(p.x, p.y + 1));
+
+                removeNeighbours();
+
+                neighbousSet = true;
+                this.deadEnd = false;
             }
 
-            this.focusPoint = p;
 
-            while(this.direction == 0 && this.hit){
-                patternFinding();
-                pmax = getMaxPoint(temp);
-                this.probPoint = pmax;
-                kiShot(this.probPoint);
+            this.focusPoint = this.hitpoint;
+
+            this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+            this.probPoint = getMaxPoint(this.neighbours);
+            kiShot(this.probPoint);
+
+        }else{
+            move2();
+        }
+
+    }
+
+    private void removeNeighbours(){
+
+        //Point out of Bounds and field == 1
+        for(int i = 0; i < this.neighbours.size(); i++){
+            Point tempPoint = this.neighbours.get(i);
+            if(Helper.pointOutOfBounds(tempPoint, this.size) || this.enemy[tempPoint.x][tempPoint.y] == 1){
+                this.neighbours.remove(tempPoint);
+                i--;
             }
         }
 
-        this.probPoint = p;
+        int length;
 
-        for(int i = -1; i <= 1 && this.direction == 2 && this.hit; i += 2)  move(p, i, 0);
 
-        for(int i = -1; i <= 1 && this.direction == 1 && this.hit; i += 2)  move(p, 0, i);
 
+
+
+    }
+
+    private void move2() throws IOException {
+
+        if(!this.deadEnd) {
+
+            ArrayList<Point> points = Helper.getStartAndEndPoints(this.cords);
+
+            Point one = points.get(0);
+            Point two = points.get(points.size() - 1);
+
+            if(this.direction == 2) this.probPoint = getMaxPoint(new Point(one.x - 1, one.y), new Point(two.x + 1, two.y));
+
+            if(this.direction == 1) this.probPoint = getMaxPoint(new Point(one.x, one.y - 1), new Point(two.x , two.y + 1));
+
+            kiShot(this.probPoint);
+        }
+    }
+
+    private Point getMaxPoint(Point one ,Point two){
+
+        if(Helper.pointOutOfBounds(one, this.size) || this.enemy[one.x][one.y] == 1) return two;
+        if(Helper.pointOutOfBounds(two, this.size) || this.enemy[two.x][two.y] == 1) return one;
+
+        ArrayList<Point> temp = new ArrayList<>(2);
+        temp.add(one);
+        temp.add(two);
+        return this.getMaxPoint(temp);
     }
 
     private Point getMaxPoint(ArrayList<Point> arr){
@@ -306,7 +313,7 @@ public class KI {
         Point p = new Point();
 
         for(int i = 0; i < arr.size(); i++){
-            if(this.probs[arr.get(i).x][arr.get(i).y] >= max){
+            if(this.probs[arr.get(i).x][arr.get(i).y] >= max && this.enemy[arr.get(i).x][arr.get(i).y] == 0){
                 max = this.probs[arr.get(i).x][arr.get(i).y];
                 p = arr.get(i);
             }
@@ -320,63 +327,120 @@ public class KI {
         if(this.probPoint.y == this.focusPoint.y) this.direction = 2;
     }
 
-    private void move(Point p, int cordx, int cordy) throws IOException {
-
-        this.deadEnd = false;
-        this.probPoint = p;
-
-        while(!this.deadEnd){
-
-            this.probPoint.x += cordx;
-            this.probPoint.y += cordy;
-
-
-            if(this.probPoint.x < 0 || this.probPoint.x >= this.size || this.probPoint.y < 0 || this.probPoint.y >= this.size || this.enemy[this.probPoint.x][this.probPoint.y] == 1){
-
-                this.deadEnd = true;
-                break;
-
-            }else if(this.enemy[this.probPoint.x][this.probPoint.y] == 2){
-                continue;
-            }
-
-            kiShot(this.probPoint);
-        }
-    }
-
     private void deleteShip() throws IOException {
 
         switch(this.cords.size()){
 
-            case 5: this.ships[0]--; break;
-            case 4: this.ships[1]--; break;
-            case 3: this.ships[2]--; break;
-            case 2: this.ships[3]--; break;
+            case 5: this.shipsEnemy[0]--; break;
+            case 4: this.shipsEnemy[1]--; break;
+            case 3: this.shipsEnemy[2]--; break;
+            case 2: this.shipsEnemy[3]--; break;
         }
         this.cords.clear();
     }
 
-    private void setBorders(){
+    private void setBorders(ArrayList<Point> arr, int[][] field){
 
-        for(int i = 0; i < this.cords.size(); i++){
+        for(int i = 0; i < arr.size(); i++){
 
             ArrayList<Point> temp = new ArrayList<>();
             for(int j = -1; j <= 1; j++){
                 for(int k = -1; k <= 1; k++){
-                    Point tempPoint = this.cords.get(i);
+                    Point tempPoint = arr.get(i);
                     if(tempPoint.x + j >= 0 && tempPoint.x + j < this.size && tempPoint.y + k >= 0 && tempPoint.y + k < this.size)
                         temp.add(new Point(tempPoint.x + j, tempPoint.y + k));
                 }
             }
 
             for(Point p : temp){
-                if(this.enemy[p.x][p.y] != 2) this.enemy[p.x][p.y] = 1;
+                if(field[p.x][p.y] != 2) field[p.x][p.y] = 1;
             }
+        }
+    }
+
+    private void placeShips() {
+
+        int count = 0;
+
+        for(int i = 0; i < this.ships.length; i++) {
+            if (this.ships[i] != 0) {
+                for (int j = 0; j < this.ships[i]; j++) {
+                    ArrayList<Point> cordsShip = new ArrayList<>(5 - i);
+                    boolean success = false;
+                    Point place = new Point(-1, -1);
+                    int d;
+
+                    if ((int) (Math.random() * 6 + 1) <= 3) d = 1;
+                    else d = 2;
+                    int x = 0;
+
+                    while(!success){
+                        x++;
+                        place.setLocation((int) (Math.random() * this.size), (int) (Math.random() * this.size));
+                        success = true;
+                        while (success && cordsShip.size() < 5 - i) {
+
+                            if (this.game[place.x][place.y] == 0) {
+                                cordsShip.add(place);
+
+                                if (d == 2)
+                                    place = new Point(place.x + 1, place.y);
+                                else
+                                    place = new Point(place.x, place.y + 1);
+
+
+                                if (place.x < 0 || place.x >= this.size || place.y < 0 || place.y >= this.size) {
+                                    success = false;
+                                    cordsShip.clear();
+                                }
+
+
+                                if (cordsShip.size() > 0 && ((d == 2 && place.x == this.size - 1) || (d == 1 && place.y == this.size - 1))) {
+                                    success = false;
+                                    cordsShip.clear();
+                                }
+
+
+                            } else {
+                                success = false;
+                                cordsShip.clear();
+                            }
+
+                        }
+
+                        if(x > 1000){
+                            count = -1;
+                            break;
+                        }
+
+                    }
+                    for (Point p : cordsShip) this.game[p.x][p.y] = 2;
+                    this.myShips.add(new Ship(cordsShip, d));
+                    setBorders(cordsShip, this.game);
+                    cordsShip.clear();
+                    count++;
+                }
+            }
+        }
+        clearArray(this.game, 1);
+
+        if(count != this.shipSum){
+            Helper.printGame(this.game, this.enemy);
+            System.out.println("Retry");
+
+            clearArray(this.game, 2);
+            this.myShips.clear();
+            placeShips();
         }
     }
 
     public static void main(String[] args){
 
-        try{ new KI(true); } catch(Exception e){ e.printStackTrace(); }
+        try{
+            new KI("127.0.0.1",true);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }
