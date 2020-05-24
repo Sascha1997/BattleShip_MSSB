@@ -9,20 +9,25 @@ public class KI {
     private int[] shipsEnemy = new int[4];
     private int[] ships = new int[4];
     private ArrayList<Point> cords = new ArrayList<>();
-    private ArrayList<Point> neighbours = new ArrayList<>(4);
+    private ArrayList<Point> neighbours = new ArrayList<>();
     private ArrayList<Ship> myShips = new ArrayList<>();
     private Point focusPoint = new Point(-1,-1);
     private Point probPoint = new Point(-1,-1);
-    private Point hitpoint = new Point(-1,-1);
-    private boolean hit = false, deadEnd = false, gameEnd = false, turn = true, neighbousSet = false;
+    private Point hitPoint = new Point(-1,-1);
+    private boolean hit = false;
+    private boolean deadEnd = false;
+    private boolean gameEnd = false;
+    private boolean turn;
+    private boolean neighborsSet = false;
     private int size = 0;
-    private int shots = 0, hits = 0;
+    private int shots = 0 ;
+    private int hits = 0;
     private int direction = 0;
     private int shipSum;
     private PrintWriter out;
     private BufferedReader in;
 
-    public KI (String ip, boolean first) throws IOException, ArrayIndexOutOfBoundsException{
+    public KI (String ip, boolean first) throws IOException{
 
         Socket socket = new Socket(ip, 50000);
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -37,27 +42,18 @@ public class KI {
 
             if(this.gameEnd){ socket.close(); break;}
 
-            if(first){
-                if(this.turn){
-                    play();
-                }
-
+            if(this.turn)
+                play();
+            else
                 distribute(in.readLine());
 
-            }else{
-
-                distribute(in.readLine());
-
-                if(this.turn){
-                    play();
-                }
-            }
+            if(this.turn) distribute(in.readLine());
         }
     }
 
-    private void distribute(String s) throws IOException, ArrayIndexOutOfBoundsException {
+    private void distribute(String s){
 
-        String[] data = s.split(" ");
+         String[] data = s.split(" ");
 
         switch(data[0]){
             case "setup": setUpGame(data);
@@ -76,7 +72,7 @@ public class KI {
         }
     }
 
-    private void play() throws IOException, ArrayIndexOutOfBoundsException {
+    private void play(){
 
         if(this.hit){
             nextMove(this.probPoint);
@@ -90,7 +86,7 @@ public class KI {
         }
     }
 
-    private void checkIfGameOver() throws IOException{
+    private void checkIfGameOver(){
 
         int s1 = 0;
         int s2 = 0;
@@ -102,9 +98,14 @@ public class KI {
 
         if(s1 == 0 || s2 == 0){
             this.gameEnd = true;
-            System.out.println("Spiel ist vorbei!");
+            if (s2 == 0) {
+                System.out.println("Gewonnen!");
+            } else {
+                System.out.println("Verloren!");
+            }
             System.out.println("Shots: " + this.shots);
             System.out.println("davon Hits: " + this.hits);
+            System.out.println("Fehlertreffer: " + (this.shots - this.hits));
             System.out.printf("Trefferquote: %.2f%%%n", ((double) this.hits / this.shots) * 100);
         }
     }
@@ -128,6 +129,9 @@ public class KI {
 
         placeShips();
         Helper.printGame(this.game, this.enemy);
+        System.out.println("Confirmed");
+        this.out.write("confirmed\n");
+        this.out.flush();
     }
 
     public void clearArray(int[][] arr, int digit){
@@ -139,7 +143,7 @@ public class KI {
         }
     }
 
-    private void shot(String[] data) throws IOException {
+    private void shot(String[] data){
 
         String line;
 
@@ -172,39 +176,34 @@ public class KI {
         this.out.flush();
     }
 
-    private void kiShot(Point p) throws IOException, ArrayIndexOutOfBoundsException {
+    private void kiShot(Point p){
 
         this.shots++;
         this.out.write("shot " + p.x + " " + p.y + "\n");
         this.out.flush();
-        distribute(in.readLine());
     }
 
-    private void answers(String[] data) throws IOException, ArrayIndexOutOfBoundsException {
+    private void answers(String[] data){
 
         switch(data[1]){
             case "0": this.enemy[this.probPoint.x][this.probPoint.y] = 1;
                       System.out.println(this.probPoint);
                       this.turn = false;
                       System.out.println("Kein Hit");
-                      this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+                      if(!this.hit) this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
                       Helper.printGame(this.probs, this.enemy);
-
                       this.out.write("pass\n");
                       this.out.flush();
-
                 break;
             case "1": this.enemy[this.probPoint.x][this.probPoint.y] = 2;
                       System.out.println(this.probPoint);
                       System.out.println("Hit");
                       this.turn = true;
-                      this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+                      if(!this.hit) this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
                       Helper.printGame(this.probs, this.enemy);
-
                       this.cords.add(new Point(this.probPoint));
                       if(this.cords.size() == 2) setDirection();
                       this.hits++;
-
                       this.hit = true;
                 break;
             case "2": this.hit = false;
@@ -212,15 +211,13 @@ public class KI {
                       System.out.println(this.probPoint);
                       System.out.println("Hit - Versenkt");
                       this.turn = true;
-                      this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
                       neighbours.clear();
-                      neighbousSet = false;
-
+                      neighborsSet = false;
                       this.cords.add(new Point(this.probPoint));
                       this.hits++;
-
                       this.deadEnd = true;
                       setBorders(this.cords, this.enemy);
+                      this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
                       Helper.printGame(this.probs, this.enemy);
                       deleteShip();
                       this.direction = 0;
@@ -229,13 +226,13 @@ public class KI {
 
     }
 
-    private void nextMove(Point p) throws IOException {
+    private void nextMove(Point p){
 
         if(this.direction == 0){
 
-            if(!neighbousSet){
+            if(!neighborsSet){
 
-                this.hitpoint = p;
+                this.hitPoint = p;
                 this.neighbours.add(new Point(p.x - 1, p.y));
                 this.neighbours.add(new Point(p.x + 1, p.y));
                 this.neighbours.add(new Point(p.x, p.y - 1));
@@ -243,21 +240,37 @@ public class KI {
 
                 removeNeighbours();
 
-                neighbousSet = true;
+                neighborsSet = true;
                 this.deadEnd = false;
             }
 
+            this.focusPoint = this.hitPoint;
 
-            this.focusPoint = this.hitpoint;
+            ArrayList <Point> cordi = new ArrayList<>();
+            ArrayList <Point> cordj = new ArrayList<>();
 
-            this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+            int[][] arr = new int[this.size][this.size];
+            Helper.setArray(arr, 1);
+
+            cordi.add(this.hitPoint);
+            cordj.add(this.hitPoint);
+
+            for(int i = -1; i < 2; i += 2){
+                getSizeFromToPoint(cordi, i, 0);
+                getSizeFromToPoint(cordj,0,i);
+            }
+
+            for (Point point : cordi) arr[point.x][point.y] = 0;
+
+            for (Point point : cordj) arr[point.x][point.y] = 0;
+
+            this.probs = Helper.patternFinding(arr, this.shipsEnemy);
             this.probPoint = getMaxPoint(this.neighbours);
             kiShot(this.probPoint);
 
         }else{
             move2();
         }
-
     }
 
     private void removeNeighbours(){
@@ -271,15 +284,60 @@ public class KI {
             }
         }
 
-        int length;
+        ArrayList <Point> cordi = new ArrayList<>();
+        ArrayList <Point> cordj = new ArrayList<>();
 
+        cordi.add(this.hitPoint);
+        cordj.add(this.hitPoint);
 
+        for(int i = -1; i < 2; i += 2){
+            getSizeFromToPoint(cordi, i, 0);
+            getSizeFromToPoint(cordj,0,i);
+        }
 
-
-
+        removeNeighbourHelper(cordi);
+        removeNeighbourHelper(cordj);
     }
 
-    private void move2() throws IOException {
+    private void removeNeighbourHelper(ArrayList<Point> arr){
+
+        int focus = 0;
+        for(int i = 0; i < this.shipsEnemy.length; i++){
+            if(this.shipsEnemy[3 - i] != 0){
+                focus = 2 + i;
+                break;
+            }
+        }
+
+        for(int i = 0; i < this.shipsEnemy.length; i++) {
+            if(this.shipsEnemy[i] != 0 && 5 - i == focus){
+                if (arr.size() < 5 - i && arr.size() != 1) {
+                    outer:
+                    for (int j = 0; j < this.neighbours.size(); j++) {
+                        for (Point point : arr) {
+                            if (this.neighbours.get(j).x == point.x && this.neighbours.get(j).y == point.y) {
+                                this.neighbours.remove(j);
+                                j--;
+                                continue outer;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void getSizeFromToPoint(ArrayList<Point> arr, int i, int j){
+
+        Point p = new Point(this.hitPoint.x + i, this.hitPoint.y + j);
+
+        while(!Helper.pointOutOfBounds(p, this.size) && this.enemy[p.x][p.y] == 0){
+            arr.add(new Point(p));
+            p = new Point(p.x += i, p.y += j);
+        }
+    }
+
+    private void move2(){
 
         if(!this.deadEnd) {
 
@@ -312,10 +370,10 @@ public class KI {
         int max = 0;
         Point p = new Point();
 
-        for(int i = 0; i < arr.size(); i++){
-            if(this.probs[arr.get(i).x][arr.get(i).y] >= max && this.enemy[arr.get(i).x][arr.get(i).y] == 0){
-                max = this.probs[arr.get(i).x][arr.get(i).y];
-                p = arr.get(i);
+        for (Point point : arr) {
+            if (this.probs[point.x][point.y] >= max && this.enemy[point.x][point.y] == 0) {
+                max = this.probs[point.x][point.y];
+                p = point;
             }
         }
         return p;
@@ -327,7 +385,7 @@ public class KI {
         if(this.probPoint.y == this.focusPoint.y) this.direction = 2;
     }
 
-    private void deleteShip() throws IOException {
+    private void deleteShip(){
 
         switch(this.cords.size()){
 
@@ -341,19 +399,18 @@ public class KI {
 
     private void setBorders(ArrayList<Point> arr, int[][] field){
 
-        for(int i = 0; i < arr.size(); i++){
+        for (Point point : arr) {
 
             ArrayList<Point> temp = new ArrayList<>();
-            for(int j = -1; j <= 1; j++){
-                for(int k = -1; k <= 1; k++){
-                    Point tempPoint = arr.get(i);
-                    if(tempPoint.x + j >= 0 && tempPoint.x + j < this.size && tempPoint.y + k >= 0 && tempPoint.y + k < this.size)
-                        temp.add(new Point(tempPoint.x + j, tempPoint.y + k));
+            for (int j = -1; j <= 1; j++) {
+                for (int k = -1; k <= 1; k++) {
+                    if (point.x + j >= 0 && point.x + j < this.size && point.y + k >= 0 && point.y + k < this.size)
+                        temp.add(new Point(point.x + j, point.y + k));
                 }
             }
 
-            for(Point p : temp){
-                if(field[p.x][p.y] != 2) field[p.x][p.y] = 1;
+            for (Point p : temp) {
+                if (field[p.x][p.y] != 2) field[p.x][p.y] = 1;
             }
         }
     }
@@ -434,13 +491,8 @@ public class KI {
         }
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
 
-        try{
-            new KI("127.0.0.1",true);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
+        new KI("127.0.0.1",true);
     }
 }

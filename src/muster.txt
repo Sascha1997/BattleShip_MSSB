@@ -1,0 +1,21 @@
+//ID als Name
+date, time
+size
+myfield
+enemyfield
+myships
+enemyships
+cords
+neighbours
+myShips
+focuspoint
+hitpoint
+hit
+deadend
+neighbousSet
+shots
+hits
+dircetion
+shipsum
+
+
