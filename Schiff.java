@@ -21,10 +21,16 @@ public class Schiff {
 		//String[0] ist die Zeilennummer und String[1] die Spaltennummer
 		
 		String[]eingabe = benutzereingabe.split(" ");
-		
-		//Umwandeln der Reiheneingabe in Buchstaben zum anpassen für unser Spielfeld und dann zusammensetzen als Eingabe String
-		
-		String zellenname = String.valueOf(SpielHelfer.alphabet.charAt(Integer.parseInt(eingabe[0])))+eingabe[1];
+		//Benutzereingabe in Format XXXX bringen z.B. 0508 für Zeile 5 Spalte 8
+		String zellenname="";
+		for(int i=0;i<2;i++) {
+			if(eingabe[i].length()==1) {
+				zellenname = "0"+eingabe[i];
+			}else {
+				zellenname = eingabe [i];
+			}
+		}
+
 		
 		//Prüfen ob Eingabe zum Treffer geführt hat
 		

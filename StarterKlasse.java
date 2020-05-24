@@ -21,16 +21,27 @@ public class StarterKlasse {
     
 	public static void main(String[] args) throws IOException {
 		
+		
 		SchiffeVersenken spiel = new SchiffeVersenken(); //Spielobjekt erzeugen
 		String spielfeld; //String für die Spielfeldgröße und die Schiffsmengen
 		String ipAdress = "";
+		
+		//Anfangs Gui-Fenster starten mit Modusauswahl etc
 		
 		
 		final int port = 50001;
 		
 		//Hier über Gui, Moduswahl Ob Offline, Online etc .. 
+		/*if(moduswahl==1) {
+			//Onlinespiel
+		}else {
+			//KI Spielt
+		}*/
 		
+		
+		//HIer dann bereits GUi aufs nächste Fenster und Ladebalken oder Ladekreis mit "Warten auf Verbindung mit Gegner" 
 		Socket s;
+		
 				
 		if(args.length==0) {
 			role = "Server";
@@ -62,9 +73,9 @@ public class StarterKlasse {
 		}
 		
 		System.out.println("Connection established.");
+		//In der Gui ausgeben, dass Verbindun besteht
 		
 		//Ein und Ausgabestrom des Sockets ermitteln und als BufferedReader bzw. Writerverpacken
-		
 		in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 		out = new OutputStreamWriter(s.getOutputStream());
 		helfer = new SpielHelfer();
@@ -83,23 +94,26 @@ public class StarterKlasse {
 			spielfeld = in.readLine();	//Belegung des Spielfeldes vom Gegner lesen
 			System.out.println("Vom Server die Spielgröße mitgeteilt bekommen");
 			System.out.println("In.Readline(): "+spielfeld);
+			
 		}
 			
-		//Spielfeld einrichten
+		
 		spiel.spieleinrichten(spielfeld);
+		//Spielfeld einrichten und unser Spielfeld anzeigen auf dem Fenster für den Gegner ein leeres Fenster
+		
 		
 		//Mitteilen, dass das Programm bereit ist zum Spielen
 		out.write("confirmed\n");
 		out.flush();
-	
 		
+		//Hier wieder Ladekreis mit "Warten bis der Gegner Spielbereit ist" 
 		if(in.readLine().equals("confirmed")) {
 			//Beide Parteien sind bereit zum Spielen --> Spielbeginn
 			System.out.println("BeideParteien sind bereit zum Spielen");
+			//Hier eventuell noch eine kleine Animation mit "Das Spiel beginnt"
 			spiel.beginneSpiel(StarterKlasse.in, StarterKlasse.out,StarterKlasse.role);
 		}
 		
-
 
 	}
 

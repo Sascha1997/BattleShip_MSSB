@@ -8,89 +8,21 @@ import java.util.Random;
 
 public class SpielHelfer {
 
-	
-	static final String alphabet = "abcdefghijklmnopqrstuvwxyzäöü*";
 	private int rasterLaenge;
 	private int rasterGroeße;
 	private int [] raster;
 	private int schiffAnzahl = 0;
 	
 	
-	//Ließt die Benutzereingabe ein und gibt diese zurück
-	public String getBenutzereingabe(String eingabe) {
-		
-		String eingabeZeile = null;
-		System.out.println(eingabe +" ");
-		try {
-			BufferedReader is = new BufferedReader(new InputStreamReader(System.in));
-			eingabeZeile = is.readLine();
-			if(eingabeZeile.length()==0) return null;
-			
-		}catch (IOException e) {
-			System.out.println("IOException: "+e);
-		}
-		
-		return eingabeZeile.toLowerCase();
-	}
-
-	//Aktuell werden Schiffe nur zufällig plaziert, Methode muss umgeschrieben werden auf vorgeschriebene Orte
 	
-	public ArrayList<String> plaziereSchiff(int schiffGroeße) {
+
+	//Die ArrayList enthält den bereich an dem sich das Schiff befindet. z.B. bereich(0) = 1010 bereich (1) = 1110 bereich(2) = 1210 ..
+	
+	public boolean plaziereSchiff(ArrayList <String> bereich) {
+		//Hier wird geprüft, ob es möglich ist das Schiff an der entsprechend ausgewählten Stelle zu plazieren
+		//Returnt true oder false je nachdem ob es Möglich ist so ein Schiff noch zu plazieren
 		
-		ArrayList <String> alphaZellen = new ArrayList <String>(); //Koordinaten der Form wie z.b. a1, a2, e5 usw..
-		String temp = null;
-		int [] koordinaten = new int [schiffGroeße];		//aktuelle Koordinatenmöglichkeiten
-		int versuche = 0;									//Versuchszähler
-		boolean erfolg = false;								//Wurde ein Ort gefunden?
-		int ort = 0;										//aktuelle Startposition
-		
-		schiffAnzahl++; 									//Erhöhung Anzahl Schiffe, variable enthält Anzahl der bereits plazierten
-		int inkrement = 1;
-		
-		if((schiffAnzahl%2)==1) {
-			inkrement = rasterLaenge;	//Plaziert Schiffe vertikal oder horizontal je nachdem das wie vielte es ist
-		}
-		
-		while(!erfolg&versuche++<200) {
-			ort = (int) (Math.random()*rasterGroeße); //Sucht einen zufälligen Ort und holt dafür zufälligen Startpunkt
-			int x = 0;
-			erfolg = true;
-			while (erfolg && x < schiffGroeße) {
-				if(this.raster[ort]==0) {
-					koordinaten[x++]=ort;
-					ort +=inkrement;
-					if(ort>=rasterGroeße) {
-						erfolg =false;
-					}
-					if(x>0 &(ort%this.rasterLaenge==0)) {
-						erfolg =false;
-					}
-				}else {
-					erfolg = false;
-				}
-			}
-		}
-		
-		//Ort in alphabetische Koordinaten umwandeln
-		
-		int x = 0;
-		int zeile = 0;
-		int spalte = 0;
-		
-		while (x<schiffGroeße) {
-			this.raster[koordinaten[x]]= 1;				//Punkte im Raster als verwendet markieren
-			zeile = (int) (koordinaten[x]/rasterLaenge); //Zeilenwert holen
-			spalte = koordinaten[x] % this.rasterLaenge; //numerischen Spaltenwert holen
-			temp = String.valueOf(SpielHelfer.alphabet.charAt(spalte)); //in alphabetisches Zeichen umwandeln
-			
-			alphaZellen.add(temp.concat(Integer.toString(zeile)));
-			x++;
-			
-			System.out.println(" Koordianten "+x+" = "+ alphaZellen.get(x-1)); //Zeigt wo das Schiff plaziert wurde
-		}
-		
-		System.out.println("\n");
-		return alphaZellen;
+		return false;
 	}
 	
 	public String kalkuliereSchiffe(int groeße) {
