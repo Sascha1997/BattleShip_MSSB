@@ -15,7 +15,6 @@ public class KI {
     private Point probPoint = new Point(-1,-1);
     private Point hitPoint = new Point(-1,-1);
     private boolean hit = false;
-    private boolean deadEnd = false;
     private boolean gameEnd = false;
     private boolean turn;
     private boolean neighborsSet = false;
@@ -215,7 +214,6 @@ public class KI {
                       neighborsSet = false;
                       this.cords.add(new Point(this.probPoint));
                       this.hits++;
-                      this.deadEnd = true;
                       setBorders(this.cords, this.enemy);
                       this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
                       Helper.printGame(this.probs, this.enemy);
@@ -241,7 +239,6 @@ public class KI {
                 removeNeighbours();
 
                 neighborsSet = true;
-                this.deadEnd = false;
             }
 
             this.focusPoint = this.hitPoint;
@@ -339,7 +336,7 @@ public class KI {
 
     private void move2(){
 
-        if(!this.deadEnd) {
+
 
             ArrayList<Point> points = Helper.getStartAndEndPoints(this.cords);
 
@@ -351,7 +348,7 @@ public class KI {
             if(this.direction == 1) this.probPoint = getMaxPoint(new Point(one.x, one.y - 1), new Point(two.x , two.y + 1));
 
             kiShot(this.probPoint);
-        }
+
     }
 
     private Point getMaxPoint(Point one ,Point two){
