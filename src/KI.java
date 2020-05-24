@@ -237,7 +237,6 @@ public class KI {
                 this.neighbours.add(new Point(p.x, p.y + 1));
 
                 removeNeighbours();
-
                 neighborsSet = true;
             }
 
@@ -289,7 +288,7 @@ public class KI {
 
         for(int i = -1; i < 2; i += 2){
             getSizeFromToPoint(cordi, i, 0);
-            getSizeFromToPoint(cordj,0,i);
+            getSizeFromToPoint(cordj,0, i);
         }
 
         removeNeighbourHelper(cordi);
@@ -313,8 +312,7 @@ public class KI {
                     for (int j = 0; j < this.neighbours.size(); j++) {
                         for (Point point : arr) {
                             if (this.neighbours.get(j).x == point.x && this.neighbours.get(j).y == point.y) {
-                                this.neighbours.remove(j);
-                                j--;
+                                this.neighbours.remove(j--);
                                 continue outer;
                             }
                         }
@@ -336,19 +334,15 @@ public class KI {
 
     private void move2(){
 
+        ArrayList<Point> points = Helper.getStartAndEndPoints(this.cords);
 
+        Point one = points.get(0);
+        Point two = points.get(points.size() - 1);
 
-            ArrayList<Point> points = Helper.getStartAndEndPoints(this.cords);
+        if(this.direction == 2) this.probPoint = getMaxPoint(new Point(one.x - 1, one.y), new Point(two.x + 1, two.y));
+        if(this.direction == 1) this.probPoint = getMaxPoint(new Point(one.x, one.y - 1), new Point(two.x , two.y + 1));
 
-            Point one = points.get(0);
-            Point two = points.get(points.size() - 1);
-
-            if(this.direction == 2) this.probPoint = getMaxPoint(new Point(one.x - 1, one.y), new Point(two.x + 1, two.y));
-
-            if(this.direction == 1) this.probPoint = getMaxPoint(new Point(one.x, one.y - 1), new Point(two.x , two.y + 1));
-
-            kiShot(this.probPoint);
-
+        kiShot(this.probPoint);
     }
 
     private Point getMaxPoint(Point one ,Point two){
@@ -385,7 +379,6 @@ public class KI {
     private void deleteShip(){
 
         switch(this.cords.size()){
-
             case 5: this.shipsEnemy[0]--; break;
             case 4: this.shipsEnemy[1]--; break;
             case 3: this.shipsEnemy[2]--; break;
