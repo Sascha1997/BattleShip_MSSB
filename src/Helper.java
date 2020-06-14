@@ -107,4 +107,19 @@ public class Helper {
         }
     }
 
+    public static String pointArrayToString(ArrayList<Point> arr){
+
+        StringBuilder s = new StringBuilder();
+        for(Point p : arr){
+            s.append(p.x).append(":").append(p.y).append(" ");
+        }
+        return s.toString();
+    }
+
+    public static String pointToString(Point p){
+        ArrayList<Point> temp = new ArrayList<>();
+        temp.add(p);
+        return pointArrayToString(temp);
+    }
+
 }

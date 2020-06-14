@@ -1,16 +1,20 @@
 import java.awt.*;
 import java.io.*;
+import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 public class KI {
 
-    private int[][] game, probs, enemy;
-    private int[] shipsEnemy = new int[4];
-    private int[] ships = new int[4];
+    private int[][] gamefield, probs, enemyfield;
+    private int[] availableShipsEnemy = new int[4];
+    private int[] availableShipsKI = new int[4];
     private ArrayList<Point> cords = new ArrayList<>();
     private ArrayList<Point> neighbours = new ArrayList<>();
-    private ArrayList<Ship> myShips = new ArrayList<>();
+    private ArrayList<ShipX> shipsKI = new ArrayList<>();
     private Point focusPoint = new Point(-1,-1);
     private Point probPoint = new Point(-1,-1);
     private Point hitPoint = new Point(-1,-1);
@@ -22,20 +26,38 @@ public class KI {
     private int shots = 0 ;
     private int hits = 0;
     private int direction = 0;
-    private int shipSum;
+    private int shipSum = 0;
     private PrintWriter out;
     private BufferedReader in;
 
-    public KI (String ip, boolean first) throws IOException{
+    public KI(boolean first) throws IOException{
 
-        Socket socket = new Socket(ip, 50000);
+        new Files();
+        Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
+        StringBuilder ip = new StringBuilder();
+        while (nis.hasMoreElements()) {
+            NetworkInterface ni = nis.nextElement();
+            Enumeration<InetAddress> ias = ni.getInetAddresses();
+            while (ias.hasMoreElements()) {
+                InetAddress ia = ias.nextElement();
+                if (!ia.isLoopbackAddress()) {
+                    ip.append(" ").append(ia.getHostAddress());
+                    break;
+                }
+            }
+        }
+
+        String[] parts = ip.toString().split(" ");
+        Socket socket = new Socket(parts[1],50000);
+
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.out = new PrintWriter(socket.getOutputStream());
         this.turn = first;
 
-        distribute(in.readLine());
-        this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
-        Helper.printGame(this.probs, this.enemy);
+        String setup = in.readLine();
+        distribute(setup);
+        if(setup.startsWith("s")) this.probs = Helper.patternFinding(this.enemyfield, this.availableShipsEnemy);
+        Helper.printGame(this.probs, this.enemyfield);
 
         while(true){
 
@@ -52,7 +74,7 @@ public class KI {
 
     private void distribute(String s){
 
-         String[] data = s.split(" ");
+        String[] data = s.split(" ");
 
         switch(data[0]){
             case "setup": setUpGame(data);
@@ -61,14 +83,76 @@ public class KI {
                 break;
             case "answer": answers(data);
                 break;
-            case "load":
+            case "load": load(data);
                 break;
-            case "save":
+            case "save": save(data);
+                        this.out.write("pass\n");
+                        this.out.flush();
                 break;
             case "pass": return;
 
             default: System.out.println("Falsche Eingabe");
         }
+    }
+
+    private void load(String[] data){
+        Object[] temp = Files.load(data[1]);
+
+        int[][][] fields = (int[][][]) temp[0];
+        int[][] availableShips = (int[][]) temp[1];
+        ArrayList<ArrayList<Point>> pointArrays = (ArrayList<ArrayList<Point>>) temp[2];
+        Point[] points = (Point[]) temp[3];
+        ArrayList<ShipX> ships = (ArrayList<ShipX>) temp[4];
+        boolean[] bool = (boolean[]) temp[5];
+        int[] integer = (int[]) temp[6];
+
+        this.gamefield = fields[0];
+        this.probs = fields[1];
+        this.enemyfield = fields[2];
+
+        this.availableShipsEnemy = availableShips[0];
+        this.availableShipsKI = availableShips[1];
+
+        this.cords = pointArrays.get(0);
+        this.neighbours = pointArrays.get(1);
+
+        this.focusPoint = points[0];
+        this.probPoint = points[1];
+        this.hitPoint = points[2];
+
+        this.shipsKI = ships;
+
+        this.hit = bool[0];
+        this.gameEnd = bool[1];
+        this.turn = bool[2];
+        this.neighborsSet = bool[3];
+
+        this.size = integer[0];
+        this.shots = integer[1];
+        this.hits = integer[2];
+        this.direction = integer[3];
+        this.shipSum = integer[4];
+
+        this.out.write("confirmed\n");
+        this.out.flush();
+    }
+
+    private void save(String[] data){
+        System.out.println("SAVE");
+
+        int[][][] fields = {this.gamefield, this.probs, this.enemyfield};
+        int[][] availableShips = {this.availableShipsEnemy, this.availableShipsKI};
+
+        ArrayList<ArrayList<Point>> pointArrays = new ArrayList<>(2);
+        pointArrays.add(this.cords);
+        pointArrays.add(this.neighbours);
+
+        Point[] points = {this.focusPoint, this.probPoint, this.hitPoint};
+        boolean[] bool = {this.hit, this.gameEnd, this.turn, this.neighborsSet};
+        int[] integer = {this.size, this.shots, this.hits, this.direction, this.shipSum};
+
+
+        Files.save(data[1], fields, availableShips, pointArrays, points, this.shipsKI, bool, integer);
     }
 
     private void play(){
@@ -79,7 +163,7 @@ public class KI {
 
         if(!this.hit && !this.gameEnd){
 
-            this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
+            this.probs = Helper.patternFinding(this.enemyfield, this.availableShipsEnemy);
             this.probPoint = Helper.getProbabilityPoint(this.probs);
             kiShot(this.probPoint);
         }
@@ -90,9 +174,9 @@ public class KI {
         int s1 = 0;
         int s2 = 0;
 
-        for(int i = 0; i < this.ships.length; i++){
-            s1 += this.ships[i];
-            s2 += this.shipsEnemy[i];
+        for(int i = 0; i < this.availableShipsKI.length; i++){
+            s1 += this.availableShipsKI[i];
+            s2 += this.availableShipsEnemy[i];
         }
 
         if(s1 == 0 || s2 == 0){
@@ -112,22 +196,22 @@ public class KI {
     private void setUpGame(String[] data) {
 
         this.size = Integer.parseInt(data[1]);
-        this.game = new int[this.size][this.size];
-        this.enemy = new int[this.size][this.size];
+        this.gamefield = new int[this.size][this.size];
+        this.enemyfield = new int[this.size][this.size];
         this.probs = new int[this.size][this.size];
 
-        clearArray(this.enemy, 0);
+        clearArray(this.enemyfield, 0);
 
         for(int i = 2; i < data.length; i++){
 
             int zahl = Integer.parseInt(data[i]);
-            this.shipsEnemy[i-2] = zahl;
-            this.ships[i-2] = zahl;
+            this.availableShipsEnemy[i-2] = zahl;
+            this.availableShipsKI[i-2] = zahl;
             this.shipSum += zahl;
         }
 
         placeShips();
-        Helper.printGame(this.game, this.enemy);
+        Helper.printGame(this.gamefield, this.enemyfield);
         System.out.println("Confirmed");
         this.out.write("confirmed\n");
         this.out.flush();
@@ -149,9 +233,9 @@ public class KI {
         int index = -1;
         Point p = new Point(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
 
-        for(int i = 0; i < this.myShips.size(); i++){
-            if(this.myShips.get(i).containsPoint(p)){
-                this.myShips.get(i).setHit(p);
+        for(int i = 0; i < this.shipsKI.size(); i++){
+            if(this.shipsKI.get(i).contains(p)){
+                this.shipsKI.get(i).removeCord(p);
                 index = i;
                 break;
             }
@@ -161,22 +245,20 @@ public class KI {
             line = "answer 0";
             this.turn = true;
         }else{
-            if(this.myShips.get(index).checkIfDead()){
+            if(this.shipsKI.get(index).checkIfDead()){
                 line = "answer 2";
-                this.turn = false;
-                this.ships[5 - this.myShips.get(index).getSize()]--;
+                this.availableShipsKI[5 - this.shipsKI.get(index).getInitialSize()]--;
                 checkIfGameOver();
             }else{
                 line = "answer 1";
-                this.turn = false;
             }
+            this.turn = false;
         }
         this.out.write(line + "\n");
         this.out.flush();
     }
 
     private void kiShot(Point p){
-
         this.shots++;
         this.out.write("shot " + p.x + " " + p.y + "\n");
         this.out.flush();
@@ -185,28 +267,28 @@ public class KI {
     private void answers(String[] data){
 
         switch(data[1]){
-            case "0": this.enemy[this.probPoint.x][this.probPoint.y] = 1;
+            case "0": this.enemyfield[this.probPoint.x][this.probPoint.y] = 1;
                       System.out.println(this.probPoint);
                       this.turn = false;
                       System.out.println("Kein Hit");
-                      if(!this.hit) this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
-                      Helper.printGame(this.probs, this.enemy);
+                      if(!this.hit) this.probs = Helper.patternFinding(this.enemyfield, this.availableShipsEnemy);
+                      Helper.printGame(this.probs, this.enemyfield);
                       this.out.write("pass\n");
                       this.out.flush();
                 break;
-            case "1": this.enemy[this.probPoint.x][this.probPoint.y] = 2;
+            case "1": this.enemyfield[this.probPoint.x][this.probPoint.y] = 2;
                       System.out.println(this.probPoint);
                       System.out.println("Hit");
                       this.turn = true;
-                      if(!this.hit) this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
-                      Helper.printGame(this.probs, this.enemy);
+                      if(!this.hit) this.probs = Helper.patternFinding(this.enemyfield, this.availableShipsEnemy);
+                      Helper.printGame(this.probs, this.enemyfield);
                       this.cords.add(new Point(this.probPoint));
                       if(this.cords.size() == 2) setDirection();
                       this.hits++;
                       this.hit = true;
                 break;
             case "2": this.hit = false;
-                      this.enemy[this.probPoint.x][this.probPoint.y] = 2;
+                      this.enemyfield[this.probPoint.x][this.probPoint.y] = 2;
                       System.out.println(this.probPoint);
                       System.out.println("Hit - Versenkt");
                       this.turn = true;
@@ -214,9 +296,9 @@ public class KI {
                       neighborsSet = false;
                       this.cords.add(new Point(this.probPoint));
                       this.hits++;
-                      setBorders(this.cords, this.enemy);
-                      this.probs = Helper.patternFinding(this.enemy, this.shipsEnemy);
-                      Helper.printGame(this.probs, this.enemy);
+                      setBorders(this.cords, this.enemyfield);
+                      this.probs = Helper.patternFinding(this.enemyfield, this.availableShipsEnemy);
+                      Helper.printGame(this.probs, this.enemyfield);
                       deleteShip();
                       this.direction = 0;
                       checkIfGameOver();
@@ -260,7 +342,7 @@ public class KI {
 
             for (Point point : cordj) arr[point.x][point.y] = 0;
 
-            this.probs = Helper.patternFinding(arr, this.shipsEnemy);
+            this.probs = Helper.patternFinding(arr, this.availableShipsEnemy);
             this.probPoint = getMaxPoint(this.neighbours);
             kiShot(this.probPoint);
 
@@ -274,7 +356,7 @@ public class KI {
         //Point out of Bounds and field == 1
         for(int i = 0; i < this.neighbours.size(); i++){
             Point tempPoint = this.neighbours.get(i);
-            if(Helper.pointOutOfBounds(tempPoint, this.size) || this.enemy[tempPoint.x][tempPoint.y] == 1){
+            if(Helper.pointOutOfBounds(tempPoint, this.size) || this.enemyfield[tempPoint.x][tempPoint.y] == 1){
                 this.neighbours.remove(tempPoint);
                 i--;
             }
@@ -298,15 +380,15 @@ public class KI {
     private void removeNeighbourHelper(ArrayList<Point> arr){
 
         int focus = 0;
-        for(int i = 0; i < this.shipsEnemy.length; i++){
-            if(this.shipsEnemy[3 - i] != 0){
+        for(int i = 0; i < this.availableShipsEnemy.length; i++){
+            if(this.availableShipsEnemy[3 - i] != 0){
                 focus = 2 + i;
                 break;
             }
         }
 
-        for(int i = 0; i < this.shipsEnemy.length; i++) {
-            if(this.shipsEnemy[i] != 0 && 5 - i == focus){
+        for(int i = 0; i < this.availableShipsEnemy.length; i++) {
+            if(this.availableShipsEnemy[i] != 0 && 5 - i == focus){
                 if (arr.size() < 5 - i && arr.size() != 1) {
                     outer:
                     for (int j = 0; j < this.neighbours.size(); j++) {
@@ -326,7 +408,7 @@ public class KI {
 
         Point p = new Point(this.hitPoint.x + i, this.hitPoint.y + j);
 
-        while(!Helper.pointOutOfBounds(p, this.size) && this.enemy[p.x][p.y] == 0){
+        while(!Helper.pointOutOfBounds(p, this.size) && this.enemyfield[p.x][p.y] == 0){
             arr.add(new Point(p));
             p = new Point(p.x += i, p.y += j);
         }
@@ -347,8 +429,8 @@ public class KI {
 
     private Point getMaxPoint(Point one ,Point two){
 
-        if(Helper.pointOutOfBounds(one, this.size) || this.enemy[one.x][one.y] == 1) return two;
-        if(Helper.pointOutOfBounds(two, this.size) || this.enemy[two.x][two.y] == 1) return one;
+        if(Helper.pointOutOfBounds(one, this.size) || this.enemyfield[one.x][one.y] == 1) return two;
+        if(Helper.pointOutOfBounds(two, this.size) || this.enemyfield[two.x][two.y] == 1) return one;
 
         ArrayList<Point> temp = new ArrayList<>(2);
         temp.add(one);
@@ -362,7 +444,7 @@ public class KI {
         Point p = new Point();
 
         for (Point point : arr) {
-            if (this.probs[point.x][point.y] >= max && this.enemy[point.x][point.y] == 0) {
+            if (this.probs[point.x][point.y] >= max && this.enemyfield[point.x][point.y] == 0) {
                 max = this.probs[point.x][point.y];
                 p = point;
             }
@@ -379,10 +461,10 @@ public class KI {
     private void deleteShip(){
 
         switch(this.cords.size()){
-            case 5: this.shipsEnemy[0]--; break;
-            case 4: this.shipsEnemy[1]--; break;
-            case 3: this.shipsEnemy[2]--; break;
-            case 2: this.shipsEnemy[3]--; break;
+            case 5: this.availableShipsEnemy[0]--; break;
+            case 4: this.availableShipsEnemy[1]--; break;
+            case 3: this.availableShipsEnemy[2]--; break;
+            case 2: this.availableShipsEnemy[3]--; break;
         }
         this.cords.clear();
     }
@@ -409,9 +491,9 @@ public class KI {
 
         int count = 0;
 
-        for(int i = 0; i < this.ships.length; i++) {
-            if (this.ships[i] != 0) {
-                for (int j = 0; j < this.ships[i]; j++) {
+        for(int i = 0; i < this.availableShipsKI.length; i++) {
+            if (this.availableShipsKI[i] != 0) {
+                for (int j = 0; j < this.availableShipsKI[i]; j++) {
                     ArrayList<Point> cordsShip = new ArrayList<>(5 - i);
                     boolean success = false;
                     Point place = new Point(-1, -1);
@@ -427,7 +509,7 @@ public class KI {
                         success = true;
                         while (success && cordsShip.size() < 5 - i) {
 
-                            if (this.game[place.x][place.y] == 0) {
+                            if (this.gamefield[place.x][place.y] == 0) {
                                 cordsShip.add(place);
 
                                 if (d == 2)
@@ -461,28 +543,28 @@ public class KI {
                         }
 
                     }
-                    for (Point p : cordsShip) this.game[p.x][p.y] = 2;
-                    this.myShips.add(new Ship(cordsShip, d));
-                    setBorders(cordsShip, this.game);
+                    for (Point p : cordsShip) this.gamefield[p.x][p.y] = 2;
+                    this.shipsKI.add(new ShipX(cordsShip, cordsShip.size()));
+                    setBorders(cordsShip, this.gamefield);
                     cordsShip.clear();
                     count++;
                 }
             }
         }
-        clearArray(this.game, 1);
+        clearArray(this.gamefield, 1);
 
         if(count != this.shipSum){
-            Helper.printGame(this.game, this.enemy);
+            Helper.printGame(this.gamefield, this.enemyfield);
             System.out.println("Retry");
 
-            clearArray(this.game, 2);
-            this.myShips.clear();
+            clearArray(this.gamefield, 2);
+            this.shipsKI.clear();
             placeShips();
         }
     }
 
     public static void main(String[] args) throws IOException {
 
-        new KI("127.0.0.1",true);
+        new KI(true);
     }
 }
