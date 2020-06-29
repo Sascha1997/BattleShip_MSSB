@@ -1,277 +1,319 @@
+
 import java.awt.*;
 import java.io.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Files {
 
-    private static FileWriter ft;
-    private static BufferedReader br;
+    private boolean turn;
+    private boolean[] bool = new boolean[3];
+    private int destroyedOwn, destroyedEnemy, pullCount;
+    private int[] ints = new int[5];
+    private int[] ownShips = new int[4];
+    private int[] enemyShips = new int[4];
+    private int[][] ownField, enemyField, prob;
+    private ArrayList<Point> cords = new ArrayList<>();
+    private ArrayList<Point> neighbours = new ArrayList<>();
+    private ArrayList<Point> points = new ArrayList<>();
+    private ArrayList<Ship> ships = new ArrayList<>();
+    private BufferedReader br;
+    private FileWriter fr;
 
-    public Files(){
-
-       new File(System.getProperty("user.dir") + "\\saves").mkdir();
-       new File(System.getProperty("user.dir") + "\\saves\\player").mkdir();
-       new File(System.getProperty("user.dir") + "\\saves\\ki").mkdir();
-
+    public static void makeDirectory() {
+        new File(System.getProperty("user.dir") + "\\saves").mkdir();
+        new File(System.getProperty("user.dir") + "\\saves\\player").mkdir();
+        new File(System.getProperty("user.dir") + "\\saves\\ki").mkdir();
     }
 
-    public static void save(String id, int[][][] fields, int[][] availableShips, ArrayList<ArrayList<Point>> pointArrays, Point[] points, ArrayList<ShipX> ships, boolean[] bool, int[] integer){
-
+    //KI
+    public void save(String id, boolean turn, int[][] ownField, int[][] enemyField, int[][] prob, int[] ownShips, int[] enemyShips, ArrayList<Point> cords, ArrayList<Point> neighbours, ArrayList<Point> points, ArrayList<Ship> ships, boolean[] bool, int[] ints){
         try {
-            ft = new FileWriter(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt");
-
-            ft.write("Date/Time " + getDateTime() + "\n");
-            for(int i = 0; i < Math.pow(integer[0], 2); i++) ft.write("_");
-
-            ft.write("\n");
-
-            storeFields(fields);
-            storeAvailableShips(availableShips);
-            storePointArrays(pointArrays);
-            storePoints(points);
-            storeShips(ships);
+            this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt");
+            this.fr.write(turn + "\n");
+            storeField(ownField);
+            storeField(enemyField);
+            storeProb(prob);
+            storeInts(ownShips);
+            storeInts(enemyShips);
+            storeArrayListPoints(cords);
+            storeArrayListPoints(neighbours);
+            storeArrayListPoints(points);
+            storeArrayListShips(ships);
             storeBooleans(bool);
-            storeIntegers(integer);
-
-            ft.close();
+            storeInts(ints);
+            this.fr.flush();
+            this.fr.close();
         }catch (IOException e){
             e.printStackTrace();
         }
-
     }
 
-    public static Object[] load(String id){
-
+    //Player
+    public void save(long id, boolean turn, int[][] ownField, int[][] enemyField, ArrayList<Ship> ships, int destroyedOwn, int destroyedEnemy, int pullCount){
         try {
-            br = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt"));
-
-            br.readLine();
-            br.readLine();
-
-            int[][][] fields = restoreFields();
-            int[][] availableShips = restoreAvailableShips();
-            ArrayList<ArrayList<Point>> pointArrays = restorePointArrays();
-            Point[] points = restorePoints();
-            ArrayList<ShipX> ships = restoreShips();
-            boolean[] bool = restoreBooleans();
-            int[] integer = restoreIntegers();
-
-            br.close();
-
-            return new Object[]{fields, availableShips, pointArrays, points, ships, bool, integer};
-        }
-        catch (Exception e){
+            this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt");
+            this.fr.write(turn + "\n");
+            storeField(ownField);
+            storeField(enemyField);
+            storeArrayListShips(ships);
+            this.fr.write(destroyedOwn + "\n");
+            this.fr.write(destroyedEnemy + "\n");
+            this.fr.write(pullCount + "\n");
+            this.fr.flush();
+            this.fr.close();
+        }catch (IOException e){
             e.printStackTrace();
         }
-
-        return null;
     }
 
-    private static void storeFields(int[][][] arr) throws IOException {
+    //KI
+    public void load(String id){
+        try {
+            this.br = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt"));
+            this.turn = Boolean.parseBoolean(this.br.readLine());
+            restoreFields();
+            restoreProb();
+            restoreInts(this.ownShips);
+            restoreInts(this.enemyShips);
+            restoreArrayListPoints();
+            restoreArrayListShips();
+            restoreBooleans();
+            restoreInts(this.ints);
+            this.br.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 
-        int z = 1;
+    //Player
+    public void load(long id){
+        try {
+            this.br = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt"));
+            this.turn = Boolean.parseBoolean(this.br.readLine());
+            restoreFields();
+            restoreArrayListShips();
+            this.destroyedOwn = Integer.parseInt(this.br.readLine());
+            this.destroyedEnemy = Integer.parseInt(this.br.readLine());
+            this.pullCount = Integer.parseInt(this.br.readLine());
+            this.br.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 
-        for (int[][] i : arr) {
-            for (int[] j : i) {
-                for (int k = 0; k < i.length; k++) {
-                    if(z != 2) ft.write(j[k] + ""); else ft.write(j[k] + ":");
+    //Server
+    public boolean ourTurn(String id){
+        try {
+            File f = new File(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt");
+            BufferedReader brr;
+            if (f.exists()) {
+                brr = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt"));
+            }else{
+                brr = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt"));
+            }
+            return Boolean.parseBoolean(brr.readLine());
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    //STORE--------------------------------------------------------------------------------------------------------STORE
+
+    private void storeField(int[][] field) throws IOException {
+        for (int[] value : field) {
+            for (int j = 0; j < field.length; j++) {
+                this.fr.write(value[j]+"");
+            }
+        }
+        this.fr.write("\n");
+    }
+
+    private void storeProb(int[][] prob) throws IOException {
+        for (int[] value : prob) {
+            for (int j = 0; j < prob.length; j++) {
+                this.fr.write(value[j] + ":");
+            }
+        }
+        this.fr.write("\n");
+    }
+
+    private void storeInts(int[] ints) throws IOException {
+        for (int anInt : ints) {
+            this.fr.write(anInt + " ");
+        }
+        this.fr.write("\n");
+    }
+
+    private void storeArrayListPoints(ArrayList<Point> arr) throws IOException {
+        for (Point point : arr) {
+            this.fr.write(this.pointToString(point) + " ");
+        }
+        this.fr.write("\n");
+    }
+
+    private void storeArrayListShips(ArrayList<Ship> ships) throws IOException {
+        for (Ship ship : ships) {
+            if(ship.checkIfDead()) continue;
+            for (int j = 0; j < ship.availableCords.size(); j++) {
+                this.fr.write(pointToString(ship.availableCords.get(j)) + " ");
+            }
+            this.fr.write(ship.getInitialSize() + "$" + ship.getIdentification() + "|");
+        }
+        this.fr.write("\n");
+    }
+
+    private void storeBooleans(boolean[] bool) throws IOException {
+        for (boolean b : bool) {
+            this.fr.write(b + " ");
+        }
+        this.fr.write("\n");
+    }
+
+    private String pointToString(Point p){
+        return p.x + ":" + p.y;
+    }
+
+    //RESTORE----------------------------------------------------------------------------------------------------RESTORE
+
+    private void restoreFields() throws IOException {
+        String line1 = this.br.readLine();
+        String line2 = this.br.readLine();
+        int size = (int) Math.sqrt(line1.length());
+
+        this.ownField = new int[size][size];
+        this.enemyField = new int[size][size];
+
+        for(int i = 0; i < line1.length() ; i++){
+            this.ownField[i / size][i % size] = Integer.parseInt(line1.charAt(i)+"");
+            this.enemyField[i / size][i % size] = Integer.parseInt(line2.charAt(i)+"");
+        }
+    }
+
+    public void restoreProb() throws IOException {
+        String line = this.br.readLine();
+        String[] arr = line.split(":");
+
+        this.prob = new int[arr.length][arr.length];
+
+        for(int i = 0; i < arr.length; i++){
+            this.prob[i / arr.length][i % arr.length] = Integer.parseInt(arr[i]);
+        }
+    }
+
+    private void restoreInts(int[] destination) throws IOException {
+        String line = this.br.readLine();
+        String[] arr = line.split(" ");
+
+        for(int i = 0; i < arr.length; i++){
+            destination[i] = Integer.parseInt(arr[i]);
+        }
+    }
+
+    private void restoreArrayListPoints() throws IOException {
+
+        for(int i = 0; i < 3; i++){
+            String line = this.br.readLine();
+            if(line.equals("")) continue;
+            String[] cords = line.split(" ");
+            for (String cord : cords) {
+                String[] xy = cord.split(":");
+                Point p = new Point(Integer.parseInt(xy[0]), Integer.parseInt(xy[1]));
+                switch (i) {
+                    case 0: this.cords.add(p); break;
+                    case 1: this.neighbours.add(p); break;
+                    case 2: this.points.add(p); break;
                 }
             }
-            z++;
-            ft.write("\n");
         }
     }
 
-    private static void storeAvailableShips(int[][] arr) throws IOException {
+    private void restoreArrayListShips() throws IOException {
+        String line = this.br.readLine();
+        String[] ships = line.split("[|]");
+        ArrayList<Point> temp = new ArrayList<>();
 
-        for (int[] i : arr) {
-            for (int j : i) {
-                ft.write(j + "");
+        for (String ship : ships) {
+            String[] parts = ship.split(" ");
+            for (int j = 0; j < parts.length - 1; j++) {
+                String[] xy = parts[j].split(":");
+                temp.add(new Point(Integer.parseInt(xy[0]), Integer.parseInt(xy[1])));
             }
-            ft.write(" ");
-        }
-        ft.write("\n");
-    }
-
-    private static void storePointArrays(ArrayList<ArrayList<Point>> arr) throws IOException {
-
-        for (ArrayList<Point> points : arr) {
-            ft.write(Helper.pointArrayToString(points) + "\n");
+            String[] data = parts[parts.length - 1].split("[$]");
+            this.ships.add(new Ship(temp, Integer.parseInt(data[0]), data[1]));
+            temp.clear();
         }
     }
 
-    private static void storePoints(Point[] arr) throws IOException {
-
-        for (Point point : arr) {
-            ft.write(Helper.pointToString(point));
-        }
-        ft.write("\n");
-    }
-
-    private static void storeShips(ArrayList<ShipX> arr) throws IOException {
-
-        for (ShipX ship : arr) {
-            if(!ship.checkIfDead()) ft.write(ship.arrayToString() + ship.getInitialSize() + "|");
-        }
-        ft.write("\n");
-    }
-
-    private static void storeBooleans(boolean[] arr) throws IOException {
-        for (boolean b : arr) {
-            int z;
-            if(b) z = 1; else z = 0;
-            ft.write(z + "");
-        }
-        ft.write("\n");
-    }
-
-    private static void storeIntegers(int[]arr) throws IOException {
-        for (int i : arr) {
-            ft.write(i + " ");
-        }
-        ft.write("\n");
-    }
-
-    private static int[][][] restoreFields() throws IOException{
-
-        String[] lines = new String[3];
-        for(int i = 0; i < lines.length; i++) lines[i] = br.readLine();
-
-        int size = (int) Math.sqrt(lines[0].length());
-        int[][][] fields = new int[3][size][size];
-        String[] parts = lines[1].split(":");
-
-        for(int i = 0; i < 3; i += 2){
-            for(int j = 0; j < lines[i].length(); j++){
-                fields[i][j / size][j % size] = Integer.parseInt(String.valueOf(lines[i].charAt(j)));
-            }
-            for(int k = 0; k < lines[0].length() && i == 0; k++){
-                fields[i+1][k / size][k % size] = Integer.parseInt(parts[k]);
-            }
-        }
-
-        return fields;
-    }
-
-    private static int[][] restoreAvailableShips() throws IOException{
-
-        String line = br.readLine();
+    public void restoreBooleans() throws IOException {
+        String line = this.br.readLine();
         String[] parts = line.split(" ");
 
-        int[][] val = new int[2][4];
-
         for(int i = 0; i < parts.length; i++){
-            for(int j = 0; j < parts[i].length(); j++){
-                val[i][j] = Integer.parseInt(String.valueOf(parts[i].charAt(j)));
-            }
+            this.bool[i] = Boolean.parseBoolean(parts[i]);
         }
-        return val;
     }
 
-    private static ArrayList<ArrayList<Point>> restorePointArrays() throws IOException{
+    //GETTER------------------------------------------------------------------------------------------------------GETTER
 
-        ArrayList<ArrayList<Point>> arr = new ArrayList<>(2);
-        ArrayList<Point> cords = new ArrayList<>();
-        ArrayList<Point> neigbhours = new ArrayList<>();
-
-        String[] part1 = br.readLine().split(" ");
-        String[] part2 = br.readLine().split(" ");
-
-        for (String s : part1) {
-            Point p = getPoint(s);
-            if (p == null) continue;
-            cords.add(new Point(p));
-        }
-
-        for (String s : part2) {
-            Point p = getPoint(s);
-            if (p == null) continue;
-            neigbhours.add(new Point(p));
-        }
-
-        arr.add(cords);
-        arr.add(neigbhours);
-        return arr;
+    public boolean getTurn(){
+        return this.turn;
     }
 
-    private static Point[] restorePoints() throws IOException{
-
-        int i = 0;
-        Point[] points = new Point[3];
-
-        String[] part1 = br.readLine().split(" ");
-
-        for (String s : part1) {
-            Point p = getPoint(s);
-            if (p == null) continue;
-            points[i++] = p;
-        }
-
-        return points;
+    public boolean[] getBool(){
+        return this.bool;
     }
 
-    private static ArrayList<ShipX> restoreShips() throws IOException{
-        ArrayList<ShipX> ships = new ArrayList<>();
-        ArrayList<Point> cords = new ArrayList<>();
-        String[] parts = br.readLine().split("[|]");
-
-        for(int i = 0; i < parts.length && !parts[0].equals(""); i++){
-            String[] temp = parts[i].split(" ");
-            for(int j = 0; j < temp.length - 1; j++){
-                cords.add(getPoint(temp[j]));
-            }
-            ships.add(new ShipX(cords, Integer.parseInt(temp[temp.length - 1])));
-            cords.clear();
-        }
-
-        return ships;
+    public int getDestroyedOwn(){
+        return this.destroyedOwn;
     }
 
-    private static boolean[] restoreBooleans() throws IOException{
-
-        String line = br.readLine();
-        boolean[] booleans = new boolean[4];
-
-        for(int i = 0; i < line.length(); i++){
-            booleans[i] = line.charAt(i) == '1';
-        }
-        return booleans;
+    public int getDestroyedEnemy(){
+        return this.destroyedEnemy;
     }
 
-    private static int[] restoreIntegers() throws IOException{
-
-        String[] parts = br.readLine().split(" ");
-        int[] integers = new int[5];
-
-        for(int i = 0; i < parts.length; i++){
-            integers[i] = Integer.parseInt(parts[i]);
-        }
-
-        return integers;
+    public int getPullCount(){
+        return this.pullCount;
     }
 
-    public static String getDateTime(){
-        String s = "";
-        LocalDateTime date = LocalDateTime.now();
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        s = dateFormat.format(date);
-        return s;
+    public int[] getInts(){
+        return this.ints;
     }
 
-    private static Point getPoint(String s){
-
-        if(s == null || s.equals("")) return null;
-
-        String[] parts = s.split(":");
-
-        for(int i = 0; i < parts.length; i++){
-            parts[i] = parts[i].replaceAll("\\s","");
-        }
-
-        return new Point(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+    public int[] getOwnShips(){
+        return this.ownShips;
     }
 
+    public int[] getEnemyShips(){
+        return this.enemyShips;
+    }
+
+    public int[][] getOwnField(){
+        return this.ownField;
+    }
+
+    public int[][] getEnemyField(){
+        return this.enemyField;
+    }
+
+    public int[][] getProb(){
+        return this.prob;
+    }
+
+    public ArrayList<Point> getPoints(){
+        return this.points;
+    }
+
+    public ArrayList<Point> getCords(){
+        return this.cords;
+    }
+
+    public ArrayList<Point> getNeighbours(){
+        return this.neighbours;
+    }
+
+    public ArrayList<Ship> getShips() {
+        return this.ships;
+    }
 
 }
