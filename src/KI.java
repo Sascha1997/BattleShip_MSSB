@@ -7,31 +7,16 @@ public class KI extends Thread{
 
     private int size;
     private int[][] gameField, probField, enemyField;
-    private int[] availableShipsEnemy = new int[4];
-    private int[] availableShipsKI = new int[4];
-    private ArrayList<Point> cords = new ArrayList<>();
-    private ArrayList<Point> neighbours = new ArrayList<>();
+    private int[] availableShipsEnemy = new int[4], availableShipsKI = new int[4];
+    private ArrayList<Point> cords = new ArrayList<>(), neighbours = new ArrayList<>();
     private ArrayList<Ship> shipsKI = new ArrayList<>();
-    private Point focusPoint = new Point(-1,-1);
-    private Point probPoint = new Point(-1,-1);
-    private Point hitPoint = new Point(-1,-1);
-    private boolean hit = false;
-    private boolean gameEnd = false;
-    private boolean turn;
-    private boolean neighborsSet = false;
-    private int shots = 0 ;
-    private int hits = 0;
-    private int direction = 0;
-    private int shipSum = 0;
+    private Point focusPoint = new Point(-1,-1), probPoint = new Point(-1,-1), hitPoint = new Point(-1,-1);
+    private boolean hit = false, gameEnd = false, turn, neighborsSet = false;
+    private int shots = 0, hits = 0, direction = 0, shipSum = 0;
     private PrintWriter out;
     private Files f = new Files();
     private Socket socket;
     private String setup;
-
-    public static void main(String[] args) throws IOException {
-        KI k = new KI(new ServerSocket(50000).accept(), true, "setup 10 1 2 3 4");
-        k.start();
-    }
 
     public KI(Socket socket, boolean first){
         this.turn = first;
@@ -485,61 +470,55 @@ public class KI extends Thread{
         }
     }
 
-    private void placeShips() {
-
+    private void placeShips(){
         int count = 0;
-
-        for(int i = 0; i < this.availableShipsKI.length; i++) {
-            if (this.availableShipsKI[i] != 0) {
-                for (int j = 0; j < this.availableShipsKI[i]; j++) {
+        for(int i = 0; i < this.availableShipsKI.length; i++){
+            if (this.availableShipsKI[i] != 0){
+                for (int j = 0; j < this.availableShipsKI[i]; j++){
                     ArrayList<Point> cordsShip = new ArrayList<>(5 - i);
                     boolean success = false;
                     Point place = new Point(-1, -1);
-                    int d;
+                    int d, x = 0;
 
-                    if ((int) (Math.random() * 6 + 1) <= 3) d = 1;
-                    else d = 2;
-                    int x = 0;
+                    if((int) (Math.random() * 6 + 1) <= 3){
+                        d = 1;
+                    }else{
+                        d = 2;
+                    }
 
                     while(!success){
                         x++;
                         place.setLocation((int) (Math.random() * this.size), (int) (Math.random() * this.size));
                         success = true;
-                        while (success && cordsShip.size() < 5 - i) {
-
-                            if (this.gameField[place.x][place.y] == 0) {
+                        while(success && cordsShip.size() < 5 - i){
+                            if(this.gameField[place.x][place.y] == 0){
                                 cordsShip.add(place);
 
-                                if (d == 2)
+                                if(d == 2){
                                     place = new Point(place.x + 1, place.y);
-                                else
+                                }else{
                                     place = new Point(place.x, place.y + 1);
+                                }
 
-
-                                if (place.x < 0 || place.x >= this.size || place.y < 0 || place.y >= this.size) {
+                                if(place.x < 0 || place.x >= this.size || place.y < 0 || place.y >= this.size){
                                     success = false;
                                     cordsShip.clear();
                                 }
 
-
-                                if (cordsShip.size() > 0 && ((d == 2 && place.x == this.size - 1) || (d == 1 && place.y == this.size - 1))) {
+                                if(cordsShip.size() > 0 && ((d == 2 && place.x == this.size - 1) || (d == 1 && place.y == this.size - 1))){
                                     success = false;
                                     cordsShip.clear();
                                 }
 
-
-                            } else {
+                            }else{
                                 success = false;
                                 cordsShip.clear();
                             }
-
                         }
-
                         if(x > 1000){
                             count = -1;
                             break;
                         }
-
                     }
                     for (Point p : cordsShip) this.gameField[p.x][p.y] = 3;
                     this.shipsKI.add(new Ship(cordsShip, cordsShip.size(), "KI"));
@@ -549,12 +528,12 @@ public class KI extends Thread{
                 }
             }
         }
+
         clearArray(this.gameField, 1);
 
         if(count != this.shipSum){
             Helper.printGame(this.gameField, this.enemyField);
             System.out.println("Retry");
-
             clearArray(this.gameField, 3);
             this.shipsKI.clear();
             placeShips();
