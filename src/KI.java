@@ -5,26 +5,31 @@ import java.util.ArrayList;
 
 public class KI extends Thread{
 
-    private int size;
+    private int size, mode;
     private int[][] gameField, probField, enemyField;
     private int[] availableShipsEnemy = new int[4], availableShipsKI = new int[4];
-    private ArrayList<Point> cords = new ArrayList<>(), neighbours = new ArrayList<>();
+    private ArrayList<Point> cords = new ArrayList<>(), neighbours = new ArrayList<>(), gameFieldArrayList;
     private ArrayList<Ship> shipsKI = new ArrayList<>();
     private Point focusPoint = new Point(-1,-1), probPoint = new Point(-1,-1), hitPoint = new Point(-1,-1);
-    private boolean hit = false, gameEnd = false, turn, neighborsSet = false;
+    private boolean hit = false, gameEnd = false, turn, neighborsSet = false, placedShips = false;
     private int shots = 0, hits = 0, direction = 0, shipSum = 0;
     private PrintWriter out;
     private Files f = new Files();
     private Socket socket;
     private String setup;
 
-    public KI(Socket socket, boolean first){
-        this.turn = first;
-        this.socket = socket;
+    public static void main(String[] args) throws IOException {
+        new KI(new ServerSocket(50000).accept(), true, 2 , "setup 10 1 2 3 4").start();
     }
 
-    public KI(Socket socket, boolean first, String setup){
-        this(socket, first);
+    public KI(Socket socket, boolean first, int mode){
+        this.turn = first;
+        this.socket = socket;
+        this.mode = mode;
+    }
+
+    public KI(Socket socket, boolean first, int mode, String setup){
+        this(socket, first, mode);
         this.setup = setup;
     }
 
@@ -52,17 +57,17 @@ public class KI extends Thread{
             Helper.printGame(this.probField, this.enemyField);
 
             while (true) {
-                if (this.gameEnd) {
+                if(this.gameEnd){
                     this.socket.close();
                     break;
                 }
 
-                if (this.turn)
+                if(this.turn)
                     play();
                 else
                     distribute(in.readLine());
 
-                if (this.turn) distribute(in.readLine());
+                if(this.turn) distribute(in.readLine());
             }
 
             Helper.printGame(this.gameField, this.enemyField);
@@ -107,6 +112,7 @@ public class KI extends Thread{
         this.availableShipsEnemy = this.f.getEnemyShips();
         this.cords = this.f.getCords();
         this.neighbours = this.f.getNeighbours();
+        this.gameFieldArrayList = this.f.getGameFieldArrayList();
 
         ArrayList<Point> temp = this.f.getPoints();
 
@@ -121,6 +127,7 @@ public class KI extends Thread{
         this.hit = bool[0];
         this.gameEnd = bool[1];
         this.neighborsSet = bool[2];
+        this.placedShips = bool[3];
 
         int[] ints = this.f.getInts();
 
@@ -143,19 +150,32 @@ public class KI extends Thread{
         points.add(this.probPoint);
         points.add(this.hitPoint);
 
-        boolean[] bool = {this.hit, this.gameEnd, this.neighborsSet};
+        boolean[] bool = {this.hit, this.gameEnd, this.neighborsSet, this.placedShips};
         int[] integer = {this.size, this.shots, this.hits, this.direction, this.shipSum};
 
-        this.f.save(data[1], this.turn, gameField, enemyField, probField, this.availableShipsKI, this.availableShipsEnemy, this.cords, this.neighbours, points, this.shipsKI, bool, integer);
+        this.f.save(data[1], this.turn, this.gameField, this.enemyField, this.probField, this.availableShipsKI
+                , this.availableShipsEnemy, this.cords, this.neighbours, this.gameFieldArrayList, points
+                , this.shipsKI, bool, integer);
     }
 
     private void play(){
 
-        if(this.hit) nextMove(this.probPoint);
+        if(this.hit){
+            if(this.mode > 0){
+                nextMove(this.probPoint);
+            }else{
+                this.probPoint = this.gameFieldArrayList.get((int) (Math.random() * this.gameFieldArrayList.size()));
+                kiShot();
+            }
+        }
 
         if(!this.hit && !this.gameEnd){
-            this.probField = Helper.patternFinding(this.enemyField, this.availableShipsEnemy);
-            this.probPoint = Helper.getProbabilityPoint(this.probField);
+            if(this.mode == 2){
+                this.probField = Helper.patternFinding(this.enemyField, this.availableShipsEnemy);
+                this.probPoint = Helper.getProbabilityPoint(this.probField);
+            }else{
+                this.probPoint = this.gameFieldArrayList.get((int) (Math.random() * this.gameFieldArrayList.size()));
+            }
             kiShot();
         }
     }
@@ -188,7 +208,17 @@ public class KI extends Thread{
             this.shipSum += zahl;
         }
 
+        if(this.mode < 2) {
+            this.gameFieldArrayList = new ArrayList<>();
+            for (int i = 0; i < this.size; i++) {
+                for (int j = 0; j < this.size; j++) {
+                    this.gameFieldArrayList.add(new Point(i, j));
+                }
+            }
+        }
+
         placeShips();
+        this.placedShips = true;
         Helper.printGame(this.gameField, this.enemyField);
         System.out.println("Confirmed");
 
@@ -278,12 +308,24 @@ public class KI extends Thread{
                 neighborsSet = false;
                 this.cords.add(new Point(this.probPoint));
                 this.hits++;
-                setBorders(this.cords, this.enemyField);
+                if(this.mode == 0)
+                    setBorders(this.enemyField);
+                else
+                    setBorders(this.cords, this.enemyField);
                 this.probField = Helper.patternFinding(this.enemyField, this.availableShipsEnemy);
                 Helper.printGame(this.probField, this.enemyField);
                 deleteShip();
                 this.direction = 0;
                 checkIfGameOver();
+        }
+
+        if(this.mode < 2){
+            for(Point p : this.gameFieldArrayList){
+                if(p.x == this.probPoint.x && p.y == this.probPoint.y){
+                    this.gameFieldArrayList.remove(p);
+                    break;
+                }
+            }
         }
     }
 
@@ -315,8 +357,8 @@ public class KI extends Thread{
             cordJ.add(this.hitPoint);
 
             for(int i = -1; i < 2; i += 2){
-                getSizeFromToPoint(cordI, i, 0);
-                getSizeFromToPoint(cordJ,0,i);
+                getSizeFromToPoint(cordI, i, 0, this.hitPoint,0);
+                getSizeFromToPoint(cordJ,0,i, this.hitPoint,0);
             }
 
             for (Point point : cordI) arr[point.x][point.y] = 0;
@@ -350,8 +392,8 @@ public class KI extends Thread{
         cordJ.add(this.hitPoint);
 
         for(int i = -1; i < 2; i += 2){
-            getSizeFromToPoint(cordI, i, 0);
-            getSizeFromToPoint(cordJ,0, i);
+            getSizeFromToPoint(cordI, i, 0, this.hitPoint,0);
+            getSizeFromToPoint(cordJ,0, i, this.hitPoint,0);
         }
 
         removeNeighbourHelper(cordI);
@@ -385,11 +427,11 @@ public class KI extends Thread{
         }
     }
 
-    private void getSizeFromToPoint(ArrayList<Point> arr, int i, int j){
+    private void getSizeFromToPoint(ArrayList<Point> arr, int i, int j, Point start, int d){
 
-        Point p = new Point(this.hitPoint.x + i, this.hitPoint.y + j);
+        Point p = new Point(start.x + i, start.y + j);
 
-        while(!Helper.pointOutOfBounds(p, this.size) && this.enemyField[p.x][p.y] == 0){
+        while(!Helper.pointOutOfBounds(p, this.size) && this.enemyField[p.x][p.y] == d){
             arr.add(new Point(p));
             p = new Point(p.x += i, p.y += j);
         }
@@ -452,6 +494,31 @@ public class KI extends Thread{
         this.cords.clear();
     }
 
+    private void setBorders(int[][] field){
+
+        ArrayList<Point> j = new ArrayList<>();
+        getSizeFromToPoint(j,0,1, this.probPoint,2);
+        getSizeFromToPoint(j,0,-1, this.probPoint,2);
+        System.out.println("J: " + j.size());
+
+        j.add(this.probPoint);
+
+        ArrayList<Point> i = new ArrayList<>();
+        getSizeFromToPoint(i,1,0, this.probPoint,2);
+        getSizeFromToPoint(i,-1,0, this.probPoint,2);
+        System.out.println("I: " + i.size());
+
+        i.add(this.probPoint);
+
+        if(j.size() > 1){
+            this.cords = j;
+            setBorders(j, field);
+        }else{
+            this.cords = i;
+            setBorders(i, field);
+        }
+    }
+
     private void setBorders(ArrayList<Point> arr, int[][] field){
 
         for (Point point : arr) {
@@ -465,7 +532,17 @@ public class KI extends Thread{
             }
 
             for (Point p : temp) {
-                if (field[p.x][p.y] != 3) field[p.x][p.y] = 1;
+                if (field[p.x][p.y] != 3 && field[p.x][p.y] != 2){
+                    field[p.x][p.y] = 1;
+                    if(this.mode < 2 && this.placedShips){
+                        for(Point po : this.gameFieldArrayList){
+                            if(po.x == p.x && po.y == p.y){
+                                this.gameFieldArrayList.remove(po);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
     }

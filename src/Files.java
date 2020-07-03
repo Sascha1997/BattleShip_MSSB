@@ -14,21 +14,28 @@ public class Files {
     private int[][] ownField, enemyField, prob;
     private ArrayList<Point> cords = new ArrayList<>();
     private ArrayList<Point> neighbours = new ArrayList<>();
+    private ArrayList<Point> gameFieldArrayList = new ArrayList<>();
     private ArrayList<Point> points = new ArrayList<>();
     private ArrayList<Ship> ships = new ArrayList<>();
     private BufferedReader br;
     private FileWriter fr;
 
     public static void makeDirectory() {
+        //Erzeugt Dateisystem innerhalb des Projektordners, sollte ausgeführt werden wenn das Programm gestartet wird
         new File(System.getProperty("user.dir") + "\\saves").mkdir();
         new File(System.getProperty("user.dir") + "\\saves\\player").mkdir();
         new File(System.getProperty("user.dir") + "\\saves\\ki").mkdir();
     }
 
-    //KI
-    public void save(String id, boolean turn, int[][] ownField, int[][] enemyField, int[][] prob, int[] ownShips, int[] enemyShips, ArrayList<Point> cords, ArrayList<Point> neighbours, ArrayList<Point> points, ArrayList<Ship> ships, boolean[] bool, int[] ints){
+    //save-Methode für die KI
+    //alle store und restore Methoden werden jeweils weiter unten erklärt
+    public void save(String id, boolean turn, int[][] ownField, int[][] enemyField, int[][] prob, int[] ownShips,
+                     int[] enemyShips, ArrayList<Point> cords, ArrayList<Point> neighbours,
+                     ArrayList<Point> gameFieldArrayList, ArrayList<Point> points, ArrayList<Ship> ships, boolean[] bool, int[] ints){
         try {
+            //erzeugt eine neue .txt Datei mit der übergebenen ID und speichert die in saves\ki
             this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt");
+            //speichert wer am Zug ist, von der Sicht der KI, true -> KI  ist drann, false -> Gegner ist dran
             this.fr.write(turn + "\n");
             storeField(ownField);
             storeField(enemyField);
@@ -37,10 +44,12 @@ public class Files {
             storeInts(enemyShips);
             storeArrayListPoints(cords);
             storeArrayListPoints(neighbours);
+            storeArrayListPoints(gameFieldArrayList);
             storeArrayListPoints(points);
             storeArrayListShips(ships);
             storeBooleans(bool);
             storeInts(ints);
+            //leert den Stream, FileWriter wird geschlossen
             this.fr.flush();
             this.fr.close();
         }catch (IOException e){
@@ -48,10 +57,12 @@ public class Files {
         }
     }
 
-    //Player
+    //save-Methode für den Spieler
     public void save(long id, boolean turn, int[][] ownField, int[][] enemyField, ArrayList<Ship> ships, int destroyedOwn, int destroyedEnemy, int pullCount){
         try {
+            //erzeugt eine neue .txt Datei mit der übergebenen ID und speichert die in saves\player
             this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt");
+            //speichert wer am Zug ist, von der Sicht des Spielers, true -> Spieler ist drann, false -> Gegner ist dran
             this.fr.write(turn + "\n");
             storeField(ownField);
             storeField(enemyField);
@@ -59,6 +70,7 @@ public class Files {
             this.fr.write(destroyedOwn + "\n");
             this.fr.write(destroyedEnemy + "\n");
             this.fr.write(pullCount + "\n");
+            //leert den Stream, FileWriter wird geschlossen
             this.fr.flush();
             this.fr.close();
         }catch (IOException e){
@@ -212,7 +224,7 @@ public class Files {
 
     private void restoreArrayListPoints() throws IOException {
 
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < 4; i++){
             String line = this.br.readLine();
             if(line.equals("")) continue;
             String[] cords = line.split(" ");
@@ -223,6 +235,7 @@ public class Files {
                     case 0: this.cords.add(p); break;
                     case 1: this.neighbours.add(p); break;
                     case 2: this.points.add(p); break;
+                    case 3: this.gameFieldArrayList.add(p);
                 }
             }
         }
@@ -310,6 +323,10 @@ public class Files {
 
     public ArrayList<Point> getNeighbours(){
         return this.neighbours;
+    }
+
+    public ArrayList<Point> getGameFieldArrayList(){
+        return this.gameFieldArrayList;
     }
 
     public ArrayList<Ship> getShips() {
