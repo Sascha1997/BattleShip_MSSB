@@ -14,22 +14,24 @@ public class KI extends Thread{
     private boolean hit = false, gameEnd = false, turn, neighboursSet = false, placedShips = false;
     private int shots = 0, hits = 0, direction = 0, shipSum = 0;
     private PrintWriter out;
-    private Files f = new Files();
-    private Socket socket;
+    private final Files f = new Files();
+    private final ControllerKI ki;
+    private final Socket socket;
     private String setup;
 
     public static void main(String[] args) throws IOException {
-        new KI(new ServerSocket(50000).accept(), true, 2, "setup 10 1 2 3 4").start();
+        new KI(new ServerSocket(50000).accept(), true, 2, new ControllerKI(), "setup 10 1 2 3 4").start();
     }
 
-    public KI(Socket socket, boolean first, int mode){
+    public KI(Socket socket, boolean first, int mode, ControllerKI ki){
         this.turn = first;
         this.socket = socket;
         this.mode = mode;
+        this.ki = ki;
     }
 
-    public KI(Socket socket, boolean first, int mode, String setup){
-        this(socket, first, mode);
+    public KI(Socket socket, boolean first, int mode, ControllerKI ki, String setup){
+        this(socket, first, mode, ki);
         this.setup = setup;
     }
 
@@ -46,6 +48,7 @@ public class KI extends Thread{
                 this.out.flush();
             }
 
+            sleep(1000);
             distribute(this.setup);
 
             if(this.turn && !in.readLine().equals("confirmed")){
@@ -62,14 +65,16 @@ public class KI extends Thread{
                     break;
                 }
 
-                if(this.turn)
+                if(this.turn){
+                    sleep(3000);
                     play();
-                else
+                }else{
                     distribute(in.readLine());
+                }
 
                 if(this.turn) distribute(in.readLine());
             }
-        }catch (IOException e){
+        }catch (IOException | InterruptedException e){
             e.printStackTrace();
         }
     }
@@ -129,6 +134,8 @@ public class KI extends Thread{
         this.hits = ints[2];
         this.direction = ints[3];
         this.shipSum = ints[4];
+
+        this.ki.plaziereSchiffe(this.shipsKI);
 
         if(!this.turn){
             this.out.write("confirmed\n");
@@ -207,6 +214,7 @@ public class KI extends Thread{
         }
 
         placeShips();
+        this.ki.plaziereSchiffe(this.shipsKI);
         this.placedShips = true;
         Helper.printGame(this.gameField, this.enemyField);
         System.out.println("Confirmed");
