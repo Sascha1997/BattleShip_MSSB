@@ -5,7 +5,7 @@ public class Helper {
 
     public static int[][] patternFinding(int[][] enemy, int[] enemyShips){
 
-        int[][] probs = new int[enemy.length][enemy.length];
+        int[][] prob = new int[enemy.length][enemy.length];
 
         for(int o = enemyShips.length + 1; o >= 2; o--) {
             if(enemyShips[enemyShips.length + 1 - o] != 0) {
@@ -23,7 +23,7 @@ public class Helper {
                             if(d == 0) points.add(new Point(i,j)); else points.add(new Point(j,i));
 
                             if (points.size() == o) {
-                                for (Point p : points) probs[p.x][p.y]++;
+                                for (Point p : points) prob[p.x][p.y]++;
                                 points.remove(0);
                             }
                         }
@@ -33,21 +33,21 @@ public class Helper {
             }
         }
 
-        return probs;
+        return prob;
     }
 
-    public static Point getProbabilityPoint(int[][] probs){
+    public static Point getProbabilityPoint(int[][] prob){
 
         ArrayList<Point> points = new ArrayList<>();
 
         int max = 0;
-        for(int i = 0; i < probs.length; i++){
-            for(int j = 0; j <probs.length; j++){
-                if(probs[i][j] > max){
+        for(int i = 0; i < prob.length; i++){
+            for(int j = 0; j <prob.length; j++){
+                if(prob[i][j] > max){
                     points.clear();
                     points.add(new Point(i,j));
-                    max = probs[i][j];
-                }else if(probs[i][j] == max){
+                    max = prob[i][j];
+                }else if(prob[i][j] == max){
                     points.add(new Point(i,j));
                 }
             }
@@ -73,9 +73,7 @@ public class Helper {
         System.out.println();
     }
 
-    public static  ArrayList<Point> getStartAndEndPoints(ArrayList<Point> arr){
-
-        ArrayList<Point> startAndEnd = new ArrayList<>(2);
+    public static void sortArray(ArrayList<Point> arr){
 
         for (int i = 0; i < arr.size() - 1; i++){
             for (int j = 0; j < arr.size() - i - 1; j++) {
@@ -86,11 +84,6 @@ public class Helper {
                 }
             }
         }
-
-        startAndEnd.add(arr.get(0));
-        startAndEnd.add(arr.get(arr.size() - 1));
-
-        return startAndEnd;
     }
 
     public static boolean pointOutOfBounds(Point p, int size){
@@ -107,19 +100,6 @@ public class Helper {
         }
     }
 
-    public static String pointArrayToString(ArrayList<Point> arr){
 
-        StringBuilder s = new StringBuilder();
-        for(Point p : arr){
-            s.append(p.x).append(":").append(p.y).append(" ");
-        }
-        return s.toString();
-    }
-
-    public static String pointToString(Point p){
-        ArrayList<Point> temp = new ArrayList<>();
-        temp.add(p);
-        return pointArrayToString(temp);
-    }
 
 }

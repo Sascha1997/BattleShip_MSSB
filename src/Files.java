@@ -14,7 +14,6 @@ public class Files {
     private int[][] ownField, enemyField, prob;
     private ArrayList<Point> cords = new ArrayList<>();
     private ArrayList<Point> neighbours = new ArrayList<>();
-    private ArrayList<Point> gameFieldArrayList = new ArrayList<>();
     private ArrayList<Point> points = new ArrayList<>();
     private ArrayList<Ship> ships = new ArrayList<>();
     private BufferedReader br;
@@ -31,7 +30,7 @@ public class Files {
     //alle store und restore Methoden werden jeweils weiter unten erklärt
     public void save(String id, boolean turn, int[][] ownField, int[][] enemyField, int[][] prob, int[] ownShips,
                      int[] enemyShips, ArrayList<Point> cords, ArrayList<Point> neighbours,
-                     ArrayList<Point> gameFieldArrayList, ArrayList<Point> points, ArrayList<Ship> ships, boolean[] bool, int[] ints){
+                     ArrayList<Point> points, ArrayList<Ship> ships, boolean[] bool, int[] ints){
         try {
             //erzeugt eine neue .txt Datei mit der übergebenen ID und speichert die in saves\ki
             this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt");
@@ -44,7 +43,6 @@ public class Files {
             storeInts(enemyShips);
             storeArrayListPoints(cords);
             storeArrayListPoints(neighbours);
-            storeArrayListPoints(gameFieldArrayList);
             storeArrayListPoints(points);
             storeArrayListShips(ships);
             storeBooleans(bool);
@@ -224,7 +222,7 @@ public class Files {
 
     private void restoreArrayListPoints() throws IOException {
 
-        for(int i = 0; i < 4; i++){
+        for(int i = 0; i < 3; i++){
             String line = this.br.readLine();
             if(line.equals("")) continue;
             String[] cords = line.split(" ");
@@ -235,7 +233,6 @@ public class Files {
                     case 0: this.cords.add(p); break;
                     case 1: this.neighbours.add(p); break;
                     case 2: this.points.add(p); break;
-                    case 3: this.gameFieldArrayList.add(p);
                 }
             }
         }
@@ -323,10 +320,6 @@ public class Files {
 
     public ArrayList<Point> getNeighbours(){
         return this.neighbours;
-    }
-
-    public ArrayList<Point> getGameFieldArrayList(){
-        return this.gameFieldArrayList;
     }
 
     public ArrayList<Ship> getShips() {
