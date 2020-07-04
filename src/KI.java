@@ -318,7 +318,7 @@ public class KI extends Thread{
                 neighboursSet = false;
                 this.cords.add(new Point(this.probPoint));
                 this.hits++;
-                setBorders(this.cords, this.enemyField);
+                this.ki.autoFill(setBorders(this.cords, this.enemyField));
                 deleteShip();
                 this.direction = 0;
                 checkIfGameOver();
