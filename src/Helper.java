@@ -56,12 +56,12 @@ public class Helper {
         return new Point(points.get((int) (Math.random() * points.size())));
     }
 
-    public static void printGame(int[][] probs, int[][] enemy){
+    public static void printGame(int[][] prob, int[][] enemy){
 
-        for(int i = 0; i < probs.length; i++){
-            for(int j = 0; j < probs.length; j++){
+        for(int i = 0; i < prob.length; i++){
+            for(int j = 0; j < prob.length; j++){
 
-                System.out.print(String.format("%3d",probs[i][j]));
+                System.out.print(String.format("%3d",prob[i][j]));
             }
             System.out.print("   ");
             for(int j = 0; j < enemy.length; j++){
@@ -87,7 +87,6 @@ public class Helper {
     }
 
     public static boolean pointOutOfBounds(Point p, int size){
-
         return p.x < 0 || p.x >= size || p.y < 0 || p.y >= size;
     }
 

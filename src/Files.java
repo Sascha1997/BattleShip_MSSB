@@ -15,7 +15,7 @@ public class Files {
     private ArrayList<Point> cords = new ArrayList<>();
     private ArrayList<Point> neighbours = new ArrayList<>();
     private ArrayList<Point> points = new ArrayList<>();
-    private ArrayList<Ship> ships = new ArrayList<>();
+    private ArrayList<Schiff> ships = new ArrayList<>();
     private BufferedReader br;
     private FileWriter fr;
 
@@ -30,7 +30,7 @@ public class Files {
     //alle store und restore Methoden werden jeweils weiter unten erklärt
     public void save(String id, boolean turn, int[][] ownField, int[][] enemyField, int[][] prob, int[] ownShips,
                      int[] enemyShips, ArrayList<Point> cords, ArrayList<Point> neighbours,
-                     ArrayList<Point> points, ArrayList<Ship> ships, boolean[] bool, int[] ints){
+                     ArrayList<Point> points, ArrayList<Schiff> schiffs, boolean[] bool, int[] ints){
         try {
             //erzeugt eine neue .txt Datei mit der übergebenen ID und speichert die in saves\ki
             this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt");
@@ -44,7 +44,7 @@ public class Files {
             storeArrayListPoints(cords);
             storeArrayListPoints(neighbours);
             storeArrayListPoints(points);
-            storeArrayListShips(ships);
+            storeArrayListShips(schiffs);
             storeBooleans(bool);
             storeInts(ints);
             //leert den Stream, FileWriter wird geschlossen
@@ -56,7 +56,7 @@ public class Files {
     }
 
     //save-Methode für den Spieler
-    public void save(long id, boolean turn, int[][] ownField, int[][] enemyField, ArrayList<Ship> ships, int destroyedOwn, int destroyedEnemy, int pullCount){
+    public void save(long id, boolean turn, int[][] ownField, int[][] enemyField, ArrayList<Schiff> schiffs, int destroyedOwn, int destroyedEnemy, int pullCount){
         try {
             //erzeugt eine neue .txt Datei mit der übergebenen ID und speichert die in saves\player
             this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt");
@@ -64,7 +64,7 @@ public class Files {
             this.fr.write(turn + "\n");
             storeField(ownField);
             storeField(enemyField);
-            storeArrayListShips(ships);
+            storeArrayListShips(schiffs);
             this.fr.write(destroyedOwn + "\n");
             this.fr.write(destroyedEnemy + "\n");
             this.fr.write(pullCount + "\n");
@@ -162,13 +162,13 @@ public class Files {
         this.fr.write("\n");
     }
 
-    private void storeArrayListShips(ArrayList<Ship> ships) throws IOException {
-        for (Ship ship : ships) {
-            if(ship.checkIfDead()) continue;
-            for (int j = 0; j < ship.availableCords.size(); j++) {
-                this.fr.write(pointToString(ship.availableCords.get(j)) + " ");
+    private void storeArrayListShips(ArrayList<Schiff> schiffs) throws IOException {
+        for (Schiff schiff : schiffs) {
+            if(schiff.checkIfDead()) continue;
+            for (int j = 0; j < schiff.availableCords.size(); j++) {
+                this.fr.write(pointToString(schiff.availableCords.get(j)) + " ");
             }
-            this.fr.write(ship.getInitialSize() + "$" + ship.getIdentification() + "|");
+            this.fr.write(schiff.getInitialSize() + "$" + schiff.getIdentification() + "|");
         }
         this.fr.write("\n");
     }
@@ -250,7 +250,7 @@ public class Files {
                 temp.add(new Point(Integer.parseInt(xy[0]), Integer.parseInt(xy[1])));
             }
             String[] data = parts[parts.length - 1].split("[$]");
-            this.ships.add(new Ship(temp, Integer.parseInt(data[0]), data[1]));
+            this.ships.add(new Schiff(temp, Integer.parseInt(data[0]), data[1]));
             temp.clear();
         }
     }
@@ -322,7 +322,7 @@ public class Files {
         return this.neighbours;
     }
 
-    public ArrayList<Ship> getShips() {
+    public ArrayList<Schiff> getShips() {
         return this.ships;
     }
 

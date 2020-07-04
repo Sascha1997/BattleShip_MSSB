@@ -1,13 +1,13 @@
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Ship {
+public class Schiff {
 
     public ArrayList<Point> availableCords = new ArrayList<>();
     private final int initialSize;
     private final String ident;
 
-    public Ship(ArrayList<Point> c, int ini, String ident){
+    public Schiff(ArrayList<Point> c, int ini, String ident){
         for(Point p : c){
             availableCords.add(new Point(p));
         }

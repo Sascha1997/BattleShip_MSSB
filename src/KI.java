@@ -9,7 +9,7 @@ public class KI extends Thread{
     private int[][] gameField, probField, enemyField;
     private int[] availableShipsEnemy = new int[4], availableShipsKI = new int[4];
     private ArrayList<Point> cords = new ArrayList<>(), neighbours = new ArrayList<>();
-    private ArrayList<Ship> shipsKI = new ArrayList<>();
+    private ArrayList<Schiff> shipsKI = new ArrayList<>();
     private Point probPoint = new Point(-1,-1), hitPoint = new Point(-1,-1);
     private boolean hit = false, gameEnd = false, turn, neighboursSet = false, placedShips = false;
     private int shots = 0, hits = 0, direction = 0, shipSum = 0;
@@ -41,14 +41,14 @@ public class KI extends Thread{
             BufferedReader in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
             this.out = new PrintWriter(this.socket.getOutputStream());
 
-            if(!this.turn) {
+            if(!this.turn){
                 this.setup = in.readLine();
             }else{
                 this.out.write(this.setup + "\n");
                 this.out.flush();
             }
 
-            sleep(1000);
+            sleep(1500);
             distribute(this.setup);
 
             if(this.turn && !in.readLine().equals("confirmed")){
@@ -66,7 +66,7 @@ public class KI extends Thread{
                 }
 
                 if(this.turn){
-                    sleep(3000);
+                    sleep(20);
                     play();
                 }else{
                     distribute(in.readLine());
@@ -74,7 +74,7 @@ public class KI extends Thread{
 
                 if(this.turn) distribute(in.readLine());
             }
-        }catch (IOException | InterruptedException e){
+        }catch(IOException | InterruptedException e){
             e.printStackTrace();
         }
     }
@@ -188,6 +188,7 @@ public class KI extends Thread{
         }
 
         if(s1 == 0 || s2 == 0){
+            System.out.println("Ki hat beendet");
             System.out.println("Stats:");
             System.out.println("Shots: " + this.shots);
             System.out.println("Hits: " + this.hits);
@@ -204,7 +205,9 @@ public class KI extends Thread{
         this.enemyField = new int[this.size][this.size];
         this.probField = new int[this.size][this.size];
 
-        clearArray(this.enemyField, 0);
+        Helper.setArray(this.gameField, 0);
+        Helper.setArray(this.enemyField, 0);
+        Helper.setArray(this.probField, 0);
 
         for(int i = 2; i < data.length; i++){
             int zahl = Integer.parseInt(data[i]);
@@ -238,7 +241,7 @@ public class KI extends Thread{
         }
     }
 
-    public void clearArray(int[][] arr, int digit){
+    private void clearArray(int[][] arr, int digit){
         for(int i = 0; i < arr.length; i++){
             for(int j = 0; j < arr.length; j++){
                 if(arr[i][j] == digit) arr[i][j] = 0;
@@ -289,6 +292,7 @@ public class KI extends Thread{
         switch(data[1]){
             case "0": this.enemyField[this.probPoint.x][this.probPoint.y] = 1;
                 System.out.println(this.probPoint);
+                this.ki.markiereSchussVorbei(probPoint);
                 this.turn = false;
                 System.out.println("Kein Hit");
                 this.out.write("pass\n");
@@ -296,6 +300,7 @@ public class KI extends Thread{
                 break;
             case "1": this.enemyField[this.probPoint.x][this.probPoint.y] = 2;
                 System.out.println(this.probPoint);
+                this.ki.markiereSchussTreffer(probPoint);
                 System.out.println("Hit");
                 this.turn = true;
                 this.cords.add(new Point(this.probPoint));
@@ -306,6 +311,7 @@ public class KI extends Thread{
             case "2": this.hit = false;
                 this.enemyField[this.probPoint.x][this.probPoint.y] = 2;
                 System.out.println(this.probPoint);
+                this.ki.markiereSchussTreffer(probPoint);
                 System.out.println("Hit - Versenkt");
                 this.turn = true;
                 neighbours.clear();
@@ -318,8 +324,10 @@ public class KI extends Thread{
                 checkIfGameOver();
         }
 
-        this.probField = Helper.patternFinding(this.enemyField, this.availableShipsEnemy);
-        Helper.printGame(this.probField, this.enemyField);
+        if(!this.gameEnd){
+            this.probField = Helper.patternFinding(this.enemyField, this.availableShipsEnemy);
+            Helper.printGame(this.probField, this.enemyField);
+        }
     }
 
     private void getDirection(){
@@ -458,7 +466,7 @@ public class KI extends Thread{
         this.cords.clear();
     }
 
-    private void setBorders(ArrayList<Point> arr, int[][] field){
+    private ArrayList<Point> setBorders(ArrayList<Point> arr, int[][] field){
 
         ArrayList<Point> tempCords = new ArrayList<>(arr);
 
@@ -486,6 +494,8 @@ public class KI extends Thread{
 
             for (Point p : temp) if (field[p.x][p.y] != 3 && field[p.x][p.y] != 2) field[p.x][p.y] = 1;
         }
+
+        return tempCords;
     }
 
     private void placeShips(){
@@ -526,7 +536,7 @@ public class KI extends Thread{
                             }
 
                             for(Point p : cords) this.gameField[p.x][p.y] = 3;
-                            this.shipsKI.add(new Ship(cords, cords.size(), "KI"));
+                            this.shipsKI.add(new Schiff(cords, cords.size(), "KI"));
                             setBorders(cords, this.gameField);
                             cords.clear();
                             break;
