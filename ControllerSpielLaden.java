@@ -15,7 +15,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
@@ -33,7 +35,13 @@ public class ControllerSpielLaden implements Initializable {
 	
 	@FXML
 	private Button buttonSpielLaden;
-
+	
+	@FXML
+	private RadioButton radioButtonKI;
+	
+	@FXML
+	private RadioButton radioButtonSpieler;
+	
 	private int counterVersenktGegner;
 	private int counterVersenktWir;
 	private int counterZug;
@@ -43,6 +51,8 @@ public class ControllerSpielLaden implements Initializable {
 	@FXML
 	private ScrollPane scrollPane;
 	
+	private ToggleGroup group = new ToggleGroup();
+	
 	private Long loadID;
 	
 	public ControllerSpielLaden(Connection connection) {
@@ -50,10 +60,21 @@ public class ControllerSpielLaden implements Initializable {
 		this.file=new Files();
 	}
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
 		buttonSpielLaden.setDisable(true);
+		radioButtonKI.setToggleGroup(group);
+		radioButtonSpieler.setToggleGroup(group);
+	}
+	
+	@FXML
+	private void showFolder() {
+		
 		container = new VBox();
-		File folder = new File(System.getProperty("user.dir") + "\\saves\\player");
+		File folder;
+		if(radioButtonKI.isSelected()) {
+			 folder= new File(System.getProperty("user.dir") + "\\saves\\ki");
+		}else {
+			folder= new File(System.getProperty("user.dir") + "\\saves\\player");
+		}
 		for(final File fileEntry : folder.listFiles()) {
 			if(fileEntry.isFile()) {
 				final Button b = new Button(fileEntry.getName());
@@ -76,7 +97,6 @@ public class ControllerSpielLaden implements Initializable {
 		}
 		scrollPane.setPannable(true);
 		scrollPane.setContent(container);
-		
 	}
 	
 	@FXML
@@ -96,48 +116,92 @@ public class ControllerSpielLaden implements Initializable {
 		counterZug=file.getPullCount();
 		schiffCounter=file.getSchiffCounter();
 		
-		Task<String>task = new Task<String>() {
+		if(radioButtonSpieler.isSelected()) {
+			Task<String>task = new Task<String>() {
 
-			
-			protected String call() throws Exception {
 				
-				connection.createConnection();
-				
-				Platform.runLater(new Runnable() {
-
-					@Override
-					public void run() {
-						
-						connection.write("load "+loadID);
-						
-						
-						FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldServer.fxml"));
-						ControllerSpielFeld csf = new ControllerSpielFeld(b,unserSpielFeld,gegnerSpielFeld,schiffListe,counterVersenktWir,counterVersenktGegner,counterZug,schiffCounter,connection);
-						fxmlloader.setController(csf);
-						try {
-							
-							Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-							Scene newScene = new Scene(root);
-							StarterKlasse.primaryStage.setScene(newScene);
-							StarterKlasse.primaryStage.setTitle("Battleship");
-							
-							
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} 
-						
-					}
+				protected String call() throws Exception {
 					
-				});
+					connection.createConnection();
+					
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							
+							connection.write("load "+loadID);
+							
+							
+							FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldServer.fxml"));
+							ControllerSpielFeld csf = new ControllerSpielFeld(b,unserSpielFeld,gegnerSpielFeld,schiffListe,counterVersenktWir,counterVersenktGegner,counterZug,schiffCounter,connection);
+							fxmlloader.setController(csf);
+							try {
+								
+								Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+								Scene newScene = new Scene(root);
+								StarterKlasse.primaryStage.setScene(newScene);
+								StarterKlasse.primaryStage.setTitle("Battleship");
+								
+								
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} 
+							
+						}
 						
-				return null;
-			}
-		};
+					});
+							
+					return null;
+				}
+			};
+			
+			Thread th = new Thread(task);
+			th.setDaemon(true);
+			th.start();
+		}else if(radioButtonKI.isSelected()) {
+			file.load(loadID);
+			unserSpielFeld=file.getOwnField();
+			
+			Task<String>task = new Task<String>() {
+
+				
+				protected String call() throws Exception {
+					
+					final ControllerKI cKI = new ControllerKI(unserSpielFeld.length,true,2,"load "+String.valueOf(loadID),false);
+					
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+
+	    					FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldKI.fxml"));
+	    					fxmlloader.setController(cKI);
+	    					try {
+	    								
+	    					Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+	    					//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
+	    					Scene newScene = new Scene(root);
+		    				StarterKlasse.primaryStage.setScene(newScene);
+		    				StarterKlasse.primaryStage.setTitle("Battleship");
+	    								
+	    					} catch (IOException e) {
+	    					// TODO Auto-generated catch block
+	    						e.printStackTrace();
+	    					} 
+							
+						}
+						
+					});
+							
+					return null;
+				}
+			};
+			Thread th = new Thread(task);
+			th.setDaemon(true);
+			th.start();
+		}
 		
-		Thread th = new Thread(task);
-		th.setDaemon(true);
-		th.start();
 		
 	
 		

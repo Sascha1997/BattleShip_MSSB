@@ -1,10 +1,13 @@
 package application;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,8 +15,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 public class ControllerStartMenue implements Initializable {	
 	
@@ -35,6 +40,8 @@ public class ControllerStartMenue implements Initializable {
 	@FXML
 	private TextField textfieldIP;
 	
+	@FXML
+	private CheckBox checkBoxKI;
 	
 	private SchiffeVersenken spiel;
 	
@@ -85,129 +92,118 @@ public class ControllerStartMenue implements Initializable {
     
     @FXML
     private void onActionSpielSuchen(ActionEvent event) throws IOException, UnknownHostException{
-    	    	
-    	/*FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("RefuseToConnect.fxml"));
-	    Parent root = fxmlloader.load();
+    	    
+    	FXMLLoader fxmlloaderR = new FXMLLoader(getClass().getResource("RefuseToConnect.fxml"));
+	    Parent rootR = fxmlloaderR.load();
 	    
-	    try {
-			connection.connectAsClient();
-		} catch (ConnectException e1) {
-			Stage newStage = new Stage();
-    		newStage.setTitle("Verbindung Fehlgeschlagen");
-    		newStage.setScene(new Scene(root, 500, 350));
-    		newStage.show();
-		} 
-	    
-	    //If Spiel geladen dann Konstruktor Spielladen aufrufen
-		//else ganz normaler Spielstart
-    	Task<String>task = new Task<String>() {
-
-			@Override
-			protected String call() throws Exception {
-				spielfeld=connection.read();
-		    	if(spielfeld.substring(0, 1).equals("l")) {
-		    		String parts[]=spielfeld.split(" ");
-		    		System.out.println("Altes Spiel Laden");
-		    		file.load(Long.parseLong(parts[1]));
-		    		Platform.runLater(new Runnable(){
-
-						@Override
-						public void run() {
-							FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldClient.fxml"));
-							ControllerSpielFeld csf = new ControllerSpielFeld(file.getTurn(),file.getOwnField(),file.getEnemyField(),file.getShips(),file.getDestroyedOwn(),file.getDestroyedEnemy(),file.getPullCount(),file.getSchiffCounter(),connection);
-							fxmlloader.setController(csf);
-							try {
-								
-								Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-								//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
-								
-								Scene newScene = new Scene(root);
-								StarterKlasse.primaryStage.setScene(newScene);
-								StarterKlasse.primaryStage.setTitle("Battleship");
-								
-								
-								
-								
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} 
-							
-						}
-					});
-		    		
-		    		
-		    	}else {
-		    		
-		    		Platform.runLater(new Runnable(){
-
-						@Override
-						public void run() {
-							String parts[]=spielfeld.split(" ");
-							FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldClient.fxml"));
-							ControllerSpielFeld csf = new ControllerSpielFeld(spiel.getSchiffListe(),spielfeld,spiel,Integer.parseInt(parts[1]),connection);
-							fxmlloader.setController(csf);
-							try {
-								
-								Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-								//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
-								
-								Scene newScene = new Scene(root);
-								StarterKlasse.primaryStage.setScene(newScene);
-								StarterKlasse.primaryStage.setTitle("Battleship");
-								
-								
-								
-								
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} 
-							
-						}
-
-						
-					});
-		    	}
-		    	
-		    	
-		    	
-		    	spiel.spielEinrichten(spielfeld);
-		    	
-		    	
-		    	
-		    	
-				return null;
+	    if(checkBoxKI.isSelected()) {//KI
+	    	
+    					FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldKI.fxml"));
+    					ControllerKI cKI = new ControllerKI(5,2,false);
+    					fxmlloader.setController(cKI);
+    					try {
+    								
+    					Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+    					//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
+    			
+	    					Scene newScene = new Scene(root);
+	    					StarterKlasse.primaryStage.setScene(newScene);
+	    					StarterKlasse.primaryStage.setTitle("Battleship");
+    								
+    					} catch (IOException e) {
+    					// TODO Auto-generated catch block
+    						e.printStackTrace();
+    					} 
+    		
+	    }else { //Spieler
+	    	
+		    //If Spiel geladen dann Konstruktor Spielladen aufrufen
+			//else ganz normaler Spielstart
+	    	
+	    	try {
+				connection.connectAsClient();
+			} catch (ConnectException e1) {
+				Stage newStage = new Stage();
+	    		newStage.setTitle("Verbindung Fehlgeschlagen");
+	    		newStage.setScene(new Scene(rootR, 500, 350));
+	    		newStage.show();
 			}
-			
-		};
-		
-		Thread th = new Thread(task);
-		th.setDaemon(true);
-		th.start();*/
+	    	Task<String>task = new Task<String>() {
+				@Override
+				protected String call() throws Exception {
+					spielfeld=connection.read();
+			    	if(spielfeld.substring(0, 1).equals("l")) {
+			    		String parts[]=spielfeld.split(" ");
+			    		System.out.println("Altes Spiel Laden");
+			    		file.load(Long.parseLong(parts[1]));
+			    		Platform.runLater(new Runnable(){
+							@Override
+							public void run() {
+								FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldClient.fxml"));
+								ControllerSpielFeld csf = new ControllerSpielFeld(file.getTurn(),file.getOwnField(),file.getEnemyField(),file.getShips(),file.getDestroyedOwn(),file.getDestroyedEnemy(),file.getPullCount(),file.getSchiffCounter(),connection);
+								fxmlloader.setController(csf);
+								try {
+									
+									Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+									//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
+									
+									Scene newScene = new Scene(root);
+									StarterKlasse.primaryStage.setScene(newScene);
+									StarterKlasse.primaryStage.setTitle("Battleship");
+									
+									
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								} 
+							}
+						});
+			    		
+			    		
+			    	}else {
+			    		
+			    		Platform.runLater(new Runnable(){
+							@Override
+							public void run() {
+								String parts[]=spielfeld.split(" ");
+								FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldClient.fxml"));
+								ControllerSpielFeld csf = new ControllerSpielFeld(spiel.getSchiffListe(),spielfeld,spiel,Integer.parseInt(parts[1]),connection);
+								fxmlloader.setController(csf);
+								try {
+									
+									Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+									//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
+									
+									Scene newScene = new Scene(root);
+									StarterKlasse.primaryStage.setScene(newScene);
+									StarterKlasse.primaryStage.setTitle("Battleship");
+									
+									
+									
+									
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								} 
+								
+							}
+							
+						});
+			    	}
+			    	spiel.spielEinrichten(spielfeld);
+			    	
+					return null;
+				}
 				
-    	FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldKI.fxml"));
-		ControllerKI cKI = new ControllerKI(10);
-		fxmlloader.setController(cKI);
-		try {
+			};
 			
-			Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-			//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
-			
-			Scene newScene = new Scene(root);
-			StarterKlasse.primaryStage.setScene(newScene);
-			StarterKlasse.primaryStage.setTitle("Battleship");
-			
-			
-			
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-    	  	
-		    
+			Thread th = new Thread(task);
+			th.setDaemon(true);
+			th.start();
+	    }
+	    
     	
+			
     	
     }
     

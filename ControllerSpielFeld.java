@@ -107,6 +107,7 @@ public class ControllerSpielFeld implements Initializable{
     	this.file=new Files();
     	this.spielFeldGroeﬂe=spielFeldGroeﬂe;
     	
+    	
     }
     //Konstruktor Spiel laden
     public ControllerSpielFeld(boolean wirSindDran,int[][]unserSpielfeld,int[][]gegnerSpielfeld,ArrayList<Schiff> schiffListe, int versenktWirCounter, int versenktGegnerCounter,int spielZugCounter,int schiffCounter, Connection connection) {
@@ -215,18 +216,6 @@ public class ControllerSpielFeld implements Initializable{
 				@Override
 				protected String call() throws Exception {
 					connection.write("confirmed");
-					
-					String temp = connection.read();
-					
-					if(temp==null) {
-						Platform.runLater(new Runnable(){
-
-							@Override
-							public void run() {
-								spiel.spielAbbruch();
-							}	
-						});
-					}
 					
 					System.out.println("Spiel Beginnt");
 					spielGestartet=true;
@@ -469,7 +458,7 @@ public class ControllerSpielFeld implements Initializable{
 						// Schleife wird dann verlassen
 						case 0:
 							connection.write("answer 0");
-							//unserSpielfeld[Integer.parseInt(parts[1])][Integer.parseInt(parts[2])]=0;
+							unserSpielfeld[Integer.parseInt(parts[1])][Integer.parseInt(parts[2])]=1;
 							derZug=connection.read();
 							if(derZug.equals("pass")) {
 								wirSindDran = true;
@@ -489,13 +478,13 @@ public class ControllerSpielFeld implements Initializable{
 						//Case 1 Gegner hat getroffen, schleife wieder von vorne anfangen
 						case 1:
 							
-							//unserSpielfeld[Integer.parseInt(parts[1])][Integer.parseInt(parts[2])]=1;
+							unserSpielfeld[Integer.parseInt(parts[1])][Integer.parseInt(parts[2])]=2;
 							connection.write("answer 1");
 							break;
 						//Case 2 Gegner hat getroffen, Aktuallisierte ausgabe am Bildschirm von Versenkt und schleife wieder von vorne	
 						case 2:
 							connection.write("answer 2");
-							//unserSpielfeld[Integer.parseInt(parts[1])][Integer.parseInt(parts[2])]=1;
+							unserSpielfeld[Integer.parseInt(parts[1])][Integer.parseInt(parts[2])]=2;
 							Platform.runLater(new Runnable(){
 
 								@Override
@@ -817,7 +806,14 @@ public class ControllerSpielFeld implements Initializable{
 					Button b = (Button)n;
 					b.setStyle("-fx-background-color: #000000");
 				}
-					
+				if(unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==1) {
+					Button b = (Button)n;
+					b.setStyle("-fx-background-color: #0B4C5F");
+				}
+				if(unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==2) {
+					Button b = (Button)n;
+					b.setStyle("-fx-background-color: #8A4B08");
+				}
 			}
 			
 		}

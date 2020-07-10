@@ -56,6 +56,8 @@ public class ControllerSpielErstellen implements Initializable {
 	
 	private ToggleGroup group = new ToggleGroup();
 	
+	private int kiModus;
+	
 	
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		radioButtonWeVsEnemy.setToggleGroup(group);
@@ -102,145 +104,200 @@ public class ControllerSpielErstellen implements Initializable {
 		
 	}
 	
+	@SuppressWarnings("unlikely-arg-type")
 	public void erstelleSpiel(ActionEvent event) throws IOException {
 		
 		
 		if(!radioButtonOfflineModus.isSelected()&&!radioButtonOurAI.isSelected()&&!radioButtonWeVsEnemy.isSelected()) {
     		System.out.println("Wähle zuerst einen Spielmodus");
-    	}else {
-    		final String parameter = textfield1.getText();
-    		if(!(parameter.matches("[0-9]+"))) {
-    			System.out.println("Nur Zahlen Erlaubt");
-    			return;
-    		}
-    		if(Integer.parseInt(parameter)>70||
-    				Integer.parseInt(parameter)<5) {
-    			System.out.println("Spielfeldgröße außerhalb des erlaubten Bereichs");
-    			return;
-    		}
-    		buttonZurueck.setDisable(true);
+		}else if (!(textfield1.getText().matches("[0-9]+"))){
+			System.out.println("Nur Zahlen Erlaubt");
+			return;
+		}else if(Integer.parseInt(textfield1.getText())>70||
+        				Integer.parseInt(textfield1.getText())<5){
+			System.out.println("Spielfeldgröße außerhalb des erlaubten Bereichs");
+			return;
+		}else {
+			
+			final String parameter = textfield1.getText();
+			buttonZurueck.setDisable(true);
     		spielErstellen.setText("Warte auf Gegner...");
     		spielErstellen.setDisable(true);
-    		
-    		
-    		//Zufälliges Kalkulieren der Schiffe anhand der Spielfeldgröße 
-    		//Parameter beinhaltet dann 10 2 2 1 0 z.B
     		final String parameterFertig = "setup "+parameter+" "+helfer.kalkuliereSchiffe(Integer.valueOf(parameter));
-    		
-    		//Spielfeld einrichten
     		System.out.println(parameterFertig);
     		
-    		Task<String>task = new Task<String>() {
+			if(radioButtonWeVsEnemy.isSelected()) {
+        		
+        		//Spielfeld einrichten
+        		Task<String>task = new Task<String>() {
 
-    			@Override
-    			protected String call() throws Exception {
-    				connection.createConnection();
-    				
-    		    	Platform.runLater(new Runnable(){
+        			@Override
+        			protected String call() throws Exception {
+        				connection.createConnection();
+        		    	Platform.runLater(new Runnable(){
 
-    					@Override
-    					public void run() {
-    						//Gegner das SETUP mitteilen
-    						
-    						connection.write(parameterFertig);
-    						
-    						//Wenn Client Gejoint ist Spielfeld einrichten und ins nächste Fenster gehen
-    						spiel.spielEinrichten(parameterFertig);
-    						
-    						FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldServer.fxml"));
-    						ControllerSpielFeld csf = new ControllerSpielFeld(spiel.getSchiffListe(),parameterFertig,spiel,Integer.parseInt(parameter),connection);
-    						fxmlloader.setController(csf);
-    						
-    						//Alte Stage die Verlassen wird
-    				    	//Stage oldStage = (Stage)spielErstellen.getScene().getWindow();
-    						
-    						try {
-    	    		    		
-    							Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-    							//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
-    							
-    				    		Scene newScene = new Scene(root);
-    							StarterKlasse.primaryStage.setScene(newScene);
-    							StarterKlasse.primaryStage.setTitle("Battleship");
-    							//newStage.setScene(new Scene(root, 1000, 600));
-    							//oldStage.close();
-    							//newStage.show();
-    							
-    						} catch (IOException e) {
-    							// TODO Auto-generated catch block
-    							e.printStackTrace();
-    						}
-    						
-    					}
+        					@Override
+        					public void run() {
+        						//Gegner das SETUP mitteilen
+        						
+        						connection.write(parameterFertig);
+        						
+        						//Wenn Client Gejoint ist Spielfeld einrichten und ins nächste Fenster gehen
+        						spiel.spielEinrichten(parameterFertig);
+        						
+        						FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldServer.fxml"));
+        						ControllerSpielFeld csf = new ControllerSpielFeld(spiel.getSchiffListe(),parameterFertig,spiel,Integer.parseInt(parameter),connection);
+        						fxmlloader.setController(csf);
+        						
+        						//Alte Stage die Verlassen wird
+        				    	//Stage oldStage = (Stage)spielErstellen.getScene().getWindow();
+        						
+        						try {
+        	    		    		
+        							Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+        							//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
+        							
+        				    		Scene newScene = new Scene(root);
+        							StarterKlasse.primaryStage.setScene(newScene);
+        							StarterKlasse.primaryStage.setTitle("Battleship");
+        							//newStage.setScene(new Scene(root, 1000, 600));
+        							//oldStage.close();
+        							//newStage.show();
+        							
+        						} catch (IOException e) {
+        							// TODO Auto-generated catch block
+        							e.printStackTrace();
+        						}
+        						
+        					}
 
-    					
-    				});
-    		    	
-    		    	
-    				return null;
-    			}
-    			
-    		};
-    		
-    		Thread th = new Thread(task);
-    		th.setDaemon(true);
-    		th.start();
-    		
-    	}
-		
-		//KI MODUS
-		//
-		/*Task<String>task = new Task<String>() {
-
-			@Override
-			protected String call() throws Exception {
-				
-		    	Platform.runLater(new Runnable(){
-
-					@Override
-					public void run() {
-						//Gegner das SETUP mitteilen
-						
-
-						
-						
-						//Alte Stage die Verlassen wird
-				    	//Stage oldStage = (Stage)spielErstellen.getScene().getWindow();
-						
-						try {
-							FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldKI.fxml"));
-							ControllerKI cKI = new ControllerKI(60,true);
-							fxmlloader.setController(cKI);
-							Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-							//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
+        					
+        				});
+        		    	
+        		    	
+        				return null;
+        			}
+        			
+        		};
+        		
+        		Thread th = new Thread(task);
+        		th.setDaemon(true);
+        		th.start();
+        		
+        	}else if(radioButtonOurAI.isSelected()) {
+        		kiModus=comboBox.getSelectionModel().getSelectedIndex();
+        			
+        		Task<String>task = new Task<String>() {
+        			
+					protected String call() throws Exception {
+						final ControllerKI cKI = new ControllerKI(Integer.parseInt(parameter),true,kiModus,parameterFertig,false);
+						Platform.runLater(new Runnable() {
 							
-				    		Scene newScene = new Scene(root);
-							StarterKlasse.primaryStage.setScene(newScene);
-							StarterKlasse.primaryStage.setTitle("Battleship");
-							//newStage.setScene(new Scene(root, 1000, 600));
-							//oldStage.close();
-							//newStage.show();
-							
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+							public void run() {
+								try {
+					        		FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldKI.fxml"));
+					        		
+					        		fxmlloader.setController(cKI);
+					        		Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+					        		//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
+					        							
+					        		Scene newScene = new Scene(root);
+					        		StarterKlasse.primaryStage.setScene(newScene);
+					        		StarterKlasse.primaryStage.setTitle("Battleship");
+				        							
+				        		} catch (IOException e) {
+				        		// TODO Auto-generated catch block
+				        			e.printStackTrace();
+				        		}
+								
+							}
+						});
 						
+						return null;
 					}
+        			
+        		};
+        		
+        		Thread th = new Thread(task);
+        		th.setDaemon(true);
+        		th.start();
+        						
+        	}else if(radioButtonOfflineModus.isSelected()) {
+        		kiModus=comboBox.getSelectionModel().getSelectedIndex();
+    			
+        		Task<String>task = new Task<String>() {
+        			
+					protected String call() throws Exception {
+						new ControllerKI(Integer.parseInt(parameter),kiModus,true);
+						
+						return null;
+					}
+        			
+        		};
+        		
+        		Thread th = new Thread(task);
+        		th.setDaemon(true);
+        		th.start();
+        		
+        		//Spielfeld einrichten
+        		Task<String>task2 = new Task<String>() {
 
-					
-				});
-		    	
-		    	
-				return null;
-			}
-			
-		};
-		
-		Thread th = new Thread(task);
-		th.setDaemon(true);
-		th.start();*/
-    	
+        			@Override
+        			protected String call() throws Exception {
+        				connection.createConnection();
+        		    	Platform.runLater(new Runnable(){
+
+        					@Override
+        					public void run() {
+        						//Gegner das SETUP mitteilen
+        						
+        						connection.write(parameterFertig);
+        						
+        						//Wenn Client Gejoint ist Spielfeld einrichten und ins nächste Fenster gehen
+        						spiel.spielEinrichten(parameterFertig);
+        						
+        						FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielFeldServer.fxml"));
+        						ControllerSpielFeld csf = new ControllerSpielFeld(spiel.getSchiffListe(),parameterFertig,spiel,Integer.parseInt(parameter),connection);
+        						fxmlloader.setController(csf);
+        						
+        						//Alte Stage die Verlassen wird
+        				    	//Stage oldStage = (Stage)spielErstellen.getScene().getWindow();
+        						
+        						try {
+        	    		    		
+        							Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+        							//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
+        							
+        				    		Scene newScene = new Scene(root);
+        							StarterKlasse.primaryStage.setScene(newScene);
+        							StarterKlasse.primaryStage.setTitle("Battleship");
+        							//newStage.setScene(new Scene(root, 1000, 600));
+        							//oldStage.close();
+        							//newStage.show();
+        							
+        						} catch (IOException e) {
+        							// TODO Auto-generated catch block
+        							e.printStackTrace();
+        						}
+        						
+        					}
+
+        					
+        				});
+        		    	
+        		    	
+        				return null;
+        			}
+        			
+        		};
+        		
+        		Thread th2 = new Thread(task2);
+        		th2.setDaemon(true);
+        		th2.start();
+        	}
+
+        			
+    	}
 		
 	}
 	@FXML

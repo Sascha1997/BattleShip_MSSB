@@ -12,7 +12,7 @@ public class SpielHelfer {
 	
 	public String kalkuliereSchiffe(int groeﬂe) {
 		
-		int felder = (int) (groeﬂe*groeﬂe* 0.05); //Cast auf ganzzahlige Felderanzahl, die 20% entsprechen
+		int felder = (int) (groeﬂe*groeﬂe* 0.20); //Cast auf ganzzahlige Felderanzahl, die 20% entsprechen
 		int temp = felder; //Tempor‰rer int f¸r die zuf‰llige Vergabe
 		int [] vergabe = new int [4]; //Schiffsverteilung [0] sind die 5er Schiffe [1] die 4rer usw..
 		Random random = new Random();
@@ -353,7 +353,7 @@ public class SpielHelfer {
 	public int pruefeRateVersuch(String rateVersuch, ArrayList<Schiff>schiffListe) {
 		
 		
-		if(rateVersuch.equals("SAVE")) {
+		if(rateVersuch.equals("save")) {
 			return 3;
 		}
 		

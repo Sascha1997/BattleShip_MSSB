@@ -5,15 +5,16 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
@@ -28,6 +29,29 @@ public class ControllerKI implements Initializable{
 	@FXML
 	private GridPane gridPaneEnemy;
 	
+	@FXML
+	private Label zuPlazieren;
+	
+	@FXML
+	private Label spielZug;
+	
+	@FXML
+	private Label versenktWir;
+	
+	@FXML
+	private Label versenktGegner;
+	
+	@FXML
+	private Button fire;
+	
+	@FXML
+	private Button save;
+	
+	@FXML
+	private Button buttonAufgeben;
+	
+	private boolean isLoadedClient=false;
+	
 	
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		if(StarterKlasse.server) {
@@ -35,17 +59,56 @@ public class ControllerKI implements Initializable{
 		}else {
 			
 		}
-		this.spielFeldGenerieren();
+		spielZug.setText("1");
+		versenktWir.setText("0 EnemyHits");
+		versenktGegner.setText("0 Hits");
+		fire.setVisible(false);
+		save.setVisible(false);
+		buttonAufgeben.setVisible(false);
+		
+		if(!this.isLoadedClient)this.spielFeldGenerieren();
+		
 	}
-	public ControllerKI(int spielFeldGroeﬂe) throws UnknownHostException, IOException {
+	
+	//Client
+	public ControllerKI(int spielFeldGroeﬂe, int kiModus, boolean isOffline) {
 		this.spielFeldGroeﬂe = spielFeldGroeﬂe;
-		KI ki = new KI(new Socket("localhost",50000),false,2,this);
-		ki.start();
+		KI ki;
+		
+		try {
+			ki = new KI(new Socket("localhost",50000),false,kiModus,this,isOffline);
+			ki.start();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
-	public ControllerKI(int spielFeldGroeﬂe,boolean server) throws IOException {
+	//Server
+	public ControllerKI(int spielFeldGroeﬂe,boolean server,int kiModus, String setUp,boolean isOffline) {
 		this.spielFeldGroeﬂe = spielFeldGroeﬂe;
-		KI ki = new KI(new ServerSocket(50000).accept(),true,1,this,"setup 60 100 80 60 40");
-		ki.start();
+		KI ki;
+		try {
+			ki = new KI(new ServerSocket(50000).accept(),server,kiModus,this,setUp,isOffline);
+			ki.start();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void setZuPlazieren(final String setup) {
+		
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				zuPlazieren.setText(setup);
+			}
+			
+		});
+		
 	}
 	
 	public void plaziereSchiffe(ArrayList<Schiff>schiffe) {
@@ -77,6 +140,16 @@ public class ControllerKI implements Initializable{
 		//weiter und sie werden auf der GUI auch plaziert
 	}
 	public void markiereSchussVorbei(Point p) {
+		
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				spielZug.setText(String.valueOf(Integer.parseInt(spielZug.getText())+1));
+			}
+			
+		});
+		
 		for(Node n : gridPaneEnemy.getChildren()){
 			
 			Integer rowIndex = GridPane.getRowIndex(n);
@@ -107,6 +180,16 @@ public class ControllerKI implements Initializable{
 	}
 	
 	public void autoFill(ArrayList<Point>points) {
+		
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				String s[] = versenktGegner.getText().split(" ");
+				versenktGegner.setText(String.valueOf(Integer.parseInt(s[0])+1)+" "+s[1]);
+			}
+			
+		});
 		
 		for(int i=0;i<points.size();i++) {
 					
@@ -266,6 +349,48 @@ public class ControllerKI implements Initializable{
 		}
 	}
 	
+	
+	public void erhoeheGegnerVersenkt() {
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				String s[] = versenktWir.getText().split(" ");
+				versenktWir.setText(String.valueOf(Integer.parseInt(s[0])+1)+" "+s[1]);
+			}
+			
+		});
+	}
+	
+	public void markiereEigenesFeldVorbei(Point p) {
+		for(Node n : gridPaneWe.getChildren()){
+			
+			Integer rowIndex = GridPane.getRowIndex(n);
+			Integer colIndex = GridPane.getColumnIndex(n);
+			if(rowIndex!=null&&colIndex!=null) {
+				if(p.x==rowIndex.intValue()&&p.y==colIndex.intValue()) {
+					Button b = (Button)n;
+					b.setStyle("-fx-background-color: #0B4C5F");
+					break;
+				}
+			}
+		}
+	}
+	
+	public void markiereEigenesFeldTreffer(Point p) {
+		for(Node n : gridPaneWe.getChildren()){
+			
+			Integer rowIndex = GridPane.getRowIndex(n);
+			Integer colIndex = GridPane.getColumnIndex(n);
+			if(rowIndex!=null&&colIndex!=null) {
+				if(p.x==rowIndex.intValue()&&p.y==colIndex.intValue()) {
+					Button b = (Button)n;
+					b.setStyle("-fx-background-color: #8A4B08");
+					break;
+				}
+			}
+		}
+	}
 	@FXML
 	private void setZellorte() {
 		
@@ -288,6 +413,7 @@ public class ControllerKI implements Initializable{
 	}
 
 	private void spielFeldGenerieren() {
+
 		/*
 		 * 
 		 * UNSER SPIELFELD
@@ -355,5 +481,39 @@ public class ControllerKI implements Initializable{
 		 * GEGNERSPIELFELD ENDE
 		 * 
 		 */
+	}
+	
+	public void setSpielFeldGroeﬂe(String s) {
+		
+		String parts[]=s.split(" ");
+		System.out.println("PARTS[1] "+parts[1]);
+		if(!(parts[0].substring(0,1).equals("l"))) {
+			this.spielFeldGroeﬂe = Integer.parseInt(parts[1]);
+		}
+	}
+	public void setSpielFeld(int groeﬂe, final ArrayList<Schiff>schiffe,final int[][]spielFeldGegner,final int[][]spielFeldWir) {
+		
+		this.spielFeldGroeﬂe = groeﬂe;
+		
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				spielFeldGenerieren();
+				plaziereSchiffe(schiffe);
+	            gegnerSpielFeldWiederherstellen(spielFeldGegner);
+	            unserSpielFeldWiederherstellen(spielFeldWir);
+				
+			}
+			
+		});
+		
+	}
+	//Wird benˆtigt f¸r KI join via Load. 
+	public boolean getLoadedClient() {
+		return this.isLoadedClient;
+	}
+	public void setLoadedClient() {
+		
 	}
 }
