@@ -10,25 +10,28 @@ import javafx.stage.Stage;
 
 public class SchiffeVersenken {
 	
-	private SpielHelfer helfer = new SpielHelfer();
+	/**
+	 * Spielklasse mit einer Schifflist und einer Verbindung
+	 * 
+	 */
 	private ArrayList <Schiff> schiffListe = new ArrayList<Schiff>();
 	private Connection connection;
 	
+	/**
+	 * Konstruktor 
+	 * @param connection
+	 */
 	public SchiffeVersenken(Connection connection) {
 		this.connection = connection;
 	}
+	/**
+	 * Erzeugen der Schiffe mit den Plazierungsparamtern 
+	 * @param eingabe der Plazierungsparameter
+	 */
 	public void spielEinrichten(String eingabe) {
 		
-		//Eingabe aufteilen in 5 verschiedene Arrayelemente
 		String[]parts = eingabe.split(" ");
 		
-		//Groeﬂe des Spielfeldes mitteilen
-		int groeﬂe = Integer.valueOf(parts[1]);
-		helfer.setRasterLaenge(groeﬂe);
-		helfer.setRasterGroeﬂe(groeﬂe*groeﬂe);
-		helfer.setRaster(new int [groeﬂe*groeﬂe]);
-	
-		// For Schleifen, die jeweils die Schiffe erzeugen (5er L‰nge, 4er L‰nge, etc. )
 		int i,j,k,l;
 		for (i=0;i<Integer.valueOf(parts[2]);i++) {
 			
@@ -54,11 +57,14 @@ public class SchiffeVersenken {
 			this.schiffListe.add(ship);
 		}
 		
-		System.out.println("Spiel Startet");
 		
 	}
 	
-	
+	/**
+	 * Beenden des Spiels und Aufruf des Beendenfensters
+	 * @param gewonnen
+	 * @param stage
+	 */
 	public void spielBeenden(boolean gewonnen, Stage stage) {
 		System.out.println("Spiel ist nun Beendet");
 		this.connection.closeConnection();
@@ -70,16 +76,16 @@ public class SchiffeVersenken {
     		fxmlloader.setController(czzm);
     		Parent root = fxmlloader.load();
     		Stage newStage = new Stage();
-    		newStage.setTitle("Spielende");
-    		newStage.setScene(new Scene(root,600, 400));
+    		newStage.setScene(new Scene(root));
     		newStage.show();
     			
     	} catch (IOException e) {
-    		// TODO Auto-generated catch block
     		e.printStackTrace();
     	}
 	}
-	
+	/**
+	 * Aufruf des Spielabbruchfensters
+	 */
 	public void spielAbbruch() {
 		System.out.println("SpielAbbruch");
 		FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielAbbruch.fxml"));
@@ -88,24 +94,20 @@ public class SchiffeVersenken {
 	   						
 		try {
 			fxmlloader.setController(csa);
-			Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-			//ControllerObjekt von der n‰chsten Gui-Oberfl‰che erzeugen um die SchiffsListe, den in und den Output Reader zu ¸bergeben
-			
+			Parent root = fxmlloader.load();			
     		Stage newStage = new Stage();
-			newStage.setTitle("Spielabbruch");
-			newStage.setScene(new Scene(root, 500, 280));
+			newStage.setScene(new Scene(root));
 			newStage.show();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public ArrayList<Schiff> getSchiffListe() {
-		return schiffListe;
-	}
 	
+	/**
+	 * Aufruf des Aufgebenfensters
+	 */
 	public void spielAufgeben() {
 		
 		System.out.println("SpielAufgeben");
@@ -115,18 +117,23 @@ public class SchiffeVersenken {
 	   						
 		try {
 			fxmlloader.setController(csa);
-			Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-			//ControllerObjekt von der n‰chsten Gui-Oberfl‰che erzeugen um die SchiffsListe, den in und den Output Reader zu ¸bergeben
+			Parent root = fxmlloader.load();
 			
     		Stage newStage = new Stage();
-			newStage.setTitle("Spiel aufgeben");
-			newStage.setScene(new Scene(root, 500, 280));
+			newStage.setScene(new Scene(root));
 			newStage.show();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Getter
+	 * @return Schiffliste
+	 */
+	public ArrayList<Schiff> getSchiffListe() {
+		return schiffListe;
 	}
 	
 }

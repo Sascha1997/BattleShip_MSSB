@@ -12,15 +12,24 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-
+/**
+ * Connectionklasse für die Kommunikation zwischen Server und Client
+ *
+ */
 public class Connection {
+	/**
+	 * Objekt-Attribute
+	 */
 	private Socket s;
 	private ServerSocket ss;
 	private String ip;
 	private Writer out;
 	private BufferedReader in;
 	
-	//Unserer IP Adresse ermitteln, die dann später als Client ans Socket übergeben wird
+	/**
+	 * IP Adresse ermitteln, die dann später als Client ans Socket übergeben wird
+	 * @return IP-Adresse
+	 */
 	public String getIp() {
 
 		String ipAdress = "";
@@ -49,11 +58,12 @@ public class Connection {
     	 ip = parts[1];
     	 return ip;
 	}
-
+	/**
+	 * Schließen der Connection, wenn das Spiel aufhört
+	 * @return true bei Erfolg
+	 */
 	public boolean closeConnection() {
 		try {
-			//Unter umständen ist bei zurück Buttons noch keine Connection entstanden, diese muss aber geschlossen werden falls. Null abfrage wird den entsprechenden Fall erkennen
-			
 			
 			if(s!=null) {
 				this.s.close();
@@ -70,16 +80,26 @@ public class Connection {
 		}
 		return true;
 	}
-	
-	public boolean connectAsClient()throws UnknownHostException,IOException {
+	/**
+	 * Connection erstellen, wenn man als Client joint
+	 *
+	 * @param ip
+	 * @return true bei Erfolg
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
+	public boolean connectAsClient(String ip)throws UnknownHostException,IOException{
 		
-		this.s = new Socket (this.getIp(),50000);
+		this.s = new Socket (ip,50000);
 		this.in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 		this.out = new OutputStreamWriter(s.getOutputStream());
-		
 		return true;
 		
 	}
+	/**
+	 * Connection erstellen als Server
+	 * @return true bei Erfolg
+	 */
 	public boolean createConnection() {
 		try {
 			this.ss=new ServerSocket(50000);
@@ -88,13 +108,17 @@ public class Connection {
 			this.out = new OutputStreamWriter(s.getOutputStream());
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
 		return true;
 	}
 	
+	/**
+	 * Schreiben an den Server 
+	 * @param Nachricht
+	 * @return true bei Erfolg
+	 */
 	public boolean write(String s) {
 		try {
 			this.out.write(s+"\n");
@@ -106,7 +130,10 @@ public class Connection {
 		}
 		return true;
 	}
-	
+	/**
+	 * Lesen vom Server
+	 * @return Nachricht
+	 */
 	public String read() {
 		String s;
 		try {

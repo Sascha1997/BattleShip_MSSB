@@ -5,33 +5,37 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class SpielHelfer {
-	private int rasterLaenge;
-	private int rasterGroeße;
-	private int [] raster;
-	private int schiffAnzahl = 0;
 	
+	/**
+	 * Kalkulieren der zu plazierenden Schiffe (Ca. 20% des Spielfelds). Bei Feldergröße 5x5 und 6x6 gibt es eine 
+	 * vordefinierte Menge der zu plazierenden Schiffe. Andernfalls werden in der Whileschleife zufällig 2er -5er Schiffe
+	 * ermittelt und die Verteilung anschließend als String zurückgegeben.
+	 * @param groeße des Spielfelds
+	 * @return zu plazierende Schiffe. 
+	 * 
+	 */
 	public String kalkuliereSchiffe(int groeße) {
 		
-		int felder = (int) (groeße*groeße* 0.20); //Cast auf ganzzahlige Felderanzahl, die 20% entsprechen
-		int temp = felder; //Temporärer int für die zufällige Vergabe
-		int [] vergabe = new int [4]; //Schiffsverteilung [0] sind die 5er Schiffe [1] die 4rer usw..
+		
+		int felder = (int) (groeße*groeße* 0.20); 
+		int temp = felder;
+		int [] vergabe = new int [4];
 		Random random = new Random();
 		
-		//Bei 5x5 Feld können keine 5er und 4rer Schiffe drauf deshalb vorgegebene Schiffsmenge
+		
 		if(felder == 5) {
 			return "0 0 1 1";
 		}
-		//Bei 6x6 Feld können keine 5er Schiffe drauf deshalb vorgegebene Schiffsmenge (int) 6*6*0,20 = 7
+		
 		if (felder ==7) {
 			return "0 0 1 2";
 		}
 		
-		//Ab hier zufällige vergabe
+		
 		while(felder >0) {
 			
-			temp = 2 + random.nextInt(4); // nextInt() Liefert zahl von 0-3 mit +2 ergibt sich also 2 - 5 
+			temp = 2 + random.nextInt(4); 
 			
-			//Erhöhung der Werte im Anzahlarray
 			if(temp == 5)vergabe[0]=vergabe[0]+1;
 			if(temp == 4)vergabe[1]=vergabe[1]+1;
 			if(temp == 3)vergabe[2]=vergabe[2]+1;
@@ -40,15 +44,15 @@ public class SpielHelfer {
 			felder = felder - temp;
 		}
 		
-		//Die Möglichkeit, dass mehr Felder belegt werden als die 20 % besteht durch diese Methode.
-		//Es dürfte sich allerdings ausgleichen, da der (int) Typecast am Anfang die Kommawerte abschneidet und
-		//Dadurch auch oft ein Wert unter 20% herauskommt
 		
-		
-		//Rückgabe im Format "x x x x" der Belegung
 		return String.valueOf(vergabe[0])+" "+String.valueOf(vergabe[1])+" "+String.valueOf(vergabe[2])+" "+String.valueOf(vergabe[3]);
 	}
 	
+	/**
+	 * Prüfung der vollständigen Plazierung aller Schiffe.
+	 * @param schiffListe aller plazierten Schiffe
+	 * @return true wenn alle plaziert wurden, false sonst
+	 */
 	public boolean pruefeVollständigePlazierung(ArrayList<Schiff>schiffListe) {
 		boolean b = true;
 		for(Schiff aktuellesSchiff: schiffListe) {
@@ -59,6 +63,14 @@ public class SpielHelfer {
 		return b;
 	}
 	
+	/**
+	 * Prüfung der Plazierung eines Schiffes. Es gibt verschiedene Regeln, die nicht verletzt werden dürfen und die hier
+	 * in der if-Abfrage alle geprüft werden. Die einzelnen Methoden werden weiter unten erläutert. 
+	 * Return true, wenn die Plazierung in Ordnung geht, sonst false.
+	 * @param schiffListe aller plazierten Schiffe
+	 * @param zellorte des zu plazierenden Schiffs
+	 * @return true wenn Plazierung möglich, sonst false
+	 */
 	public boolean pruefePlazierung(String zellorte, ArrayList<Schiff>schiffListe) {
 		
 		if(zellorte!=""&&zellorte.length()>7&&pruefeVersetztePlazierung(zellorte,schiffListe)&&pruefeZuVielPlazierung(zellorte,schiffListe)&&
@@ -70,6 +82,12 @@ public class SpielHelfer {
 		return false;
 	}
 	
+	/**
+	 * Prüfen ob Schiff zu klein ist
+	 * @param schiffListe aller plazierten Schiffe
+	 * @param zellorte des zu plazierenden Schiffs
+	 * @return true wenn >= 2, sonst false
+	 */
 	private boolean pruefeZuKleinesSchiff(String zellorte, ArrayList<Schiff> schiffListe) {
 		
 		String parts[] = zellorte.split(" ");
@@ -82,6 +100,12 @@ public class SpielHelfer {
 		return true;
 	}
 
+	/**
+	 * Prüfen ob Schiff zu groß ist
+	 * @param schiffListe aller plazierten Schiffe
+	 * @param zellorte des zu plazierenden Schiffs
+	 * @return true wenn <=5, sonst false
+	 */
 	private boolean pruefeZuGroßesSchiff(String zellorte, ArrayList<Schiff> schiffListe) {
 		String parts[] = zellorte.split(" ");
 		
@@ -93,9 +117,16 @@ public class SpielHelfer {
 		return true;
 	}
 
+	/**
+	 * Prüfe Berührungspunkt mit anderen Schiffen. Übergabeparameter ist die SchiffListe mit allen bisherigen Schiffen und die 
+	 * zellorte, auf die das neue Schiff plaziert werden soll. 
+	 * @param schiffListe aller plazierten Schiffe
+	 * @param zellorte des zu plazierenden Schiffs
+	 * return true wenn alles in Ordnung, false sonst
+	 */
 	private boolean pruefeBeruehrungsPunkte(String zellorte, ArrayList<Schiff> schiffListe) {
 		
-		//Prüfe Ausrichtung gibt True zurück wenn das SchiffQuer liegt sonst false bei Hochkant
+		
 		boolean isQuer=pruefeAusrichtungQuer(zellorte);
 		
 		String parts[]=zellorte.split(" ");
@@ -105,8 +136,6 @@ public class SpielHelfer {
 		int row=Integer.parseInt(parts[0].substring(0, 2));
 		int col=Integer.parseInt(parts[0].substring(2, 4));
 		
-		System.out.println("Plazierungsprüfung ROW "+row+" COL "+col);
-		//Umfeld wird alle Felder bekommen, die neben dem Schiff liegen können, je nachdem wie groß das Schiff ist, ist das Umfeld größer
 		if(groeße==5) {
 			umfeld=new String[16];
 			if(isQuer) {
@@ -244,9 +273,7 @@ public class SpielHelfer {
 			}
 			umfeld[i]=partss[0]+partss[1];
 		}
-		
-		//Alle Felder Drumrum sind jetzt im String Umfeld gespeichert jetzt mit den Schiffszellorten vergleichen
-		
+				
 		for(int i=0;i<schiffListe.size();i++) {
 			ArrayList <String> zellorteSchiff = schiffListe.get(i).getZellorte();
 			System.out.println("ZellorteSchiff: "+zellorteSchiff);
@@ -263,13 +290,17 @@ public class SpielHelfer {
 		}
 		return true;
 	}
-
+	
+	/**
+	 * Prüfen, ob mehr als die zulässige Gesamtzahl eines Schifftyps plaziert wurde.
+	 * @param schiffListe aller plazierten Schiffe
+	 * @param zellorte des zu plazierenden Schiffs
+	 * @return true alles in Ordnung, sonst false
+	 */
 	private boolean pruefeZuVielPlazierung(String zellorte, ArrayList<Schiff> schiffListe) {
 		String parts[] = zellorte.split(" ");
 		int groeße=parts.length;
-		//Wenn ein Schiff in der SchiffsListe gefunden wird, dass der Größe entspricht die eingetragen werden möchte
-	
-		//und es noch nicht Plaziert ist liefer True sonst ist kein Platz mehr für so ein Schiff und es wird false geliefert
+		
 		for(Schiff aktuellesSchiff : schiffListe) {
 			if(aktuellesSchiff.getGroeße()==groeße &&!(aktuellesSchiff.getIstPlaziert())) {
 					return true;
@@ -279,6 +310,12 @@ public class SpielHelfer {
 		return false;
 	}
 
+	/**
+	 * Prüfen, ob eine Zelle eines Schiffes versetzt und nicht in einer Linie gesetzt wurde
+	 * @param schiffListe aller plazierten Schiffe
+	 * @param zellorte des zu plazierenden Schiffs
+	 * @return true wenn alles in Ordnung ,sonst false
+	 */
 	private boolean pruefeVersetztePlazierung(String zellorte, ArrayList<Schiff> schiffListe) {
 
 		String parts[] = zellorte.split(" ");
@@ -292,7 +329,7 @@ public class SpielHelfer {
 		
 		int[]rowArray=new int[parts.length];
 		int[]colArray=new int[parts.length];
-		//row hat hier die länge 2
+		
 		for(int i = 0;i<row.length();i=i+2) {
 			int temp = Integer.parseInt(row.substring(i, i+2));
 			rowArray[i/2]=temp;
@@ -311,12 +348,8 @@ public class SpielHelfer {
 			System.out.println("colArray: "+colArray[i]);	
 		}
 		
-		
-		//Prüfung auf dass das Schiff nicht in einer Reihe oder Spalte liegt, Zahl darf sich nur bei einem Ändern
-		
+	
 		boolean b=false,c = false;
-		//Prüfen ob Lücken im Schiff sind auf die Länge gesehen, aber nur wenn boolean true ist, heißt wenn das Schiff da
-		//Aufsteigende Werte hat
 		
 		for(int i = 0;i<rowArray.length-1;i++) {
 			int eins=rowArray[i];
@@ -339,7 +372,11 @@ public class SpielHelfer {
 		return true;
 		
 	}
-
+	/**
+	 * Hilfsmethode für die Methode prüfeBerührungspuntke, um feststellen zu können, ob ein Schiff quer oder hochkant ist. 
+	 * @param zellorte des zu plazierenden Schiffs
+	 * @return true wenn Schiff quer, sonst false
+	 */
 	private boolean pruefeAusrichtungQuer(String zellorte) {
 		String parts[]=zellorte.split(" ");
 		int einsRow = Integer.parseInt(parts[0].substring(0, 2));
@@ -350,6 +387,15 @@ public class SpielHelfer {
 		return false;
 		
 	}
+	/**
+	 * Prüfe Rateversuch des Gegners
+	 * @param rateVersuch des Gegners
+	 * @param schiffListe mit allen Schiffen
+	 * @return 3, wenn Speicherbefehl
+	 * @return 2, wenn Schiff versenkt
+	 * @return 1, wenn Schiff getroffen
+	 * @return 0 sonst
+	 */
 	public int pruefeRateVersuch(String rateVersuch, ArrayList<Schiff>schiffListe) {
 		
 		
@@ -359,7 +405,6 @@ public class SpielHelfer {
 		
 		int ergebnis = 0;
 		
-		//Alle Schiffe durchprüfen ob ein Treffer erzielt wurde oder sogar das Schiff versenkt wurde
 		for (Schiff aktuellesSchiff : schiffListe) {
 			ergebnis = aktuellesSchiff.pruefDich(rateVersuch);
 			
@@ -380,14 +425,18 @@ public class SpielHelfer {
 		return ergebnis;
 	}
 	
+	/**
+	 * Setzen der Zellorte eines Schiffes
+	 * @param schiffListe aller plazierten Schiffe
+	 * @param zellorte des zu plazierenden Schiffs
+	 * @return boolean Array mit b[0] für Plazierung möglich b[1] für alle Schiffe plaziert
+	 */
 	public boolean [] setZellOrte(ArrayList<Schiff>schiffListe, String zellorte) {
-		//Prüfen ob noch ein Schiff der Größe x möglich ist
+		
 		boolean [] b = new boolean[2];
 		b[0]=false;
 		b[1]=false;
 		if(!this.pruefePlazierung(zellorte,schiffListe)) {
-			System.out.println("Plazierung nicht möglich");
-			
 			return b;
 		}
 		b[0]=true;
@@ -400,7 +449,6 @@ public class SpielHelfer {
 			al.add(format);
 		}
 		
-		//Zellorte für die Schiffobjekte setzen
 		switch (orte.length) {
 		
 			case 2:
@@ -458,32 +506,23 @@ public class SpielHelfer {
 				
 		}
 		
-		for(int i = 0;i<schiffListe.size();i++) {
-			System.out.println(i+": "+schiffListe.get(i).getIdentification()+" Größe: "+
-				schiffListe.get(i).getGroeße() +" Ist Plaziert: "+
-				schiffListe.get(i).getIstPlaziert());
-				
-		}
-		for(int i = 0;i<schiffListe.size();i++) {
-			if(schiffListe.get(i).getZellorte()!=null) {
-				for (int j=0;j<schiffListe.get(i).getZellorte().size();j++) {
-					System.out.println("Zellort "+j+": "+" von Schiff "+i+"   "+schiffListe.get(i).getZellorte().get(j)+" ");
-				}
-		}
-			
-			
-		}
 		
 		b[1]=(this.pruefeVollständigePlazierung(schiffListe));	
 		return b;
 	}
-	
+
+	/**
+	 * Hilfsmethode fürs Spiel, die unterstützende Informationen für einen Autofill liefert beim Versenken eines Schiffes
+	 * @param letzter Schuss der zum Versenken geführt hat
+	 * @param alle getroffenen Zellen des Gegnerschiffes
+	 * @return Zellen, die nicht als Rot markiert werden sollen
+	 */
 	public String[] adjust(String lastShot, String[]getroffeneZellen) {
 		
 		String[]selectedCells=new String[10];
 		String parts[]=lastShot.split(" ");
-		String row=parts[0]; //02	
-		String col=parts[1]; //03
+		String row=parts[0]; 	
+		String col=parts[1]; 
 		for(int i=0;i<getroffeneZellen.length;i++) {
 			if(getroffeneZellen[i]!=null) {
 				if(!(getroffeneZellen[i].substring(0, 2).equals(row))&&!(getroffeneZellen[i].substring(2, 4).equals(col))) {
@@ -492,31 +531,9 @@ public class SpielHelfer {
 			}
 			
 		}
-		for(int i=0;i<selectedCells.length;i++) {
-			if(selectedCells[i]!=null) {
-				System.out.println("Aussortierte Zelle "+selectedCells[i]);
-			}
-		}
-		
 		return selectedCells;
 	}
-	
-	//Setter für Groeße und Laenge des Spielfelds
-	public void setRasterGroeße(int rasterGroeße) {
-			this.rasterGroeße = rasterGroeße;
-	}
-
-	public void setRasterLaenge(int rasterLaenge) {
-			this.rasterLaenge = rasterLaenge;
-	}
-
-	public void setRaster(int[] raster) {
-			this.raster = raster;
-	}
-
-	
-
-	
+		
 	
 	
 }

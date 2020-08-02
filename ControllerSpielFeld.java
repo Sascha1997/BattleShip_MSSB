@@ -5,14 +5,19 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import org.controlsfx.control.Notifications;
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
@@ -20,7 +25,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class ControllerSpielFeld implements Initializable{
 	
@@ -49,6 +56,10 @@ public class ControllerSpielFeld implements Initializable{
 	private Label versenktGegner;
 	@FXML
 	private Button save;
+	@FXML
+	private Button buttonAufgeben;
+	@FXML 
+	private Button buttonUndo;
 	
 	private int spielZugCounter;
 	
@@ -57,10 +68,7 @@ public class ControllerSpielFeld implements Initializable{
 	private int versenktGegnerCounter;
 	
 	private Button tempButton;
-	
-	@FXML
-	private Button buttonAufgeben;
-	
+
 	private SchiffeVersenken spiel;
 	private SpielHelfer spielHelfer;
 	
@@ -80,20 +88,23 @@ public class ControllerSpielFeld implements Initializable{
     private String[] getroffeneZellen=new String[10];
     
     private int schiffCounter;
-    private int spielFeldGroeﬂe;
+    private int spielFeldGroe√üe;
     
     private Connection connection;
     
     //Gibt an ob Spiel erstellt oder geladen wurde
     private boolean isLoaded;
+    private boolean isOffline;
     private boolean wirSindDran;
     private boolean spielGestartet = false;
     
     private Files file;
     
-    
+    private String schiffMenge;
+    private ArrayList<String> allePlazierungen = new ArrayList<String>();
+
     //Konstruktor Spiel erstellen
-    public ControllerSpielFeld(ArrayList<Schiff> schiffListe, String schiffeVerteilung, SchiffeVersenken spiel,int spielFeldGroeﬂe, Connection connection) {
+    public ControllerSpielFeld(ArrayList<Schiff> schiffListe, String schiffeVerteilung, SchiffeVersenken spiel,int spielFeldGroe√üe, Connection connection, boolean isOffline) {
     	this.spielHelfer = new SpielHelfer();
     	this.connection=connection;
     	this.schiffVerteilung=schiffeVerteilung;
@@ -101,22 +112,24 @@ public class ControllerSpielFeld implements Initializable{
     	this.schiffListe=schiffListe;
     	this.schiffCounter = schiffListe.size();
     	this.isLoaded=false;
+    	this.isOffline=isOffline;
     	if(StarterKlasse.server) {
     		wirSindDran=true;
     	}
     	this.file=new Files();
-    	this.spielFeldGroeﬂe=spielFeldGroeﬂe;
-    	
+    	this.spielFeldGroe√üe=spielFeldGroe√üe;
+
     	
     }
     //Konstruktor Spiel laden
-    public ControllerSpielFeld(boolean wirSindDran,int[][]unserSpielfeld,int[][]gegnerSpielfeld,ArrayList<Schiff> schiffListe, int versenktWirCounter, int versenktGegnerCounter,int spielZugCounter,int schiffCounter, Connection connection) {
+    public ControllerSpielFeld(boolean wirSindDran,int[][]unserSpielfeld,int[][]gegnerSpielfeld,ArrayList<Schiff> schiffListe, int versenktWirCounter, int versenktGegnerCounter,int spielZugCounter,int schiffCounter, Connection connection, boolean isOffline) {
     	this.spielHelfer = new SpielHelfer();
     	this.schiffListe=schiffListe;
     	this.schiffCounter=schiffCounter;
     	this.connection=connection;
     	this.spiel = new SchiffeVersenken(connection);
     	this.isLoaded=true;
+    	this.isOffline=isOffline;
     	this.unserSpielfeldLaden=unserSpielfeld;
     	this.gegnerSpielfeldLaden = gegnerSpielfeld;
     	this.wirSindDran = wirSindDran;
@@ -124,15 +137,15 @@ public class ControllerSpielFeld implements Initializable{
     	this.versenktWirCounter=versenktWirCounter;
     	this.versenktGegnerCounter=versenktGegnerCounter;
     	this.spielZugCounter=spielZugCounter;
-    	this.spielFeldGroeﬂe = unserSpielfeld.length;
+    	this.spielFeldGroe√üe = unserSpielfeld.length;
     }
-    
-	
+
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		spielStarten.setDisable(true);
+		buttonUndo.setVisible(false);
 		ready.setDisable(true);
-		unserSpielfeld = new int[this.spielFeldGroeﬂe][this.spielFeldGroeﬂe];
-		gegnerSpielfeld = new int[this.spielFeldGroeﬂe][this.spielFeldGroeﬂe];
+		unserSpielfeld = new int[this.spielFeldGroe√üe][this.spielFeldGroe√üe];
+		gegnerSpielfeld = new int[this.spielFeldGroe√üe][this.spielFeldGroe√üe];
 		if(this.isLoaded) {
 			spielAufbauen(unserSpielfeldLaden,unserSpielfeldLaden,versenktWirCounter,versenktGegnerCounter,spielZugCounter);
 			versenktWir.setText(String.valueOf(this.versenktWirCounter));
@@ -153,13 +166,12 @@ public class ControllerSpielFeld implements Initializable{
 	public void spielGenerieren() {
 		
 		String []parts=this.schiffVerteilung.split(" ");
-		zuPlazieren.setText(parts[2]+" "+parts[3]+" "+parts[4]+" "+parts[5]);
+		zuPlazieren.setText(parts[2]+"      "+parts[3]+"      "+parts[4]+"      "+parts[5]);
+		schiffMenge=parts[2]+"      "+parts[3]+"      "+parts[4]+"      "+parts[5];
 		this.spielFeldGenerieren();
 		
 	}
-	
-	
-	
+
 	@FXML
 	private void setZellorte() {
 		//b[0] gibt an ob die Plazierung geklappt hat und b[1] ob alle Schiffe plaziert wurden.
@@ -167,57 +179,83 @@ public class ControllerSpielFeld implements Initializable{
 		
 		boolean[] b = spielHelfer.setZellOrte(schiffListe, zellorte);
 		if(b[0]) {//0001 0002 0003
+			allePlazierungen.add(zellorte);
 			String parts[]=zellorte.split(" ");
 			for(int i=0;i<parts.length;i++) {
-				unserSpielfeld[Integer.parseInt(parts[i].substring(0, 2))][Integer.parseInt(parts[i].substring(2, 4))]=3;//F¸r Speichern unser Spielfeld markieren wo Plazierung ist
+				unserSpielfeld[Integer.parseInt(parts[i].substring(0, 2))][Integer.parseInt(parts[i].substring(2, 4))]=3;//F√ür Speichern unser Spielfeld markieren wo Plazierung ist
+			
 			}
+			String[] parts2 = zuPlazieren.getText().split("      ");
+			switch (parts.length) {
+				case 2:
+					parts2[3]=String.valueOf(Integer.parseInt(parts2[3])-1);
+					break;
+				case 3:
+					parts2[2]=String.valueOf(Integer.parseInt(parts2[2])-1);
+					break;
+				case 4:
+					parts2[1]=String.valueOf(Integer.parseInt(parts2[1])-1);
+					break;
+				case 5:
+					parts2[0]=String.valueOf(Integer.parseInt(parts2[0])-1);
+					break;
+			}
+			zuPlazieren.setText(parts2[0]+"      "+parts2[1]+"      "+parts2[2]+"      "+parts2[3]);
 			this.makeButtonsUnclickable(zellorte);
 			zellorte="";
 		}
 		if(b[1]) {
 			spielStarten.setDisable(false);	
 			zellorte="";
-			this.disableOurField();
+			this.disableOurField(true);
 		}
 		
 		ready.setDisable(true);
-		
-		/*TrayNotification tray = new TrayNotification();
-		
-		tray.setTitle("Plazierung");
-		tray.setMessage("Schiff wurde erfolgreich Plaziert");
-		tray.setNotificationType(NotificationType.SUCCESS);
-		tray.setAnimationType(AnimationType.POPUP);
-		tray.showAndDismiss(Duration.seconds(2));
-		
-	
-		Notifications notificationBuilder = Notifications.create()
-				.title("Plaziert")
+
+
+		Notifications.create()
+				.owner(StarterKlasse.primaryStage)
+				.title("Schiff platziert")
 				.text("Schiff wurde erfolgreich plaziert")
 				.graphic(null)
-				.hideAfter(Duration.seconds(3))
-				.position(Pos.BOTTOM_CENTER);
-				
+				.hideAfter(Duration.seconds(1.5))
+				.position(Pos.TOP_CENTER)
+				.show();
 		
-		notificationBuilder.darkStyle();		
-		notificationBuilder.showInformation();
+		buttonUndo.setVisible(true);
 		
-		Notifier.INSTANCE.notifySuccess("Plaziert", "Schiff wurde erfolgreich plaziert");*/
-	
+
 	}
-	
-	
+
 	public void spielStarten() throws IOException, InterruptedException {
 		
+		buttonUndo.setVisible(false);
 		if(!StarterKlasse.server) {
 			
 			Task<String>task = new Task<String>() {
 
 				@Override
 				protected String call() throws Exception {
-					connection.write("confirmed");
 					
+					
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							Notifications.create()
+							.owner(StarterKlasse.primaryStage)
+							.title("Spiel gestartet")
+							.graphic(null)
+							.hideAfter(Duration.seconds(1.5))
+							.position(Pos.TOP_CENTER)
+							.showInformation();
+							
+						}
+						
+					});
+					connection.write("confirmed");
 					System.out.println("Spiel Beginnt");
+					
 					spielGestartet=true;
 					fire.setDisable(true);
 					warteAufGegner();
@@ -228,6 +266,8 @@ public class ControllerSpielFeld implements Initializable{
 			Thread th = new Thread(task);
 			th.setDaemon(true);
 			th.start();
+			
+			zuPlazieren.setText(schiffMenge);
 		}else {
 			//Task im extra Thread, damit das nicht im FX thread gemacht wird und die GUI einfriert
 			Task<String>task = new Task<String>() {
@@ -248,8 +288,25 @@ public class ControllerSpielFeld implements Initializable{
 					}
 					
 					if(temp.equals("confirmed")) {
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								Notifications.create()
+								.owner(StarterKlasse.primaryStage)
+								.title("Spiel gestartet")
+								.graphic(null)
+								.hideAfter(Duration.seconds(1.5))
+								.position(Pos.TOP_CENTER)
+								.showInformation();
+								
+								
+							}
+							
+						});
 						System.out.println("Spiel Beginnt");
 						spielGestartet=true;
+						
 					}
 					
 					
@@ -268,6 +325,7 @@ public class ControllerSpielFeld implements Initializable{
 		}else {
 			zug.setText("Gegner ist dran");
 		}
+		zuPlazieren.setText(schiffMenge);
 		versenktWirCounter = 0;
 		versenktGegnerCounter = 0;
 		spielZugCounter = 1;
@@ -283,13 +341,47 @@ public class ControllerSpielFeld implements Initializable{
 	//Zwischen Schuss und Warte auf Gegner wird hin und her gesprungen
 	@FXML
 	private void schuss() throws IOException, IllegalStateException {
+
 		if(!spielGestartet) {
+			Notifications.create()
+					.owner(StarterKlasse.primaryStage)
+					.title("Vorsicht!")
+					.text("Das Spiel muss erst Starten, bevor ein Schuss abgefeuert werden kann")
+					.graphic(null)
+					.hideAfter(Duration.seconds(1.5))
+					.position(Pos.TOP_CENTER)
+					.show();
 			System.out.println("Das Spiel muss erst Starten, bevor ein Schuss abgefeuert werden kann");
 			return;
 		}
-		
+
+		//Schusssound
+		if(SoundsController.effekte) {
+			final Task sound = new Task() {
+
+				@Override
+				protected Object call() throws Exception {
+					AudioClip audio = new AudioClip(getClass().getResource("/assets/schussSound.wav").toExternalForm());
+					audio.setVolume(SoundsController.getVolume());
+					audio.play();
+					return null;
+				}
+			};
+
+			Thread thread = new Thread(sound);
+			thread.start();
+		}
+
 		if(rowIndex==null||rowIndex.equals("")) {
-			System.out.println("W‰hle eine Zelle aus, auf die du schieﬂen mˆchtest");
+			Notifications.create()
+					.owner(StarterKlasse.primaryStage)
+					.title("Vorsicht!")
+					.text("W√§hle eine Zelle aus, auf die du schie√üen m√∂chtest")
+					.graphic(null)
+					.hideAfter(Duration.seconds(1.5))
+					.position(Pos.TOP_CENTER)
+					.show();
+			System.out.println("W√ühle eine Zelle aus, auf die du schie√üen m√üchtest");
 			return;
 		}
 		//Gegner den Schuss mitteilen
@@ -299,7 +391,7 @@ public class ControllerSpielFeld implements Initializable{
 		//Button erstmal deaktivieren
 		fire.setDisable(true);
 		
-		//Task der im Extra Thread gestartet wird, in dem auf die Antwort vom Gegner gewartet wird. Beugt einfrieren der Oberfl‰che vor
+		//Task der im Extra Thread gestartet wird, in dem auf die Antwort vom Gegner gewartet wird. Beugt einfrieren der Oberfl√üche vor
 		Task<String>task = new Task<String>() {
 
 			@Override
@@ -315,7 +407,7 @@ public class ControllerSpielFeld implements Initializable{
 						}	
 					});
 				}
-				//Answer 1 Makiere das Feld vom Gegner mit Gr¸n und setze den Button wieder auf Enable f¸r nochmal schieﬂen
+				//Answer 1 Makiere das Feld vom Gegner mit Gr√ün und setze den Button wieder auf Enable f√ür nochmal schie√üen
 				if(answer.equals("answer 1")) {
 					
 					gegnerSpielfeld[Integer.parseInt(rowIndex)][Integer.parseInt(colIndex)]=2;
@@ -327,11 +419,11 @@ public class ControllerSpielFeld implements Initializable{
 						}	
 					}
 					
-					tempButton.setStyle("-fx-background-color: #00FF00");
+					tempButton.setId("cellGetroffen");
 					fire.setDisable(false);
-				//Answer 2 ist gleich wie Answer 1 nur dass hier Versenkt wird, die entsprechende Aktuallsierte info wird dann runLater() im FX Thread erg‰nzt
+				//Answer 2 ist gleich wie Answer 1 nur dass hier Versenkt wird, die entsprechende Aktuallsierte info wird dann runLater() im FX Thread erg√ünzt
 				}else if(answer.equals("answer 2")){
-					schiffCounter--; //Z‰hler f¸r Gegnerschiffe versenkt, zum erkennen wann Spiel vorbei ist
+					schiffCounter--; //Z√ühler f√ür Gegnerschiffe versenkt, zum erkennen wann Spiel vorbei ist
 					
 					gegnerSpielfeld[Integer.parseInt(rowIndex)][Integer.parseInt(colIndex)]=2;
 					for(int i=0;i<getroffeneZellen.length;i++) {
@@ -340,9 +432,26 @@ public class ControllerSpielFeld implements Initializable{
 							break;
 						}	
 					}
+
+					//Versenktsound
+					if(SoundsController.effekte) {
+						final Task sound = new Task() {
+
+							@Override
+							protected Object call() throws Exception {
+								AudioClip audio = new AudioClip(getClass().getResource("/assets/versenktSound.wav").toExternalForm());
+								audio.setVolume(SoundsController.getVolume());
+								audio.play();
+								return null;
+							}
+						};
+
+						Thread thread = new Thread(sound);
+						thread.start();
+					}
 					
 					System.out.println("Versenkt");
-					tempButton.setStyle("-fx-background-color: #00FF00");
+					tempButton.setId("cellGetroffen");
 					fire.setDisable(false);
 					Platform.runLater(new Runnable(){
 
@@ -358,13 +467,31 @@ public class ControllerSpielFeld implements Initializable{
 							}
 						}	
 					});
-					//Answer 0 wir schreiben PASS an den Gegner, sodass der schieﬂen darf. Feld wird rot markiert, Zugcounter um 1 erhˆht
+					//Answer 0 wir schreiben PASS an den Gegner, sodass der schie√üen darf. Feld wird rot markiert, Zugcounter um 1 erh√üht
 					//Danach gehen wir in die Methode warteAufGegner(); 
 					
 				}else if(answer.equals("answer 0")) {
+
+					//Verfehltound
+					if(SoundsController.effekte) {
+						final Task sound = new Task() {
+
+							@Override
+							protected Object call() throws Exception {
+								AudioClip audio = new AudioClip(getClass().getResource("/assets/danebenSound.wav").toExternalForm());
+								audio.setVolume(SoundsController.getVolume());
+								audio.play();
+								return null;
+							}
+						};
+
+						Thread thread = new Thread(sound);
+						thread.start();
+					}
+
 					save.setDisable(true);
 					gegnerSpielfeld[Integer.parseInt(rowIndex)][Integer.parseInt(colIndex)]=1;
-					tempButton.setStyle("-fx-background-color: #FF0000");
+					tempButton.setId("cellVerfehlt");
 					connection.write("pass");
 					spielZugCounter++;
 					Platform.runLater(new Runnable(){
@@ -410,14 +537,14 @@ public class ControllerSpielFeld implements Initializable{
 					wirSindDran = false;
 					//Solange wir auf den Gegner warten wird die Schleife durchlaufen
 					//Schuss vom Gegner wird gelesee und ins richtige Format gebracht
-					//Danach wird der RateVersuch gepr¸ft und in die entsprechende case verzweigt
+					//Danach wird der RateVersuch gepr√üft und in die entsprechende case verzweigt
 					
 					while(!wirSindDran&&schiffListe.size()>0) {
 						derZug=connection.read();
 						System.out.println("DerZug "+derZug);
 						
 						if(derZug!=null&&derZug.equals("")) {
-							derZug=connection.read();//‹bergangslˆsung, nach laden kommt irgendwie immer ein Leer String beim lesen
+							derZug=connection.read();//√übergangsl√üsung, nach laden kommt irgendwie immer ein Leer String beim lesen
 						}
 						
 						if(derZug==null) {
@@ -454,7 +581,7 @@ public class ControllerSpielFeld implements Initializable{
 						
 						switch (answer) {
 						
-						//Case 0 der Gegner schieﬂt vorbei, wir m¸ssen nur noch auf sein PASS warten und dann sind wir wieder dran
+						//Case 0 der Gegner schie√üt vorbei, wir m√üssen nur noch auf sein PASS warten und dann sind wir wieder dran
 						// Schleife wird dann verlassen
 						case 0:
 							connection.write("answer 0");
@@ -503,10 +630,15 @@ public class ControllerSpielFeld implements Initializable{
 							break;
 						case 3:
 							System.out.println("Speicher anfrage bekommen");
-							file.save(Long.parseLong(parts[1]), false, unserSpielfeld, gegnerSpielfeld,schiffListe,versenktWirCounter,versenktGegnerCounter,spielZugCounter,schiffCounter);
-							System.out.println("Spiel erfolgreich gespeichert");
-							System.out.println("Client hat gepasst");
-							connection.write("pass");
+							
+							Platform.runLater(new Runnable() {
+
+								@Override
+								public void run() {
+									speicherAnfrage(parts[1]);									
+								}
+								
+							});
 							break;
 						}
 						
@@ -528,14 +660,12 @@ public class ControllerSpielFeld implements Initializable{
 		
 		
 	}
-	//Pr¸ft f¸r jedes Schiff in der Schiffsliste, ob der Schuss vom Gegner ein Treffer war oder nicht. Gibt entsprechende Info zur¸ck
+	//Pr√üft f√ür jedes Schiff in der Schiffsliste, ob der Schuss vom Gegner ein Treffer war oder nicht. Gibt entsprechende Info zur√ück
 	//Removed dann gleich ein versenktes Schiff
-		
-	
-	//Wird bei Versenkt aufgerufen und macht einen Autofill wo keine Schiffe mehr sein kˆnnen
+
+	//Wird bei Versenkt aufgerufen und macht einen Autofill wo keine Schiffe mehr sein k√ünnen
 	private void checkAutofill(String lastShot) {
 		
-		System.out.println("LASTSHOT: "+lastShot);
 		String[]aussortierteZellen=spielHelfer.adjust(lastShot, getroffeneZellen);
 		for(int i=0;i<aussortierteZellen.length;i++) {
 			for(int j=0;j<getroffeneZellen.length;j++) {
@@ -564,7 +694,8 @@ public class ControllerSpielFeld implements Initializable{
 							
 							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
 							Button b = (Button)n;
-							b.setStyle("-fx-background-color: #FF0000");
+
+							b.setId("cellVerfehlt");
 						}
 						
 						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))-1;
@@ -575,7 +706,7 @@ public class ControllerSpielFeld implements Initializable{
 							
 							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
 							Button b = (Button)n;
-							b.setStyle("-fx-background-color: #FF0000");
+							b.setId("cellVerfehlt");
 						}
 						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2));
 						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4));
@@ -585,7 +716,7 @@ public class ControllerSpielFeld implements Initializable{
 							
 							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
 							Button b = (Button)n;
-							b.setStyle("-fx-background-color: #FF0000");
+							b.setId("cellVerfehlt");
 						}
 						
 						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))+1;
@@ -596,7 +727,7 @@ public class ControllerSpielFeld implements Initializable{
 							
 							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
 							Button b = (Button)n;
-							b.setStyle("-fx-background-color: #FF0000");
+							b.setId("cellVerfehlt");
 						}
 						
 						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2));
@@ -607,7 +738,7 @@ public class ControllerSpielFeld implements Initializable{
 							
 							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
 							Button b = (Button)n;
-							b.setStyle("-fx-background-color: #FF0000");
+							b.setId("cellVerfehlt");
 						}
 						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))-1;
 						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))+1;
@@ -617,7 +748,7 @@ public class ControllerSpielFeld implements Initializable{
 							
 							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
 							Button b = (Button)n;
-							b.setStyle("-fx-background-color: #FF0000");
+							b.setId("cellVerfehlt");
 						}
 						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))-1;
 						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))-1;
@@ -627,7 +758,7 @@ public class ControllerSpielFeld implements Initializable{
 							
 							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
 							Button b = (Button)n;
-							b.setStyle("-fx-background-color: #FF0000");
+							b.setId("cellVerfehlt");
 						}
 						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))+1;
 						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))-1;
@@ -637,7 +768,7 @@ public class ControllerSpielFeld implements Initializable{
 							
 							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
 							Button b = (Button)n;
-							b.setStyle("-fx-background-color: #FF0000");
+							b.setId("cellVerfehlt");
 						}
 						
 						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2));
@@ -648,7 +779,7 @@ public class ControllerSpielFeld implements Initializable{
 							
 							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
 							Button b = (Button)n;
-							b.setStyle("-fx-background-color: #FF0000");
+							b.setId("cellVerfehlt");
 						}
 						
 						
@@ -674,7 +805,7 @@ public class ControllerSpielFeld implements Initializable{
 						
 						gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=2;
 						Button b = (Button)n;
-						b.setStyle("-fx-background-color: #00FF00");
+						b.setId("cellGetroffen");
 					}
 				}
 				
@@ -693,12 +824,41 @@ public class ControllerSpielFeld implements Initializable{
 	
 	
 	@FXML
-	private void saveGameProcess(ActionEvent event) {
+	private void saveGameProcess() {
+		
 		if(!spielGestartet) {
-			System.out.println("Das Spiel muss erst starten, bevor es gespeichert werden kann");
-			return;
+		Notifications.create()
+				.owner(StarterKlasse.primaryStage)
+				.title("Das Spiel muss erst starten, bevor es gespeichert werden kann")
+				.hideAfter(Duration.seconds(1.5))
+				.position(Pos.TOP_CENTER)
+				.showWarning();
+		System.out.println("Das Spiel muss erst starten, bevor es gespeichert werden kann");
+		return;
 		}
-		//Pop Up das gespeichert wurde 
+		
+		FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpeicherName.fxml"));
+		ControllerSpeicherName csn = new ControllerSpeicherName(this);
+		
+	   						
+		try {
+			fxmlloader.setController(csn);
+			Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+			//ControllerObjekt von der n√üchsten Gui-Oberfl√üche erzeugen um die SchiffsListe, den in und den Output Reader zu √übergeben
+			
+    		Stage newStage = new Stage();
+			newStage.setScene(new Scene(root));
+			newStage.setTitle("Spiel speichern");
+			newStage.show();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void saveStart(String speicherName) {
+		
 		System.out.println("Speichern angefordert");
 		
 		Task<String>task = new Task<String>() {
@@ -708,11 +868,10 @@ public class ControllerSpielFeld implements Initializable{
 				String currentTime = String.valueOf(System.currentTimeMillis());
 				String save = "save "+currentTime;
 				connection.write(save);
-				file.save(Long.parseLong(currentTime), true, unserSpielfeld, gegnerSpielfeld, schiffListe, versenktWirCounter, versenktGegnerCounter, spielZugCounter,schiffCounter);
+				file.save(speicherName,Long.parseLong(currentTime), true, unserSpielfeld, gegnerSpielfeld, schiffListe, versenktWirCounter, versenktGegnerCounter, spielZugCounter,schiffCounter,isOffline);
 				if(connection.read().equals("pass")) {
 					System.out.println("Gegner hat das Speichern akzeptiert");
 				}
-				
 				return null;
 			}
 		};
@@ -723,13 +882,43 @@ public class ControllerSpielFeld implements Initializable{
 		
 		
 	}
+	private void speicherAnfrage(String id) {
+		
+		FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpeicherAnfrage.fxml"));
+		ControllerSpeicherAnfrage csa = new ControllerSpeicherAnfrage(this,id);
+		
+	   						
+		try {
+			fxmlloader.setController(csa);
+			Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
+			//ControllerObjekt von der n√üchsten Gui-Oberfl√üche erzeugen um die SchiffsListe, den in und den Output Reader zu √übergeben
+			
+    		Stage newStage = new Stage();
+			newStage.setScene(new Scene(root));
+			newStage.setTitle("Spiel speichern");
+			newStage.show();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	public void saveStartAnfrage(String speicherName, String id) {
+		
+		file.save(speicherName,Long.parseLong(id), false, unserSpielfeld, gegnerSpielfeld,schiffListe,versenktWirCounter,versenktGegnerCounter,spielZugCounter,schiffCounter,isOffline);
+
+		System.out.println("Spiel erfolgreich gespeichert");
+		System.out.println("Client hat gepasst");
+		connection.write("pass");
+	}
 	
 	private void spielAufbauen(int[][]unserSpielFeld,int[][]gegnerSpielFeld, int versenktWirCounter, int versenktGegnerCounter, int spielZugCounter) {
 		
 		this.spielFeldGenerieren();
 		gegnerSpielFeldGenerierenLoad(gegnerSpielFeld);
 		unserSpielFeldGenerierenLoad(unserSpielFeld);
-		this.disableOurField();
+		this.disableOurField(true);
 		spielGestartet=true;
 		Task<String>task = new Task<String>() {
 			
@@ -750,7 +939,7 @@ public class ControllerSpielFeld implements Initializable{
 					System.out.println("Client Bereit");
 					if(wirSindDran) {
 						if(connection.read().equals("pass")) {
-							System.out.println("Wir kˆnnen jetzt starten");
+							System.out.println("Wir k√ünnen jetzt starten");
 						}
 					}else {
 						warteAufGegner();
@@ -784,11 +973,11 @@ public class ControllerSpielFeld implements Initializable{
 					}
 					if (gegnerSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==1){
 						Button b = (Button)n;
-						b.setStyle("-fx-background-color: #FF0000");
+						b.setId("cellVerfehlt");
 					}
 					if (gegnerSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==2){
 						Button b = (Button)n;
-						b.setStyle("-fx-background-color: #00FF00");
+						b.setId("cellGetroffen");
 					}		
 				}
 				
@@ -804,14 +993,17 @@ public class ControllerSpielFeld implements Initializable{
 			if(rowIndex!=null&&colIndex!=null) {
 				if (unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==3){
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #000000");
 				}
 				if(unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==1) {
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #0B4C5F");
 				}
 				if(unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==2) {
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #8A4B08");
 				}
 			}
@@ -828,15 +1020,15 @@ public class ControllerSpielFeld implements Initializable{
 		 * 
 		 * 
 		 */
-		//Nur wegen Szene Builder hier Erst Vorhandenes 1x1 Lˆschen dann 10x10 erzeugen
+		//Nur wegen Szene Builder hier Erst Vorhandenes 1x1 L√üschen dann 10x10 erzeugen
 		
 		
 		gridPaneWe.getColumnConstraints().remove(0);
 		gridPaneWe.getRowConstraints().remove(0);
 		
-		for(int i = 0;i<this.spielFeldGroeﬂe;i++) {
-			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeﬂe);
-			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeﬂe);
+		for(int i = 0;i<this.spielFeldGroe√üe;i++) {
+			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroe√üe);
+			RowConstraints rc = new RowConstraints((int)380/spielFeldGroe√üe);
 			
 			gridPaneWe.getColumnConstraints().add(cc);
 			gridPaneWe.getRowConstraints().add(rc);
@@ -846,16 +1038,17 @@ public class ControllerSpielFeld implements Initializable{
 		gridPaneWe.setGridLinesVisible(true);
 		
 		
-		//Erzeugt 100 verschiedene Buttons ins GridPane, die alle Clickable sind und wenn man Sie anklickt Ihren Index zur¸ck geben
-		for(int i=0;i<spielFeldGroeﬂe;i++) {
-			for (int j = 0; j<spielFeldGroeﬂe;j++) {
+		//Erzeugt 100 verschiedene Buttons ins GridPane, die alle Clickable sind und wenn man Sie anklickt Ihren Index zur√ück geben
+		for(int i=0;i<spielFeldGroe√üe;i++) {
+			for (int j = 0; j<spielFeldGroe√üe;j++) {
 				
 				Button b = new Button();
-				b.setMinHeight((int)365/spielFeldGroeﬂe);
-				b.setMinWidth((int)365/spielFeldGroeﬂe);
+				b.setId("cell");
+				b.setMinHeight((int)365/spielFeldGroe√üe);
+				b.setMinWidth((int)365/spielFeldGroe√üe);
 				b.setOnMouseClicked(new EventHandler <MouseEvent>() {
 
-					//Alle Buttons F‰hig machen per Klick diese Sachen auszuf¸hren
+					//Alle Buttons F√ühig machen per Klick diese Sachen auszuf√ühren
 					@Override
 					public void handle(MouseEvent event) {
 						Node clickedNode = (Node)event.getSource();
@@ -866,6 +1059,7 @@ public class ControllerSpielFeld implements Initializable{
 							if (((MouseEvent) event).getButton().equals(MouseButton.SECONDARY)) {
 								System.out.println("LINKSKLICK");
 								clickedButton.setStyle(null);
+								clickedButton.setId("cell");
 								Integer rowIndex = GridPane.getRowIndex(clickedNode);
 							    Integer colIndex = GridPane.getColumnIndex(clickedNode);
 							    
@@ -915,7 +1109,7 @@ public class ControllerSpielFeld implements Initializable{
 							    }
 							    
 							    System.out.println("Mouse clicked cell: " + row + " And: " + col);
-								clickedButton.setStyle("-fx-background-color: #000000");
+								clickedButton.setId("cellMarkiert");
 								zellorte = zellorte+row+col+" ";
 								if(spielHelfer.pruefePlazierung(zellorte, schiffListe)) {
 									ready.setDisable(false);
@@ -952,9 +1146,9 @@ public class ControllerSpielFeld implements Initializable{
 		
 		
 		
-		for(int i = 0;i<this.spielFeldGroeﬂe;i++) {
-			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeﬂe);
-			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeﬂe);
+		for(int i = 0;i<this.spielFeldGroe√üe;i++) {
+			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroe√üe);
+			RowConstraints rc = new RowConstraints((int)380/spielFeldGroe√üe);
 			
 			gridPaneEnemy.getColumnConstraints().add(cc);
 			gridPaneEnemy.getRowConstraints().add(rc);
@@ -962,18 +1156,19 @@ public class ControllerSpielFeld implements Initializable{
 		gridPaneEnemy.setAlignment(Pos.CENTER);
 		gridPaneEnemy.setGridLinesVisible(true);
 		
-		for(int i=0;i<spielFeldGroeﬂe;i++) {
-			for (int j = 0; j<spielFeldGroeﬂe;j++) {
+		for(int i=0;i<spielFeldGroe√üe;i++) {
+			for (int j = 0; j<spielFeldGroe√üe;j++) {
 				
 				Button b = new Button();
-				b.setMinHeight((int)365/spielFeldGroeﬂe);
-				b.setMinWidth((int)365/spielFeldGroeﬂe);
+				b.setId("cell");
+				b.setMinHeight((int)365/spielFeldGroe√üe);
+				b.setMinWidth((int)365/spielFeldGroe√üe);
 				b.setOnMouseClicked(new EventHandler <MouseEvent>() {
 				
 					
 					
 					
-					//Alle Buttons F‰hig machen per Klick diese Sachen auszuf¸hren
+					//Alle Buttons F√ühig machen per Klick diese Sachen auszuf√ühren
 					@Override
 					public void handle(MouseEvent event) {
 						Node clickedNode = (Node)event.getSource();
@@ -1023,10 +1218,22 @@ public class ControllerSpielFeld implements Initializable{
 	@FXML
 	private void spielAufgeben() {
 		if(!spielGestartet) {
+			Notifications.create()
+					.owner(StarterKlasse.primaryStage)
+					.title("Das Spiel muss erst Starten, bevor man aufgeben kann")
+					.hideAfter(Duration.seconds(1.5))
+					.position(Pos.TOP_CENTER)
+					.showWarning();
 			System.out.println("Das Spiel muss erst Starten, bevor man aufgeben kann");
 			return;
 		}
 		if(!wirSindDran) {
+			Notifications.create()
+					.owner(StarterKlasse.primaryStage)
+					.title("Spiel kann nur aufgegeben werden, wenn wir am Zug sind")
+					.hideAfter(Duration.seconds(1.5))
+					.position(Pos.TOP_CENTER)
+					.showWarning();
 			System.out.println("Spiel kann nur aufgegeben werden, wenn wir am Zug sind");
 		}else {
 			spiel.spielAufgeben();
@@ -1054,6 +1261,7 @@ public class ControllerSpielFeld implements Initializable{
 			if(rowIndex!=null&&colIndex!=null) {
 				if (rowIndex.intValue()==row&&colIndex.intValue()==col){
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #0B4C5F");
 					if(treffer) {
 						System.out.println("Treffer");
@@ -1065,6 +1273,7 @@ public class ControllerSpielFeld implements Initializable{
 		}
 		
 	}
+
 	private void makeButtonsUnclickable(String buttonMenge) {
 		
 		String []parts = buttonMenge.split(" ");
@@ -1085,20 +1294,110 @@ public class ControllerSpielFeld implements Initializable{
 		}
 	}
 	
-	private void disableOurField() {
+	private void disableOurField(boolean bool) {
+		
+		
 		for(Node n : gridPaneWe.getChildren()){
 			Integer rowIndex = GridPane.getRowIndex(n);
 			Integer colIndex = GridPane.getColumnIndex(n);
 			if(rowIndex!=null&&colIndex!=null) {
 				Button b = (Button)n;
-				b.setDisable(true);
+				b.setDisable(bool);
 			}
 		}
+		
+		
 	}
 	
 	public void setDerZug(String s) {
 		this.derZug = s;
 	}
+
+	public void onActionSounds(ActionEvent event) {
+		Stage newStage = new Stage();
+		newStage.setScene(StarterKlasse.music);
+		newStage.show();
+	}
+	@FXML
+	
+	private void undoPlazierung() {
 		
+		for(int i=0;i<schiffListe.size();i++) {
+			if(schiffListe.get(i)!=null) {
+				String koordinaten="";
+				if(schiffListe.get(i).getZellorte()!=null) {
+					for(int j = 0;j<schiffListe.get(i).getZellorte().size();j++) {
+						String []parts = schiffListe.get(i).getZellorte().get(j).split(" ");
+						koordinaten = koordinaten + " "+parts[0]+parts[1];
+					}
+				}
+				String koordinaten2 = " "+allePlazierungen.get(allePlazierungen.size()-1);
+				koordinaten = koordinaten + " ";
+				if(koordinaten2.equals(koordinaten)) {
+					String[] parts2 = zuPlazieren.getText().split("      ");
+					
+					switch (schiffListe.get(i).getZellorte().size()) {
+						case 2:
+							parts2[3]=String.valueOf(Integer.parseInt(parts2[3])+1);
+							break;
+						case 3:
+							parts2[2]=String.valueOf(Integer.parseInt(parts2[2])+1);
+							break;
+						case 4:
+							parts2[1]=String.valueOf(Integer.parseInt(parts2[1])+1);
+							break;
+						case 5:
+							parts2[0]=String.valueOf(Integer.parseInt(parts2[0])+1);
+							break;
+						
+							
+					}
+					zuPlazieren.setText(parts2[0]+"      "+parts2[1]+"      "+parts2[2]+"      "+parts2[3]);
+					schiffListe.get(i).setZellorte(null);
+					schiffListe.get(i).setIstPlaziert(false);
+					String [] parts = koordinaten2.split(" ");
+					
+					for(int j= 1;j<parts.length;j++) {
+						this.disableButton(parts[j]);
+					}
+						
+					
+					
+					
+				}
+			}
+		}
+		
+		
+		allePlazierungen.remove(allePlazierungen.size()-1);
+		
+		if(allePlazierungen.isEmpty()) {
+			buttonUndo.setVisible(false);
+		}
+	}
+	
+	private void disableButton(String button) {
+		System.out.println("BUTTON : "+button);
+		for(Node n : gridPaneWe.getChildren()){
+			Integer rowIndex = GridPane.getRowIndex(n);
+			Integer colIndex = GridPane.getColumnIndex(n);
+			if(rowIndex!=null&&colIndex!=null) {
+				
+				if (rowIndex.intValue()==Integer.parseInt(button.substring(0, 2))&&colIndex.intValue()==Integer.parseInt(button.substring(2, 4))){
+					Button b = (Button)n;
+					b.setId("cell");
+					b.setStyle(null);
+					b.setDisable(false);
+				}
+				
+			}
+		}
+		if(!spielStarten.isDisable()) {
+			this.disableOurField(false);
+			this.spielStarten.setDisable(true);
+		}
+		
+	}
+	
 	
 }

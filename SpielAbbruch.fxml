@@ -5,18 +5,18 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="bgnormal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="500.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button fx:id="zurueckZumHauptMenue" layoutX="118.0" layoutY="191.0" mnemonicParsing="false" onAction="#goBack" text="Zurück zum Hauptmenü">
+      <Button fx:id="zurueckZumHauptMenue" layoutX="70.0" layoutY="239.0" mnemonicParsing="false" onAction="#goBack" styleClass="buttonbg" stylesheets="@../styles.css" text="Zurück zum Hauptmenü">
          <font>
             <Font size="22.0" />
          </font>
       </Button>
-      <Label layoutX="83.0" layoutY="94.0" text="Der Gegner hat das Spiel abgebrochen !">
+      <Label layoutX="88.0" layoutY="180.0" styleClass="labelWhiteSmall" stylesheets="@../styles.css" text="Der Gegner hat das Spiel abgebrochen !">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
+      <Label layoutX="141.0" layoutY="64.0" styleClass="labelWhite" stylesheets="@../styles.css" text="Spiel abbrechen" />
    </children>
 </AnchorPane>

@@ -10,7 +10,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
-
+/**
+ * Kontrollerklasse für das Informationsfenster wenn nicht gejoint werden kann
+ * @author Matze
+ *
+ */
 public class ControllerRefuseToConnect implements Initializable {
 	@FXML 
 	private Button erneutVersuchen;
@@ -23,19 +27,18 @@ public class ControllerRefuseToConnect implements Initializable {
 		
 	}
 	
+	/**
+	 * onAction-Methode des Buttons erneutVersuchen
+	 * Schließt das Informationsfenster
+	 * @param event
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
 	@FXML
 	private void neuVerbinden(ActionEvent event) throws UnknownHostException, IOException {
 		
 		Stage oldStage = (Stage)erneutVersuchen.getScene().getWindow();
 		oldStage.close();
-		
-    	
-		
-		//Stage wieder schließen und erneut versuchenzu Verbinden
-    	
-		
-		
-		
 		
 	}
 

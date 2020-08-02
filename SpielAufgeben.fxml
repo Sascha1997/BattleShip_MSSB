@@ -3,25 +3,30 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="bgnormal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400.0" minWidth="500.0" prefHeight="400.0" prefWidth="500.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label alignment="CENTER" layoutX="12.0" layoutY="50.0" prefHeight="86.0" prefWidth="377.0" text="Sind Sie sicher, dass Sie das Spiel aufgeben und somit verlieren wollen?" textAlignment="CENTER" wrapText="true">
+      <Label alignment="CENTER" layoutX="57.0" layoutY="114.0" prefHeight="86.0" prefWidth="377.0" styleClass="labelWhiteSmall" stylesheets="@../styles.css" text="Sind Sie sicher, dass Sie das Spiel aufgeben und somit verlieren wollen?" textAlignment="CENTER" wrapText="true">
          <font>
             <Font size="18.0" />
          </font>
       </Label>
-      <Button fx:id="buttonBestaetigen" layoutX="244.0" layoutY="185.0" onAction="#aufgebenBestaetigen" mnemonicParsing="false" text="Bestätigen">
-         <font>
-            <Font name="System Bold" size="18.0" />
-         </font>
-      </Button>
-      <Button fx:id="buttonAbbrechen" layoutX="48.0" layoutY="185.0" mnemonicParsing="false" onAction="#aufgebenAbbrechen" prefHeight="39.0" prefWidth="124.0" text="Abbrechen">
-         <font>
-            <Font name="System Bold" size="18.0" />
-         </font>
-      </Button>
+      <VBox layoutX="65.0" layoutY="222.0" spacing="10.0">
+         <children>
+            <Button fx:id="buttonBestaetigen" mnemonicParsing="false" onAction="#aufgebenBestaetigen" styleClass="buttonbg" stylesheets="@../styles.css" text="Bestätigen">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button fx:id="buttonAbbrechen" mnemonicParsing="false" onAction="#aufgebenAbbrechen" prefHeight="39.0" prefWidth="124.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Abbrechen">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+      <Label layoutX="144.0" layoutY="40.0" styleClass="labelWhite" stylesheets="@../styles.css" text="Spiel aufgeben" />
    </children>
 </AnchorPane>

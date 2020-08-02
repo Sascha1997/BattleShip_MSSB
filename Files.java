@@ -17,6 +17,8 @@ public class Files {
     private int[] ownShips = new int[4];
     private int[] enemyShips = new int[4];
     private int[][] ownField, enemyField, prob;
+    private String name, id;
+    private boolean isOffline;
     private ArrayList<Point> cords = new ArrayList<>();
     private ArrayList<Point> neighbours = new ArrayList<>();
     private ArrayList<Point> points = new ArrayList<>();
@@ -31,37 +33,39 @@ public class Files {
     }
 
     //KI
-    public void save(String id, boolean turn, int[][] ownField, int[][] enemyField, int[][] prob, int[] ownShips,
+    public void save(String name, String id, boolean turn, int[][] ownField, int[][] enemyField, int[][] prob, int[] ownShips,
             int[] enemyShips, ArrayList<Point> cords, ArrayList<Point> neighbours,
             ArrayList<Point> points, ArrayList<Schiff> ships, boolean[] bool, int[] ints){
     	try {
-		   //erzeugt eine neue .txt Datei mit der übergebenen ID und speichert die in saves\ki
-		   this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt");
-		   //speichert wer am Zug ist, von der Sicht der KI, true -> KI  ist drann, false -> Gegner ist dran
-		   this.fr.write(turn + "\n");
-		   storeField(ownField);
-		   storeField(enemyField);
-		   storeProb(prob);
-		   storeInts(ownShips);
-		   storeInts(enemyShips);
-		   storeArrayListPoints(cords);
-		   storeArrayListPoints(neighbours);
-		   storeArrayListPoints(points);
-		   storeArrayListShips(ships);
-		   storeBooleans(bool);
-		   storeInts(ints);
-		   //leert den Stream, FileWriter wird geschlossen
-		   this.fr.flush();
-		   this.fr.close();
+		    //erzeugt eine neue .txt Datei mit der übergebenen ID und speichert die in saves\ki
+		    this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt");
+		    //speichert wer am Zug ist, von der Sicht der KI, true -> KI  ist drann, false -> Gegner ist dran
+            this.fr.write(name + "\n");
+            this.fr.write(turn + "\n");
+            storeField(ownField);
+            storeField(enemyField);
+            storeProb(prob);
+            storeInts(ownShips);
+            storeInts(enemyShips);
+            storeArrayListPoints(cords);
+            storeArrayListPoints(neighbours);
+            storeArrayListPoints(points);
+            storeArrayListShips(ships);
+            storeBooleans(bool);
+            storeInts(ints);
+            //leert den Stream, FileWriter wird geschlossen
+            this.fr.flush();
+            this.fr.close();
 		}catch (IOException e){
 		   e.printStackTrace();
 		}
     }
 
     //Player
-    public void save(long id, boolean turn, int[][] ownField, int[][] enemyField, ArrayList<Schiff> ships, int destroyedOwn, int destroyedEnemy, int pullCount, int schiffCounter){
+    public void save(String name, long id, boolean turn, int[][] ownField, int[][] enemyField, ArrayList<Schiff> ships, int destroyedOwn, int destroyedEnemy, int pullCount, int schiffCounter, boolean isOffline){
         try {
             this.fr = new FileWriter(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt");
+            this.fr.write(name + "\n");
             this.fr.write(turn + "\n");
             storeField(ownField);
             storeField(enemyField);
@@ -70,8 +74,10 @@ public class Files {
             this.fr.write(destroyedEnemy + "\n");
             this.fr.write(pullCount + "\n");
             this.fr.write(schiffCounter+ "\n");
+            this.fr.write(isOffline+ "\n");
             this.fr.flush();
             this.fr.close();
+            
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -81,6 +87,7 @@ public class Files {
     public void load(String id){
         try {
             this.br = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt"));
+            restoreName();
             this.turn = Boolean.parseBoolean(this.br.readLine());
             restoreFields();
             restoreProb();
@@ -100,6 +107,7 @@ public class Files {
     public void load(long id){
         try {
             this.br = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt"));
+            restoreName();
             this.turn = Boolean.parseBoolean(this.br.readLine());
             restoreFields();
             restoreArrayListShipsString();
@@ -107,27 +115,29 @@ public class Files {
             this.destroyedEnemy = Integer.parseInt(this.br.readLine());
             this.pullCount = Integer.parseInt(this.br.readLine());
             this.schiffCounter=Integer.parseInt(this.br.readLine());
+            this.isOffline = Boolean.parseBoolean(this.br.readLine());
             this.br.close();
         }catch (IOException e){
             e.printStackTrace();
         }
     }
 
-    //Server
-    public boolean ourTurn(String id){
+
+    public void prepareData(String id){
+
+        this.id = id;
         try {
             File f = new File(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt");
-            BufferedReader brr;
             if (f.exists()) {
-                brr = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt"));
+                this.br = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\player\\" + id + ".txt"));
             }else{
-                brr = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt"));
+                this.br = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\saves\\ki\\" + id + ".txt"));
             }
-            return Boolean.parseBoolean(brr.readLine());
+            restoreName();
+            this.br.close();
         }catch (IOException e){
             e.printStackTrace();
         }
-        return false;
     }
 
     //STORE--------------------------------------------------------------------------------------------------------STORE
@@ -288,13 +298,17 @@ public class Files {
         }
     }
 
-    public void restoreBooleans() throws IOException {
+    private void restoreBooleans() throws IOException {
         String line = this.br.readLine();
         String[] parts = line.split(" ");
 
         for(int i = 0; i < parts.length; i++){
             this.bool[i] = Boolean.parseBoolean(parts[i]);
         }
+    }
+
+    private void restoreName() throws IOException {
+        this.name = this.br.readLine();
     }
 
     //GETTER------------------------------------------------------------------------------------------------------GETTER
@@ -354,7 +368,6 @@ public class Files {
     public ArrayList<Point> getNeighbours(){
         return this.neighbours;
     }
-   
 
     public ArrayList<Schiff> getShips() {
         return this.ships;
@@ -364,4 +377,16 @@ public class Files {
     	return this.schiffCounter;
     }
 
+    public String getName(){
+        return this.name;
+    }
+
+    public String getID(){
+        return this.id;
+    }
+    
+    public Boolean getIsOffline() {
+    	return this.isOffline;
+    }
 }
+

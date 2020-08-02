@@ -6,21 +6,33 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-public class StarterKlasse extends Application {
+public class StarterKlasse extends Application{
 	
+	/**
+	 * Klassenattribute, die für das ganze Spiel gelten
+	 */
 	public static boolean server=false;
 	public static Stage primaryStage;
+	public static Scene music;
 	
-	
-	//Ermitteln Ob Server oder nicht anhand der Args Länge, danach GUI Starten
+	/**
+	 * Main-Methode 
+	 * Erzeugen eines Directorys, wenn noch keines besteht
+	 * @param args
+	 * @throws IOException
+	 */
     public static void main(String[] args)throws IOException {
     	Files.makeDirectory();
     	launch(args);       
     }
-    //
-    //FXML Laden und auf die Stage hauen
+    /**
+     * Setzen der primären Stage, Aufrufen des Startfensters und setzen des Spieltitels
+     * Setzen des Spielicons und Starten der Musik
+     * @param primaryStage
+     */
     public void start(final Stage primaryStage) throws Exception{
     	
     	StarterKlasse.primaryStage = primaryStage;
@@ -28,10 +40,17 @@ public class StarterKlasse extends Application {
     	ControllerServerOrClient ccos = new ControllerServerOrClient();
     	fxmlLoader.setController(ccos);
     	Parent root;
+
+		FXMLLoader fxmlLoaderSounds = new FXMLLoader(getClass().getResource("Sounds.fxml"));
+		Parent root2 = fxmlLoaderSounds.load();
+
 		try {
+			music = new Scene(root2);
 			root = fxmlLoader.load();
-			primaryStage.setTitle("Joinauswahl");
-			primaryStage.setScene(new Scene(root, 600, 400));
+			primaryStage.setScene(new Scene(root, 1080, 720));
+			primaryStage.getIcons().add(new Image("file:Icon2.png"));
+			StarterKlasse.primaryStage.setTitle("Startauswahl");
+			primaryStage.setResizable(false);
 			primaryStage.show();
 			
 		} catch (IOException e) {
@@ -41,6 +60,7 @@ public class StarterKlasse extends Application {
 		
 				
     }
+	
         
 
 }

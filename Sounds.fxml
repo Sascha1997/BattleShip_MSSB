@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+<AnchorPane id="bgnormal" prefHeight="400.0" prefWidth="500.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SoundsController">
+   <children>
+      <HBox layoutX="70.0" layoutY="124.0" prefHeight="65.0" prefWidth="360.0" spacing="10.0">
+         <children>
+            <Button mnemonicParsing="false" onAction="#onOffMusik" styleClass="buttonbg" stylesheets="@../styles.css" text="Musik" />
+            <Button lineSpacing="10.0" mnemonicParsing="false" onAction="#onOffEffekte" styleClass="buttonbg" stylesheets="@../styles.css" text="Effekte" />
+         </children>
+      </HBox>
+      <Button fx:id="btnBack" layoutX="70.0" layoutY="291.0" mnemonicParsing="false" onAction="#back" styleClass="buttonbg" stylesheets="@../styles.css" text="Zurück" />
+      <Slider fx:id="volumeSlider" layoutX="70.0" layoutY="226.0" onDragDetected="#changeVolume" prefHeight="30.0" prefWidth="360.0" value="100.0" />
+      <Label layoutX="177.0" layoutY="34.0" styleClass="labelWhite" stylesheets="@../styles.css" text="Lautstärke" />
+      <Label layoutX="70.0" layoutY="94.0" styleClass="labelWhiteSmall" stylesheets="@../styles.css" text="Musik aktivieren/deaktivieren" />
+      <Label layoutX="70.0" layoutY="198.0" styleClass="labelWhiteSmall" stylesheets="@../styles.css" text="Lautstärke anpassen" />
+   </children>
+</AnchorPane>

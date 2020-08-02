@@ -12,50 +12,31 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
-
 /**
- * Kontrollerklasse für das Fenster wenn das Spiel abgebrochen wurde
- *
+ * Kontrollerklasse für das Abbruchfenster der KI
+ *	
  */
+public class ControllerKIAbbruch implements Initializable{
 	
-public class ControllerSpielAbbruch implements Initializable{
-	/**
-	 * FXML-Attribute
-	 */
 	@FXML
 	private Button zurueckZumHauptMenue;
 	
-	/**
-	 * Objekt-Attribute
-	 */
-	private Connection connection;
-	
-	/**
-	 * Konstruktor
-	 * @param connection
-	 */
-	public ControllerSpielAbbruch(Connection connection) {
-		this.connection=connection;
-	}
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 	
 	/**
-	 * onAction-Methode für den Button zureuckZumHauptMenue
-	 * Leitet an das Startmenü weiter und schließt die Connection
+	 * onAction-Methode für den zurückButton
+	 * Leitet ins Startmenü weiter
 	 * @param event
 	 */
 	@FXML
 	private void goBack(ActionEvent event) {
-		
-		connection.closeConnection();
 		FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("ServerOrClient.fxml"));
 		ControllerServerOrClient csoc = new ControllerServerOrClient();
 		fxmlloader.setController(csoc);
-		
 		Stage oldStage = (Stage)zurueckZumHauptMenue.getScene().getWindow();
 	   						
 		try {
@@ -66,9 +47,7 @@ public class ControllerSpielAbbruch implements Initializable{
 			oldStage.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
 }

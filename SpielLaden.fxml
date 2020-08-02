@@ -4,34 +4,39 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="bgnormal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="800.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <ScrollPane fx:id="scrollPane" layoutX="23.0" layoutY="85.0" prefHeight="445.0" prefWidth="520.0">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="833.0" prefWidth="504.0" />
-        </content>
+         <content>
+            <VBox prefHeight="1000.0" prefWidth="520.0" spacing="10.0" />
+         </content>
       </ScrollPane>
-      <Button fx:id="buttonSpielLaden" layoutX="597.0" layoutY="85.0" mnemonicParsing="false" onAction="#spielLaden" text="Spiel Laden">
-         <font>
-            <Font name="System Bold" size="20.0" />
-         </font>
-      </Button>
-      <Button fx:id="buttonZurueckZumHauptmenue" layoutX="23.0" layoutY="28.0" mnemonicParsing="false" onAction="#zurueckZumHauptmenue" text="Zurück zum Hauptmenü">
+      <VBox layoutX="574.0" layoutY="78.0" prefWidth="200.0" spacing="10.0">
+         <children>
+            <Button fx:id="buttonSpielLaden" mnemonicParsing="false" onAction="#spielLaden" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel Laden">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Button>
+            <RadioButton fx:id="radioButtonKI" mnemonicParsing="false" onAction="#showFolder" styleClass="labelWhiteSmall" stylesheets="@../styles.css" text="KI">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </RadioButton>
+            <RadioButton fx:id="radioButtonSpieler" mnemonicParsing="false" onAction="#showFolder" styleClass="labelWhiteSmall" stylesheets="@../styles.css" text="Spieler">
+               <font>
+                  <Font name="Bell MT Bold" size="16.0" />
+               </font>
+            </RadioButton>
+         </children>
+      </VBox>
+      <Button fx:id="buttonZurueckZumHauptmenue" layoutX="23.0" layoutY="21.0" mnemonicParsing="false" onAction="#zurueckZumHauptmenue" styleClass="buttonbg" stylesheets="@../styles.css" text="Zurück zum Hauptmenü">
          <font>
             <Font size="14.0" />
          </font>
       </Button>
-      <RadioButton fx:id="radioButtonKI" layoutX="597.0" layoutY="166.0" onAction="#showFolder" mnemonicParsing="false" text="KI">
-         <font>
-            <Font name="System Bold" size="16.0" />
-         </font>
-      </RadioButton>
-      <RadioButton fx:id="radioButtonSpieler" layoutX="597.0" layoutY="199.0" onAction="#showFolder" mnemonicParsing="false" text="Spieler">
-         <font>
-            <Font name="Bell MT Bold" size="16.0" />
-         </font>
-      </RadioButton>
    </children>
 </AnchorPane>

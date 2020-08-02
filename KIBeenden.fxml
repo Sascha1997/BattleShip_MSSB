@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="bgnormal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400.0" minWidth="500.0" prefHeight="400.0" prefWidth="500.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox layoutX="63.0" layoutY="244.0" spacing="10.0">
+         <children>
+            <Button fx:id="buttonNeuesSpiel" mnemonicParsing="false" onAction="#neuesSpiel" prefHeight="44.0" prefWidth="164.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Neues Spiel">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button fx:id="buttonSpielBeenden" mnemonicParsing="false" onAction="#spielBeenden" prefHeight="44.0" prefWidth="164.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel Beenden">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+      <VBox layoutX="101.0" layoutY="19.0" prefHeight="208.0" prefWidth="299.0" spacing="10.0">
+         <children>
+            <Label fx:id="spielAusgang" alignment="CENTER" prefHeight="30.0" prefWidth="299.0" styleClass="labelWhite" stylesheets="@../styles.css" text="Spiel verloren !" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold Italic" size="18.0" />
+               </font>
+            </Label>
+            <Label alignment="CENTER" prefHeight="30.0" prefWidth="138.0" styleClass="labelWhite" stylesheets="@../styles.css" text="Statistik:">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Label>
+            <Label fx:id="statistikAnzeige" prefHeight="115.0" prefWidth="189.0" styleClass="labelWhiteSmall" stylesheets="@../styles.css" text="Shots: 113                     Hits: 46                 Fehlertreffer: 67 Trefferquote: 40,71%" wrapText="true">
+               <font>
+                  <Font name="Arial Rounded MT Bold" size="17.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

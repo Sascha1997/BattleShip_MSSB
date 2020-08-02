@@ -12,15 +12,29 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
+/**
+ * Kontrollerklasse für das Fenster wenn man ein Spiel aufgeben möchte
+ * @author Matze
+ *
+ */
 public class ControllerSpielAufgeben implements Initializable {
-
+	/**
+	 * FXML-Attribute
+	 */
 	@FXML
 	private Button buttonAbbrechen;
-	
 	@FXML
 	private Button buttonBestaetigen;
 	
+	/**
+	 * Objekt-Attribute
+	 */
 	private Connection connection;
+	
+	/**
+	 * Konstruktor
+	 * @param connection
+	 */
 	public ControllerSpielAufgeben(Connection connection) {
 		this.connection=connection;
 	}
@@ -29,6 +43,10 @@ public class ControllerSpielAufgeben implements Initializable {
 		
 		
 	}
+	/**
+	 * onAction-Methode für den Button bestägtigen
+	 * Schließt die Connection und leitet zurück ins Startmenü
+	 */
 	@FXML
 	private void aufgebenBestaetigen() {
 		
@@ -42,21 +60,20 @@ public class ControllerSpielAufgeben implements Initializable {
 	   						
 		try {
     		
-			Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-			//ControllerObjekt von der nächsten Gui-Oberfläche erzeugen um die SchiffsListe, den in und den Output Reader zu übergeben
-			
+			Parent root = fxmlloader.load();
     		Scene newScene = new Scene(root);
     		StarterKlasse.primaryStage.setScene(newScene);
-			StarterKlasse.primaryStage.setTitle("Hauptmenü");
-			//newStage.setScene(new Scene(root, 1000, 600));
-			//newStage.show();
 			oldStage.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * onAction-Methode für den Button abbrechen
+	 * Schließt das Aufgeben Fenster wieder
+	 */
 	@FXML
 	private void aufgebenAbbrechen() {
 		Stage oldStage = (Stage)buttonAbbrechen.getScene().getWindow();

@@ -9,15 +9,20 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.Stage;
 import ki.KI;
 
 public class ControllerKI implements Initializable{
@@ -40,17 +45,10 @@ public class ControllerKI implements Initializable{
 	
 	@FXML
 	private Label versenktGegner;
+
 	
-	@FXML
-	private Button fire;
-	
-	@FXML
-	private Button save;
-	
-	@FXML
-	private Button buttonAufgeben;
-	
-	private boolean isLoadedClient=false;
+	private boolean isLoaded=false;
+	private boolean isClient=false;
 	
 	
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -60,28 +58,22 @@ public class ControllerKI implements Initializable{
 			
 		}
 		spielZug.setText("1");
-		versenktWir.setText("0 EnemyHits");
-		versenktGegner.setText("0 Hits");
-		fire.setVisible(false);
-		save.setVisible(false);
-		buttonAufgeben.setVisible(false);
-		
-		if(!this.isLoadedClient)this.spielFeldGenerieren();
+		versenktWir.setText("0");
+		versenktGegner.setText("0");
+		if(!isLoaded)this.spielFeldGenerieren();
 		
 	}
 	
 	//Client
-	public ControllerKI(int spielFeldGroeﬂe, int kiModus, boolean isOffline) {
+	public ControllerKI(int spielFeldGroeﬂe, int kiModus, boolean isOffline,String ip) throws IOException {
 		this.spielFeldGroeﬂe = spielFeldGroeﬂe;
 		KI ki;
+		this.isClient = true;
 		
-		try {
-			ki = new KI(new Socket("localhost",50000),false,kiModus,this,isOffline);
-			ki.start();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		ki = new KI(new Socket(ip,50000),false,kiModus,this,isOffline);
+		ki.start();
+		
+		
 		
 	}
 	//Server
@@ -126,6 +118,7 @@ public class ControllerKI implements Initializable{
 						int cs = (zellorte.get(j).y);
 						if(rs==rowIndex.intValue()&&cs==colIndex.intValue()){
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #000000");
 						}
 					}						
@@ -157,6 +150,7 @@ public class ControllerKI implements Initializable{
 			if(rowIndex!=null&&colIndex!=null) {
 				if(p.x==rowIndex.intValue()&&p.y==colIndex.intValue()) {
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #FF0000");
 					break;
 				}
@@ -172,6 +166,7 @@ public class ControllerKI implements Initializable{
 			if(rowIndex!=null&&colIndex!=null) {
 				if(p.x==rowIndex.intValue()&&p.y==colIndex.intValue()) {
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #00FF00");
 					break;
 				}
@@ -186,7 +181,7 @@ public class ControllerKI implements Initializable{
 			@Override
 			public void run() {
 				String s[] = versenktGegner.getText().split(" ");
-				versenktGegner.setText(String.valueOf(Integer.parseInt(s[0])+1)+" "+s[1]);
+				versenktGegner.setText(String.valueOf(Integer.parseInt(s[0])+1));
 			}
 			
 		});
@@ -205,6 +200,7 @@ public class ControllerKI implements Initializable{
 						if (rowIndex != null && rowIndex.intValue() == rowInt
 								  && columnIndex != null && columnIndex.intValue() == colInt) {
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #FF0000");
 						}
 						
@@ -214,6 +210,7 @@ public class ControllerKI implements Initializable{
 						if (rowIndex != null && rowIndex.intValue() == rowInt
 								  && columnIndex != null && columnIndex.intValue() == colInt) {
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #FF0000");
 						}
 						rowInt = points.get(i).x;
@@ -222,6 +219,7 @@ public class ControllerKI implements Initializable{
 						if (rowIndex != null && rowIndex.intValue() == rowInt
 								  && columnIndex != null && columnIndex.intValue() == colInt) {
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #FF0000");
 						}
 						
@@ -231,6 +229,7 @@ public class ControllerKI implements Initializable{
 						if (rowIndex != null && rowIndex.intValue() == rowInt
 								  && columnIndex != null && columnIndex.intValue() == colInt) {
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #FF0000");
 						}
 						
@@ -240,6 +239,7 @@ public class ControllerKI implements Initializable{
 						if (rowIndex != null && rowIndex.intValue() == rowInt
 								  && columnIndex != null && columnIndex.intValue() == colInt) {
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #FF0000");
 						}
 						rowInt = points.get(i).x-1;
@@ -248,6 +248,7 @@ public class ControllerKI implements Initializable{
 						if (rowIndex != null && rowIndex.intValue() == rowInt
 								  && columnIndex != null && columnIndex.intValue() == colInt) {
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #FF0000");
 						}
 						rowInt = points.get(i).x-1;
@@ -256,6 +257,7 @@ public class ControllerKI implements Initializable{
 						if (rowIndex != null && rowIndex.intValue() == rowInt
 								  && columnIndex != null && columnIndex.intValue() == colInt) {;
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #FF0000");
 						}
 						rowInt = points.get(i).x+1;
@@ -264,6 +266,7 @@ public class ControllerKI implements Initializable{
 						if (rowIndex != null && rowIndex.intValue() == rowInt
 								  && columnIndex != null && columnIndex.intValue() == colInt) {
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #FF0000");
 						}
 						
@@ -273,6 +276,7 @@ public class ControllerKI implements Initializable{
 						if (rowIndex != null && rowIndex.intValue() == rowInt
 								  && columnIndex != null && columnIndex.intValue() == colInt) {
 							Button b = (Button)n;
+							b.setId("cell");
 							b.setStyle("-fx-background-color: #FF0000");
 						}
 						
@@ -293,6 +297,7 @@ public class ControllerKI implements Initializable{
 					if (rowIndex != null && rowIndex.intValue() == rowInt
 							  && columnIndex != null && columnIndex.intValue() == colInt) {
 						Button b = (Button)n;
+						b.setId("cell");
 						b.setStyle("-fx-background-color: #00FF00");
 					}
 				
@@ -310,14 +315,17 @@ public class ControllerKI implements Initializable{
 			if(rowIndex!=null&&colIndex!=null) {
 				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==3){
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #00FF00");
 				}
 				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==2){
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #00FF00");
 				}
 				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==1){
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #FF0000");
 				}
 					
@@ -333,14 +341,17 @@ public class ControllerKI implements Initializable{
 			if(rowIndex!=null&&colIndex!=null) {
 				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==3){
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #000000");
 				}
 				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==2){
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #8A4B08");
 				}
 				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==1){
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #0B4C5F");
 				}
 				
@@ -356,7 +367,7 @@ public class ControllerKI implements Initializable{
 			@Override
 			public void run() {
 				String s[] = versenktWir.getText().split(" ");
-				versenktWir.setText(String.valueOf(Integer.parseInt(s[0])+1)+" "+s[1]);
+				versenktWir.setText(String.valueOf(Integer.parseInt(s[0])+1));
 			}
 			
 		});
@@ -370,6 +381,7 @@ public class ControllerKI implements Initializable{
 			if(rowIndex!=null&&colIndex!=null) {
 				if(p.x==rowIndex.intValue()&&p.y==colIndex.intValue()) {
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #0B4C5F");
 					break;
 				}
@@ -385,6 +397,7 @@ public class ControllerKI implements Initializable{
 			if(rowIndex!=null&&colIndex!=null) {
 				if(p.x==rowIndex.intValue()&&p.y==colIndex.intValue()) {
 					Button b = (Button)n;
+					b.setId("cell");
 					b.setStyle("-fx-background-color: #8A4B08");
 					break;
 				}
@@ -412,14 +425,14 @@ public class ControllerKI implements Initializable{
 		
 	}
 
-	private void spielFeldGenerieren() {
+	public void spielFeldGenerieren() {
 
 		/*
 		 * 
 		 * UNSER SPIELFELD
 		 * 
 		 */
-		//Nur wegen Szene Builder hier Erst Vorhandenes 1x1 Lˆschen dann 10x10 erzeugen
+		//Nur wegen Szene Builder hier Erst Vorhandenes 1x1 L√üschen dann 10x10 erzeugen
 		gridPaneWe.getColumnConstraints().remove(0);
 		gridPaneWe.getRowConstraints().remove(0);
 		
@@ -435,11 +448,12 @@ public class ControllerKI implements Initializable{
 		gridPaneWe.setGridLinesVisible(true);
 		
 		
-		//Erzeugt 100 verschiedene Buttons ins GridPane, die alle Clickable sind und wenn man Sie anklickt Ihren Index zur¸ck geben
+		//Erzeugt 100 verschiedene Buttons ins GridPane, die alle Clickable sind und wenn man Sie anklickt Ihren Index zur√ück geben
 		for(int i=0;i<spielFeldGroeﬂe;i++) {
 			for (int j = 0; j<spielFeldGroeﬂe;j++) {
 				
 				Button b = new Button();
+				b.setId("cell");
 				b.setMinHeight((int)365/spielFeldGroeﬂe);
 				b.setMinWidth((int)365/spielFeldGroeﬂe);
 				gridPaneWe.add(b, i, j);
@@ -468,12 +482,22 @@ public class ControllerKI implements Initializable{
 			for (int j = 0; j<spielFeldGroeﬂe;j++) {
 				
 				Button b = new Button();
+				b.setId("cell");
 				b.setMinHeight((int)365/spielFeldGroeﬂe);
 				b.setMinWidth((int)365/spielFeldGroeﬂe);
 				gridPaneEnemy.add(b, i, j);
 			}
 		}
 		
+		
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				
+			}
+			
+		});
 		/*
 		 * 
 		 * 
@@ -483,7 +507,7 @@ public class ControllerKI implements Initializable{
 		 */
 	}
 	
-	public void setSpielFeldGroeﬂe(String s) {
+	public void setspielFeldGroeﬂe(String s) {
 		
 		String parts[]=s.split(" ");
 		System.out.println("PARTS[1] "+parts[1]);
@@ -491,9 +515,8 @@ public class ControllerKI implements Initializable{
 			this.spielFeldGroeﬂe = Integer.parseInt(parts[1]);
 		}
 	}
-	public void setSpielFeld(int groeﬂe, final ArrayList<Schiff>schiffe,final int[][]spielFeldGegner,final int[][]spielFeldWir) {
+	public void setSpielFeld(int groe√üe, final ArrayList<Schiff>schiffe,final int[][]spielFeldGegner,final int[][]spielFeldWir) {
 		
-		this.spielFeldGroeﬂe = groeﬂe;
 		
 		Platform.runLater(new Runnable() {
 
@@ -509,11 +532,71 @@ public class ControllerKI implements Initializable{
 		});
 		
 	}
-	//Wird benˆtigt f¸r KI join via Load. 
-	public boolean getLoadedClient() {
-		return this.isLoadedClient;
+	
+	//Wird ben√ütigt f√ür KI join via Load. 
+	public boolean getLoaded() {
+		return this.isLoaded;
 	}
-	public void setLoadedClient() {
+	
+	public void setIsLoaded(boolean b) {
+		this.isLoaded = b;
+	}
+	
+	public void onActionSounds(ActionEvent event) {
+		Stage newStage = new Stage();
+		newStage.setScene(StarterKlasse.music);
+		newStage.show();
+	}
+	
+	public void spielBeendenKI(String shots, String hits, String fehler, String quote,boolean b) {
 		
+		
+		
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("KIBeenden.fxml"));
+				ControllerKIBeenden cKIb = new ControllerKIBeenden(shots,hits,fehler,quote,b);
+		    	
+		    	try {
+		    		fxmlloader.setController(cKIb);
+		    		Parent root = fxmlloader.load();
+		    		Stage newStage = new Stage();
+		    		newStage.setScene(new Scene(root));
+		    		newStage.show();
+		    			
+		    	} catch (IOException e) {
+		    		// TODO Auto-generated catch block
+		    		e.printStackTrace();
+		    	}
+			}
+			
+		});
+		
+	}
+	
+	public void spielAbbruch() {
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielAbbruch.fxml"));
+				ControllerKIAbbruch cKIa = new ControllerKIAbbruch();
+		    	
+		    	try {
+		    		fxmlloader.setController(cKIa);
+		    		Parent root = fxmlloader.load();
+		    		Stage newStage = new Stage();
+		    		newStage.setScene(new Scene(root));
+		    		newStage.show();
+		    			
+		    	} catch (IOException e) {
+		    		// TODO Auto-generated catch block
+		    		e.printStackTrace();
+		    	}
+			}
+			
+		});
 	}
 }

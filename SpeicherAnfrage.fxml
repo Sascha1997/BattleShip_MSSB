@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="bgnormal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="350.0" minWidth="500.0" prefHeight="350.0" prefWidth="500.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TextField fx:id="speicherName" layoutX="70.0" layoutY="143.0" minHeight="50.0" minWidth="360.0" prefHeight="50.0" prefWidth="360.0" promptText="Dateiname eingeben">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </TextField>
+      <VBox layoutX="70.0" layoutY="236.0" spacing="10.0">
+         <children>
+            <Button fx:id="speichernBestaetigen" mnemonicParsing="false" onAction="#saveCommit" prefHeight="21.0" prefWidth="112.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Speichern">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+      <Label alignment="TOP_CENTER" layoutX="35.0" layoutY="35.0" styleClass="labelWhite" stylesheets="@../styles.css" text="Gegner hat das Speichern angefordert" />
+      <Label layoutX="70.0" layoutY="104.0" styleClass="labelWhiteSmall" stylesheets="@../styles.css" text="Dateiname" />
+   </children>
+</AnchorPane>

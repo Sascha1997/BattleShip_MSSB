@@ -4,7 +4,10 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 public class Schiff {
-
+	/**
+	 * Schiffsklasse mit den Attributen Zellorte, Größe, Identifikation, Plazierung
+	 */
+	
 	private ArrayList <String> zellorte;
 	private int groeße;
 	private String ident;
@@ -12,6 +15,12 @@ public class Schiff {
 	public ArrayList<Point> availableCords = new ArrayList<>();
     private final int initialSize;
     
+    /**
+     * Konstruktor für den KI-Modus, hier werden mehr informationen benötigt, als beim Player-Modus
+     * @param c
+     * @param ini
+     * @param ident
+     */
     public Schiff(ArrayList<Point> c, int ini, String ident){
         for(Point p : c){
             availableCords.add(new Point(p));
@@ -19,13 +28,22 @@ public class Schiff {
         this.initialSize = ini;
         this.ident = ident;
     }
-	
+	/**
+	 * Konstrutkor Player-Modus
+	 * @param groeße
+	 * @param identifikation
+	 */
 	public Schiff(int groeße, String identifikation) {
 		this.groeße = groeße;
 		this.ident = identifikation;
-		this.initialSize=0;//nicht benötigt wenn KI nicht spielt
+		this.initialSize=0;//nicht benÃŸtigt wenn KI nicht spielt
 	}
 	
+	/**
+	 * Prüfen, ob Schiff auf einem bestimmten Punkt liegt
+	 * @param p
+	 * @return true, wenn ja
+	 */
 	public boolean contains(Point p){
         for(Point x : this.availableCords){
             if(x.x == p.x && x.y == p.y) return true;
@@ -33,13 +51,15 @@ public class Schiff {
         return false;
     }
 	
+	/**
+	 * Prüfen eines Schusses auf ein Schiff vom Gegner
+	 * @param benutzereingabe
+	 * @return 2, bei versenkt
+	 * @return 1, bei Treffer
+	 * @return 0, bei vorbei
+	 */
 	public int pruefDich(String benutzereingabe) {
 		
-		
-		//Benutzereingabe in Reihen und Spalten aufteilen
-		//String[0] ist die Zeilennummer und String[1] die Spaltennummer
-		//Benutzereingabe in Format XXXX bringen z.B. 0508 für Zeile 5 Spalte 8
-		//Prüfen ob Eingabe zum Treffer geführt hat
 		
 		int ergebnis = 0;
 		int index = zellorte.indexOf(benutzereingabe);
@@ -48,16 +68,18 @@ public class Schiff {
 
 			if(zellorte.isEmpty()) {
 				ergebnis = 2;
-				System.out.println("Schiff mit Namen "+this.ident+" wurde versenkt");
 
 			}else {
 				ergebnis = 1;
 			}
 		}
-		//Rückgabe ob Daneben / Treffer / Versenkt
 		return ergebnis;
 	}
-
+	
+	/**
+	 * Hilfsmethode für die KI, in der eine Koordinate des Schiffes entfernt wird
+	 * @param p
+	 */
 	 public void removeCord(Point p){
 	        for(int i = 0; i < this.availableCords.size(); i++){
 	            if(this.availableCords.get(i).x == p.x && this.availableCords.get(i).y == p.y){
@@ -66,16 +88,22 @@ public class Schiff {
 	            }
 	        }
 	 }
-	
+	/**
+	 * Prüfen für die KI, ob Schiff versenkt ist
+	 * @return
+	 */
 	public boolean checkIfDead(){
         return this.availableCords.size() == 0;
     }
+	
+	/**
+	 * Getter and Settermethoden für alle wichtigen Attribute
+	 */
 	
 	public int getInitialSize(){
         return this.initialSize;
     }
 	
-	//Setter&Getter Methoden
 	public void setZellorte(ArrayList<String> orte) {
 		this.zellorte = orte;
 	}

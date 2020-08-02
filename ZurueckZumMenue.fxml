@@ -1,27 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="bgnormal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400.0" minWidth="500.0" prefHeight="400.0" prefWidth="500.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label fx:id="text" layoutX="86.0" layoutY="94.0" prefHeight="152.0" prefWidth="428.0" text="Leider verloren.. Möchten Sie erneut Spielen oder das Spiel beenden?" textAlignment="CENTER" wrapText="true">
+      <Label fx:id="text" layoutX="36.0" layoutY="122.0" prefHeight="85.0" prefWidth="428.0" stylesheets="@../styles.css" text="Leider verloren.. Möchten Sie erneut Spielen oder das Spiel beenden?" textAlignment="CENTER" wrapText="true">
          <font>
             <Font size="27.0" />
          </font>
+         <styleClass>
+            <String fx:value="labelWhite" />
+            <String fx:value="labelWhiteSmall" />
+         </styleClass>
       </Label>
-      <Button fx:id="neuesSpiel" layoutX="86.0" layoutY="324.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="145.0" text="Neues Spiel" onAction="#neuesSpiel">
-         <font>
-            <Font name="System Bold" size="20.0" />
-         </font>
-      </Button>
-      <Button fx:id="spielBeenden" layoutX="352.0" layoutY="324.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="162.0" text="Spiel beenden" onAction="#spielBeenden">
-         <font>
-            <Font name="System Bold" size="20.0" />
-         </font>
-      </Button>
+      <VBox layoutX="70.0" layoutY="236.0" prefHeight="138.0" prefWidth="360.0" spacing="10.0">
+         <children>
+            <Button fx:id="neuesSpiel" mnemonicParsing="false" onAction="#neuesSpiel" prefHeight="51.0" prefWidth="145.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Neues Spiel">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Button>
+            <Button fx:id="spielBeenden" mnemonicParsing="false" onAction="#spielBeenden" prefHeight="51.0" prefWidth="162.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel beenden">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+      <Label layoutX="156.0" layoutY="43.0" styleClass="labelWhite" stylesheets="@../styles.css" text="Spiel beendet" />
    </children>
 </AnchorPane>

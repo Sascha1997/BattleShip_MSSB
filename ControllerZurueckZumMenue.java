@@ -13,28 +13,48 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
+/**
+ * Controllerklasse des Fensters, das aufgeht, wenn ein Spiel gewonnen/verloren wurde
+ */	
 public class ControllerZurueckZumMenue implements Initializable {
-
+	
+	/**
+	 * FXML-Attribute
+	 */
+	
 	@FXML
 	private Button spielBeenden;
 	@FXML
 	private Button neuesSpiel;
-	
-	private boolean gewonnen;
-	
 	@FXML
 	private Label text;
+
+	/**
+	 * Objektattribute
+	 */
+	private boolean gewonnen;
 	
+	/**
+	 * Setzen des Textes des Labels je nach Ausgang des Spiels
+	 */
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
 		if(gewonnen) {
 			text.setText("Glückwunsch gewonnen! Möchten Sie erneut Spielen oder das Spiel beenden?");
 		}
-		
 	}
+	
+	/**
+	 * Konstruktor
+	 * @param gewonnen
+	 */
 	public ControllerZurueckZumMenue(boolean gewonnen) {
 		this.gewonnen = gewonnen;
 	}
+	
+	/**
+	 * onAction-Methode für den Button neues Spiel. 
+	 * Leitet an das Startmenüfenster weiter.
+	 */
 	@FXML 
 	private void neuesSpiel() {
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ServerOrClient.fxml"));
@@ -46,7 +66,6 @@ public class ControllerZurueckZumMenue implements Initializable {
 				root = fxmlLoader.load();
 				Scene newScene = new Scene(root);
 				StarterKlasse.primaryStage.setScene(newScene);
-				StarterKlasse.primaryStage.setTitle("Hauptmenü");
 				Stage oldStage = (Stage)neuesSpiel.getScene().getWindow();
 				oldStage.close();
 				
@@ -55,7 +74,10 @@ public class ControllerZurueckZumMenue implements Initializable {
 			e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * onAction-Methode für den Button spiel beenden. 
+	 * Schließt das Spiel
+	 */
 	@FXML
 	private void spielBeenden() {
 		System.exit(0);
