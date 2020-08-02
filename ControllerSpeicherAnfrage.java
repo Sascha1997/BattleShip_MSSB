@@ -20,16 +20,12 @@ import javafx.util.Duration;
  *
  */
 public class ControllerSpeicherAnfrage implements Initializable {
-	/**
-	 * FXML-Attribute
-	 */
+	
 	@FXML 
 	private TextField speicherName;
 	@FXML 
 	
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private Button speichernBestaetigen;
 	private ControllerSpielFeld csf;
 	private String id;

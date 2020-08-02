@@ -7,9 +7,7 @@ import java.util.ArrayList;
  */
 public class Schiff {
 	
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private ArrayList <String> zellorte;
 	private int groeﬂe;
 	private String ident;

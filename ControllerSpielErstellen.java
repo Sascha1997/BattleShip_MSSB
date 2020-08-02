@@ -32,9 +32,7 @@ import javafx.util.Duration;
  */
 public class ControllerSpielErstellen implements Initializable {
 	
-	/**
-	 * FXML-Attribute
-	 */
+	
 		
 	@FXML
 	private TextField textfield1;
@@ -51,9 +49,7 @@ public class ControllerSpielErstellen implements Initializable {
 	@FXML
 	private ComboBox<String>comboBox;
 	
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private Connection connection;
 	private ToggleGroup group = new ToggleGroup();
 	private int kiModus;

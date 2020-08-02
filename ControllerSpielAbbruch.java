@@ -19,15 +19,11 @@ import javafx.stage.Stage;
  */
 	
 public class ControllerSpielAbbruch implements Initializable{
-	/**
-	 * FXML-Attribute
-	 */
+	
 	@FXML
 	private Button zurueckZumHauptMenue;
 	
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private Connection connection;
 	
 	/**

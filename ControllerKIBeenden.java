@@ -17,9 +17,7 @@ import javafx.stage.Stage;
  * Kontrollerklasse für das Schlussfenster, wenn das Spiel gewonnen/verloren wurde
  */
 public class ControllerKIBeenden implements Initializable {
-	/**
-	 * FXML-Attribute
-	 */
+	
 	@FXML
 	private Button buttonNeuesSpiel;
 	@FXML
@@ -29,9 +27,7 @@ public class ControllerKIBeenden implements Initializable {
 	@FXML
 	private Label statistikAnzeige;
 	
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private boolean b;
 	private String shots;
 	private String hits;

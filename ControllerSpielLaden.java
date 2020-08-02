@@ -26,9 +26,7 @@ import javafx.scene.layout.VBox;
  */
 public class ControllerSpielLaden implements Initializable {
 
-	/**
-	 * FXML-Attribute
-	 */
+	
 	@FXML
 	private Button buttonZurueckZumHauptmenue;
 	@FXML
@@ -41,9 +39,7 @@ public class ControllerSpielLaden implements Initializable {
 	private ScrollPane scrollPane;
 	private ToggleGroup group = new ToggleGroup();
 	
-	/**
-	 * Objekt-Attribte, bei denen die meisten über das Laden gesetzt werden
-	 */
+	
 	private int counterVersenktGegner;
 	private int counterVersenktWir;
 	private int counterZug;

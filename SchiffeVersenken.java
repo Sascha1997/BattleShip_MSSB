@@ -13,9 +13,7 @@ import javafx.stage.Stage;
  */
 public class SchiffeVersenken {
 	
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private ArrayList <Schiff> schiffListe = new ArrayList<Schiff>();
 	private Connection connection;
 	

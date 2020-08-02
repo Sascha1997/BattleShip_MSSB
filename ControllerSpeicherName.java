@@ -19,9 +19,7 @@ import javafx.util.Duration;
  *
  */
 public class ControllerSpeicherName implements Initializable {
-	/**
-	 * FXML-Attribute
-	 */
+	
 	@FXML
 	private Button speichernAbrrechen;
 	@FXML 
@@ -29,9 +27,7 @@ public class ControllerSpeicherName implements Initializable {
 	@FXML 
 	private Button speichernBestaetigen;
 	
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private ControllerSpielFeld csf;
 	
 	/**

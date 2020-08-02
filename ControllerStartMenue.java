@@ -29,9 +29,7 @@ import javafx.stage.Stage;
  */	
 public class ControllerStartMenue implements Initializable {	
 	
-	/**
-	 * FXML-Attribute
-	 */
+	
 	@FXML
 	private Label label1;
 	@FXML
@@ -51,9 +49,7 @@ public class ControllerStartMenue implements Initializable {
 	@FXML
 	private ComboBox<String>comboBox;
 	
-	/**
-	 * Objektattribute
-	 */
+	
 	private SchiffeVersenken spiel;
 	private String spielfeld;
 	private Connection connection;

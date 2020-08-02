@@ -17,9 +17,7 @@ import java.util.Enumeration;
  *
  */
 public class Connection {
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private Socket s;
 	private ServerSocket ss;
 	private String ip;

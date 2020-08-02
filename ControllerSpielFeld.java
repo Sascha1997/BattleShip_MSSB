@@ -35,9 +35,7 @@ import javafx.util.Duration;
  */
 public class ControllerSpielFeld implements Initializable{
 	
-	/**
-	 * FXML-Attribute
-	 */
+	
 	private ArrayList<Schiff>schiffListe=new ArrayList<Schiff>();
 	@FXML
 	private Button testButton;
@@ -54,8 +52,6 @@ public class ControllerSpielFeld implements Initializable{
 	@FXML
 	private Label zug;
 	@FXML
-	private Button fire;
-	@FXML
 	private Label spielZug;
 	@FXML
 	private Label versenktWir;
@@ -68,9 +64,7 @@ public class ControllerSpielFeld implements Initializable{
 	@FXML 
 	private Button buttonUndo;
 	
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private int spielZugCounter;
 	private int versenktWirCounter;
 	private int versenktGegnerCounter;
@@ -104,7 +98,7 @@ public class ControllerSpielFeld implements Initializable{
      * @param schiffListe
      * @param schiffeVerteilung
      * @param spiel
-     * @param spielFeldGroe√üe
+     * @param spielFeldGroeﬂe
      * @param connection
      * @param isOffline
      */
@@ -295,7 +289,6 @@ public class ControllerSpielFeld implements Initializable{
 					System.out.println("Spiel Beginnt");
 					
 					spielGestartet=true;
-					fire.setDisable(true);
 					warteAufGegner();
 					return null;
 				}
@@ -376,13 +369,12 @@ public class ControllerSpielFeld implements Initializable{
 	}
 	
 	/**
-	 * onAction-Methode f¸r den Button fire
+	 * onAction-Methode f¸r den Klick aufs Gegnerfeld
 	 * Schreibt den entsprechenden Schuss an die Verbindung und verarbeitet dann die R¸ckantwort 
 	 * mit entsprechenden visuellen Ver‰nderung der Zelle
 	 * @throws IOException
 	 * @throws IllegalStateException
 	 */
-	@FXML
 	private void schuss() throws IOException, IllegalStateException {
 
 		if(!spielGestartet) {
@@ -431,8 +423,6 @@ public class ControllerSpielFeld implements Initializable{
 		shot = this.rowIndex+" "+this.colIndex;
 		connection.write("shot "+shot);
 		
-		//Button erstmal deaktivieren
-		fire.setDisable(true);
 		
 		Task<String>task = new Task<String>() {
 
@@ -462,7 +452,6 @@ public class ControllerSpielFeld implements Initializable{
 					}
 					
 					tempButton.setId("cellGetroffen");
-					fire.setDisable(false);
 				//Answer 2 ist gleich wie Answer 1 nur dass hier Versenkt wird, die entsprechende Aktuallsierte info wird dann runLater() im FX Thread erg‰nzt
 				}else if(answer.equals("answer 2")){
 					schiffCounter--; //Z‰hler f¸r Gegnerschiffe versenkt, zum erkennen wann Spiel vorbei ist
@@ -494,7 +483,6 @@ public class ControllerSpielFeld implements Initializable{
 					
 					System.out.println("Versenkt");
 					tempButton.setId("cellGetroffen");
-					fire.setDisable(false);
 					Platform.runLater(new Runnable(){
 
 						@Override
@@ -579,9 +567,8 @@ public class ControllerSpielFeld implements Initializable{
 			@Override
 			protected String call() throws Exception {
 					
-					//Fire Button disablen
+					
 					int answer=0;
-					fire.setDisable(true);
 					wirSindDran = false;
 					
 					
@@ -640,7 +627,6 @@ public class ControllerSpielFeld implements Initializable{
 									@Override
 									public void run() {
 										zug.setText("Wir sind Dran");
-										fire.setDisable(false);
 										save.setDisable(false);
 									}	
 								});
@@ -732,102 +718,106 @@ public class ControllerSpielFeld implements Initializable{
 						Integer rowIndex = GridPane.getRowIndex(n);
 						Integer columnIndex = GridPane.getColumnIndex(n);
 						
-						
-						int rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))+1;
-						int colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4));
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
+						if(rowIndex==null||columnIndex==null||rowIndex.intValue()>=gegnerSpielfeld.length||columnIndex.intValue()>=gegnerSpielfeld.length) {
 							
-							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
-							Button b = (Button)n;
+						}else {
+							int rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))+1;
+							int colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4));
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								
+								gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
+								Button b = (Button)n;
 
-							b.setId("cellVerfehlt");
-						}
-						
-						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))-1;
-						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4));
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
+								b.setId("cellVerfehlt");
+							}
 							
-							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
-							Button b = (Button)n;
-							b.setId("cellVerfehlt");
-						}
-						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2));
-						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4));
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
+							rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))-1;
+							colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4));
 							
-							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
-							Button b = (Button)n;
-							b.setId("cellVerfehlt");
-						}
-						
-						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))+1;
-						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))+1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								
+								gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
+								Button b = (Button)n;
+								b.setId("cellVerfehlt");
+							}
+							rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2));
+							colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4));
 							
-							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
-							Button b = (Button)n;
-							b.setId("cellVerfehlt");
-						}
-						
-						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2));
-						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))+1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								
+								gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
+								Button b = (Button)n;
+								b.setId("cellVerfehlt");
+							}
 							
-							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
-							Button b = (Button)n;
-							b.setId("cellVerfehlt");
-						}
-						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))-1;
-						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))+1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
+							rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))+1;
+							colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))+1;
 							
-							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
-							Button b = (Button)n;
-							b.setId("cellVerfehlt");
-						}
-						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))-1;
-						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))-1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								
+								gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
+								Button b = (Button)n;
+								b.setId("cellVerfehlt");
+							}
 							
-							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
-							Button b = (Button)n;
-							b.setId("cellVerfehlt");
-						}
-						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))+1;
-						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))-1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
+							rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2));
+							colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))+1;
 							
-							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
-							Button b = (Button)n;
-							b.setId("cellVerfehlt");
-						}
-						
-						rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2));
-						colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))-1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								
+								gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
+								Button b = (Button)n;
+								b.setId("cellVerfehlt");
+							}
+							rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))-1;
+							colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))+1;
 							
-							gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
-							Button b = (Button)n;
-							b.setId("cellVerfehlt");
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								
+								gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
+								Button b = (Button)n;
+								b.setId("cellVerfehlt");
+							}
+							rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))-1;
+							colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))-1;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								
+								gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
+								Button b = (Button)n;
+								b.setId("cellVerfehlt");
+							}
+							rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2))+1;
+							colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))-1;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								
+								gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
+								Button b = (Button)n;
+								b.setId("cellVerfehlt");
+							}
+							
+							rowInt = Integer.parseInt(getroffeneZellen[i].substring(0, 2));
+							colInt = Integer.parseInt(getroffeneZellen[i].substring(2, 4))-1;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								
+								gegnerSpielfeld[rowIndex.intValue()][columnIndex.intValue()]=1;
+								Button b = (Button)n;
+								b.setId("cellVerfehlt");
+							}
 						}
+						
 						
 						
 					}
@@ -870,11 +860,11 @@ public class ControllerSpielFeld implements Initializable{
 	}
 	
 	
+	@FXML
 	/**
 	 * onAction-Methode f¸r den Button speicher
 	 * Starten des Speicherprozesses indem das Speicherfenster aufgerufen wird
 	 */
-	@FXML
 	private void saveGameProcess() {
 		
 		if(!spielGestartet) {
@@ -895,7 +885,7 @@ public class ControllerSpielFeld implements Initializable{
 		try {
 			fxmlloader.setController(csn);
 			Parent root = fxmlloader.load();//Initialize der Controller Klasse wird schon hier aufgerufen 
-			//ControllerObjekt von der n√üchsten Gui-Oberfl√üche erzeugen um die SchiffsListe, den in und den Output Reader zu √übergeben
+			//ControllerObjekt von der n‰chsten Gui-Oberfl‰che erzeugen um die SchiffsListe, den in und den Output Reader zu √übergeben
 			
     		Stage newStage = new Stage();
 			newStage.setScene(new Scene(root));
@@ -1037,17 +1027,23 @@ public class ControllerSpielFeld implements Initializable{
 				Integer rowIndex = GridPane.getRowIndex(n);
 				Integer colIndex = GridPane.getColumnIndex(n);
 				if(rowIndex!=null&&colIndex!=null) {
-					if (gegnerSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==0){
+					
+					if(rowIndex.intValue()>=gegnerSpielfeldLaden.length||colIndex.intValue()>=gegnerSpielfeldLaden.length) {
+					
+					}else {
+						if (gegnerSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==0){
+								
+						}
+						if (gegnerSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==1){
+							Button b = (Button)n;
+							b.setId("cellVerfehlt");
+						}
+						if (gegnerSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==2){
+							Button b = (Button)n;
+							b.setId("cellGetroffen");
+						}	
+					}
 						
-					}
-					if (gegnerSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==1){
-						Button b = (Button)n;
-						b.setId("cellVerfehlt");
-					}
-					if (gegnerSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==2){
-						Button b = (Button)n;
-						b.setId("cellGetroffen");
-					}		
 				}
 				
 		}
@@ -1064,21 +1060,29 @@ public class ControllerSpielFeld implements Initializable{
 			Integer rowIndex = GridPane.getRowIndex(n);
 			Integer colIndex = GridPane.getColumnIndex(n);
 			if(rowIndex!=null&&colIndex!=null) {
-				if (unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==3){
-					Button b = (Button)n;
-					b.setId("cell");
-					b.setStyle("-fx-background-color: #000000");
+				
+				if(rowIndex.intValue()>=unserSpielfeldLaden.length||colIndex.intValue()>=unserSpielfeldLaden.length) {
+					
+				}else {
+					if (unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==3){
+						Button b = (Button)n;
+						b.setId("cell");
+						b.setStyle("-fx-background-color: #000000");
+					}
+					if(unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==1) {
+						Button b = (Button)n;
+						b.setId("cell");
+						b.setStyle("-fx-background-color: #0B4C5F");
+					}
+					if(unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==2) {
+						Button b = (Button)n;
+						b.setId("cell");
+						b.setStyle("-fx-background-color: #8A4B08");
+					}	
 				}
-				if(unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==1) {
-					Button b = (Button)n;
-					b.setId("cell");
-					b.setStyle("-fx-background-color: #0B4C5F");
-				}
-				if(unserSpielfeldLaden[rowIndex.intValue()][colIndex.intValue()]==2) {
-					Button b = (Button)n;
-					b.setId("cell");
-					b.setStyle("-fx-background-color: #8A4B08");
-				}
+				
+				
+				
 			}
 			
 		}
@@ -1095,9 +1099,9 @@ public class ControllerSpielFeld implements Initializable{
 		gridPaneWe.getColumnConstraints().remove(0);
 		gridPaneWe.getRowConstraints().remove(0);
 		
-		for(int i = 0;i<this.spielFeldGroeﬂe;i++) {
-			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeﬂe);
-			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeﬂe);
+		for(int i = 0;i<this.spielFeldGroeﬂe+1;i++) {
+			ColumnConstraints cc = new ColumnConstraints((int)380/(spielFeldGroeﬂe+1));
+			RowConstraints rc = new RowConstraints((int)380/(spielFeldGroeﬂe+1));
 			
 			gridPaneWe.getColumnConstraints().add(cc);
 			gridPaneWe.getRowConstraints().add(rc);
@@ -1107,15 +1111,17 @@ public class ControllerSpielFeld implements Initializable{
 		gridPaneWe.setGridLinesVisible(true);
 		
 		
-		for(int i=0;i<spielFeldGroeﬂe;i++) {
-			for (int j = 0; j<spielFeldGroeﬂe;j++) {
+		for(int i=0;i<spielFeldGroeﬂe+1;i++) {
+			for (int j = 0; j<spielFeldGroeﬂe+1;j++) {
 				
 				Button b = new Button();
+				
 				b.setId("cell");
-				b.setMinHeight((int)365/spielFeldGroeﬂe);
-				b.setMinWidth((int)365/spielFeldGroeﬂe);
+				b.setMinHeight((int)365/(spielFeldGroeﬂe+1));
+				b.setMinWidth((int)365/(spielFeldGroeﬂe+1));
+				
 				b.setOnMouseClicked(new EventHandler <MouseEvent>() {
-
+					
 					
 					@Override
 					public void handle(MouseEvent event) {
@@ -1125,7 +1131,9 @@ public class ControllerSpielFeld implements Initializable{
 						
 						if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
 							if (((MouseEvent) event).getButton().equals(MouseButton.SECONDARY)) {
+								
 								System.out.println("LINKSKLICK");
+								b.setMaxHeight(10.12);
 								clickedButton.setStyle(null);
 								clickedButton.setId("cell");
 								Integer rowIndex = GridPane.getRowIndex(clickedNode);
@@ -1165,23 +1173,27 @@ public class ControllerSpielFeld implements Initializable{
 								
 							}else {
 								// click on descendant node
-								Integer rowIndex = GridPane.getRowIndex(clickedNode);
-							    Integer colIndex = GridPane.getColumnIndex(clickedNode);
-							    String row = String.valueOf(rowIndex);
-							    String col = String.valueOf(colIndex);
-							    if(row.length()==1) {
-							    	row ="0"+row;
-							    }
-							    if(col.length()==1) {
-							    	col="0"+col;
-							    }
-								clickedButton.setId("cellMarkiert");
-								zellorte = zellorte+row+col+" ";
-								if(spielHelfer.pruefePlazierung(zellorte, schiffListe)) {
-									ready.setDisable(false);
-								}else {
-									ready.setDisable(true);
+								if(!(b.getMaxHeight()==10.11)) {
+									Integer rowIndex = GridPane.getRowIndex(clickedNode);
+								    Integer colIndex = GridPane.getColumnIndex(clickedNode);
+								    String row = String.valueOf(rowIndex);
+								    String col = String.valueOf(colIndex);
+								    if(row.length()==1) {
+								    	row ="0"+row;
+								    }
+								    if(col.length()==1) {
+								    	col="0"+col;
+								    }
+									clickedButton.setId("cellMarkiert");
+									zellorte = zellorte+row+col+" ";
+									if(spielHelfer.pruefePlazierung(zellorte, schiffListe)) {
+										ready.setDisable(false);
+									}else {
+										ready.setDisable(true);
+									}	
 								}
+								
+								b.setMaxHeight(10.11);
 							}
 								
 						}
@@ -1193,7 +1205,23 @@ public class ControllerSpielFeld implements Initializable{
 					}
 					
 				});
+				
+				if(j==spielFeldGroeﬂe) {
+					b.setText(String.valueOf(i));
+					b.setDisable(true);
+					int schriftgroeﬂe= 120/spielFeldGroeﬂe;
+					b.setStyle("-fx-font-size:"+schriftgroeﬂe+";-fx-color: #000000; -fx-background-color:#2E2E2E;");
+					
+				}
+				if(i==spielFeldGroeﬂe) {
+					b.setText(String.valueOf(j));
+					b.setDisable(true);
+					int schriftgroeﬂe= 120/spielFeldGroeﬂe;
+					b.setStyle("-fx-font-size:"+schriftgroeﬂe+";-fx-color: #000000; -fx-background-color:#2E2E2E;");
+				}
 				gridPaneWe.add(b, i, j);
+				
+				
 			}
 		}
 		
@@ -1202,9 +1230,9 @@ public class ControllerSpielFeld implements Initializable{
 		
 		
 		
-		for(int i = 0;i<this.spielFeldGroeﬂe;i++) {
-			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeﬂe);
-			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeﬂe);
+		for(int i = 0;i<this.spielFeldGroeﬂe+1;i++) {
+			ColumnConstraints cc = new ColumnConstraints((int)380/(spielFeldGroeﬂe+1));
+			RowConstraints rc = new RowConstraints((int)380/(spielFeldGroeﬂe+1));
 			
 			gridPaneEnemy.getColumnConstraints().add(cc);
 			gridPaneEnemy.getRowConstraints().add(rc);
@@ -1212,13 +1240,13 @@ public class ControllerSpielFeld implements Initializable{
 		gridPaneEnemy.setAlignment(Pos.CENTER);
 		gridPaneEnemy.setGridLinesVisible(true);
 		
-		for(int i=0;i<spielFeldGroeﬂe;i++) {
-			for (int j = 0; j<spielFeldGroeﬂe;j++) {
+		for(int i=0;i<(spielFeldGroeﬂe+1);i++) {
+			for (int j = 0; j<(spielFeldGroeﬂe+1);j++) {
 				
 				Button b = new Button();
 				b.setId("cell");
-				b.setMinHeight((int)365/spielFeldGroeﬂe);
-				b.setMinWidth((int)365/spielFeldGroeﬂe);
+				b.setMinHeight((int)365/(spielFeldGroeﬂe+1));
+				b.setMinWidth((int)365/(spielFeldGroeﬂe+1));
 				b.setOnMouseClicked(new EventHandler <MouseEvent>() {
 				
 					
@@ -1233,6 +1261,7 @@ public class ControllerSpielFeld implements Initializable{
 					    Integer colInd = GridPane.getColumnIndex(clickedNode);
 					    rowIndex = String.valueOf(rowInd);
 					    colIndex = String.valueOf(colInd);
+					    
 					    if(rowIndex.length()==1) {
 					    	rowIndex = "0"+rowIndex;
 					    }
@@ -1253,11 +1282,32 @@ public class ControllerSpielFeld implements Initializable{
 							}
 								
 						}
-					    System.out.println("Mouse clicked cell: " + rowIndex + " And: " + colIndex);
+						try {
+							schuss();
+						} catch (IllegalStateException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 												
 					}
 					
 				});
+				if(j==spielFeldGroeﬂe) {
+					b.setText(String.valueOf(i));
+					b.setDisable(true);
+					int schriftgroeﬂe= 120/spielFeldGroeﬂe;
+					b.setStyle("-fx-font-size:"+schriftgroeﬂe+";-fx-color: #000000; -fx-background-color:#2E2E2E;");
+					
+				}
+				if(i==spielFeldGroeﬂe) {
+					b.setText(String.valueOf(j));
+					b.setDisable(true);
+					int schriftgroeﬂe= 120/spielFeldGroeﬂe;
+					b.setStyle("-fx-font-size:"+schriftgroeﬂe+";-fx-color: #000000; -fx-background-color:#2E2E2E;");
+				}
 				gridPaneEnemy.add(b, i, j);
 			}
 		}

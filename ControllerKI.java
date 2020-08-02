@@ -31,9 +31,7 @@ import ki.KI;
  */
 public class ControllerKI implements Initializable{
 	
-	/**
-	 * FXML-Attribute
-	 */
+	
 	@FXML
 	private GridPane gridPaneWe;
 	@FXML
@@ -47,9 +45,7 @@ public class ControllerKI implements Initializable{
 	@FXML
 	private Label versenktGegner;
 
-	/**
-	 * Objekt-Attribute
-	 */
+	
 	private boolean isLoaded=false;
 	private boolean isClient=false;
 	private int spielFeldGroeﬂe;
@@ -352,21 +348,26 @@ public class ControllerKI implements Initializable{
 			Integer rowIndex = GridPane.getRowIndex(n);
 			Integer colIndex = GridPane.getColumnIndex(n);
 			if(rowIndex!=null&&colIndex!=null) {
-				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==3){
-					Button b = (Button)n;
-					b.setId("cell");
-					b.setStyle("-fx-background-color: #00FF00");
+				if(rowIndex.intValue()>=spielfeld.length||colIndex.intValue()>=spielfeld.length) {
+					
+				}else {
+					if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==3){
+						Button b = (Button)n;
+						b.setId("cell");
+						b.setStyle("-fx-background-color: #00FF00");
+					}
+					if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==2){
+						Button b = (Button)n;
+						b.setId("cell");
+						b.setStyle("-fx-background-color: #00FF00");
+					}
+					if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==1){
+						Button b = (Button)n;
+						b.setId("cell");
+						b.setStyle("-fx-background-color: #FF0000");
+					}
 				}
-				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==2){
-					Button b = (Button)n;
-					b.setId("cell");
-					b.setStyle("-fx-background-color: #00FF00");
-				}
-				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==1){
-					Button b = (Button)n;
-					b.setId("cell");
-					b.setStyle("-fx-background-color: #FF0000");
-				}
+				
 					
 			}
 			
@@ -382,21 +383,27 @@ public class ControllerKI implements Initializable{
 			Integer rowIndex = GridPane.getRowIndex(n);
 			Integer colIndex = GridPane.getColumnIndex(n);
 			if(rowIndex!=null&&colIndex!=null) {
-				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==3){
-					Button b = (Button)n;
-					b.setId("cell");
-					b.setStyle("-fx-background-color: #000000");
+				
+				if(rowIndex.intValue()>=spielfeld.length||colIndex.intValue()>=spielfeld.length) {
+					
+				}else {
+					if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==3){
+						Button b = (Button)n;
+						b.setId("cell");
+						b.setStyle("-fx-background-color: #000000");
+					}
+					if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==2){
+						Button b = (Button)n;
+						b.setId("cell");
+						b.setStyle("-fx-background-color: #8A4B08");
+					}
+					if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==1){
+						Button b = (Button)n;
+						b.setId("cell");
+						b.setStyle("-fx-background-color: #0B4C5F");
+					}
 				}
-				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==2){
-					Button b = (Button)n;
-					b.setId("cell");
-					b.setStyle("-fx-background-color: #8A4B08");
-				}
-				if (spielfeld[rowIndex.intValue()][colIndex.intValue()]==1){
-					Button b = (Button)n;
-					b.setId("cell");
-					b.setStyle("-fx-background-color: #0B4C5F");
-				}
+				
 				
 			}
 			
@@ -472,9 +479,9 @@ public class ControllerKI implements Initializable{
 		gridPaneWe.getColumnConstraints().remove(0);
 		gridPaneWe.getRowConstraints().remove(0);
 		
-		for(int i = 0;i<this.spielFeldGroeﬂe;i++) {
-			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeﬂe);
-			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeﬂe);
+		for(int i = 0;i<this.spielFeldGroeﬂe+1;i++) {
+			ColumnConstraints cc = new ColumnConstraints((int)380/(spielFeldGroeﬂe+1));
+			RowConstraints rc = new RowConstraints((int)380/(spielFeldGroeﬂe+1));
 			
 			gridPaneWe.getColumnConstraints().add(cc);
 			gridPaneWe.getRowConstraints().add(rc);
@@ -485,14 +492,29 @@ public class ControllerKI implements Initializable{
 		
 		
 		//Erzeugt 100 verschiedene Buttons ins GridPane, die alle Clickable sind und wenn man Sie anklickt Ihren Index zur√ück geben
-		for(int i=0;i<spielFeldGroeﬂe;i++) {
-			for (int j = 0; j<spielFeldGroeﬂe;j++) {
+		for(int i=0;i<spielFeldGroeﬂe+1;i++) {
+			for (int j = 0; j<spielFeldGroeﬂe+1;j++) {
 				
 				Button b = new Button();
 				b.setId("cell");
-				b.setMinHeight((int)365/spielFeldGroeﬂe);
-				b.setMinWidth((int)365/spielFeldGroeﬂe);
+				b.setMinHeight((int)365/(spielFeldGroeﬂe+1));
+				b.setMinWidth((int)365/(spielFeldGroeﬂe+1));
+				if(j==spielFeldGroeﬂe) {
+					b.setText(String.valueOf(i));
+					b.setDisable(true);
+					int schriftgroeﬂe= 120/spielFeldGroeﬂe;
+					b.setStyle("-fx-font-size:"+schriftgroeﬂe+";-fx-color: #000000; -fx-background-color:#2E2E2E;");
+					
+				}
+				if(i==spielFeldGroeﬂe) {
+					b.setText(String.valueOf(j));
+					b.setDisable(true);
+					int schriftgroeﬂe= 120/spielFeldGroeﬂe;
+					b.setStyle("-fx-font-size:"+schriftgroeﬂe+";-fx-color: #000000; -fx-background-color:#2E2E2E;");
+				}
 				gridPaneWe.add(b, i, j);
+				
+				
 			}
 		}
 		/* UNSER SPIELFELD ENDE
@@ -504,9 +526,9 @@ public class ControllerKI implements Initializable{
 		gridPaneEnemy.getColumnConstraints().remove(0);
 		gridPaneEnemy.getRowConstraints().remove(0);
 		
-		for(int i = 0;i<this.spielFeldGroeﬂe;i++) {
-			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeﬂe);
-			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeﬂe);
+		for(int i = 0;i<this.spielFeldGroeﬂe+1;i++) {
+			ColumnConstraints cc = new ColumnConstraints((int)380/(spielFeldGroeﬂe+1));
+			RowConstraints rc = new RowConstraints((int)380/(spielFeldGroeﬂe+1));
 			
 			gridPaneEnemy.getColumnConstraints().add(cc);
 			gridPaneEnemy.getRowConstraints().add(rc);
@@ -514,13 +536,26 @@ public class ControllerKI implements Initializable{
 		gridPaneEnemy.setAlignment(Pos.CENTER);
 		gridPaneEnemy.setGridLinesVisible(true);
 		
-		for(int i=0;i<spielFeldGroeﬂe;i++) {
-			for (int j = 0; j<spielFeldGroeﬂe;j++) {
+		for(int i=0;i<spielFeldGroeﬂe+1;i++) {
+			for (int j = 0; j<spielFeldGroeﬂe+1;j++) {
 				
 				Button b = new Button();
 				b.setId("cell");
-				b.setMinHeight((int)365/spielFeldGroeﬂe);
-				b.setMinWidth((int)365/spielFeldGroeﬂe);
+				b.setMinHeight((int)365/(spielFeldGroeﬂe+1));
+				b.setMinWidth((int)365/(spielFeldGroeﬂe+1));
+				if(j==spielFeldGroeﬂe) {
+					b.setText(String.valueOf(i));
+					b.setDisable(true);
+					int schriftgroeﬂe= 120/spielFeldGroeﬂe;
+					b.setStyle("-fx-font-size:"+schriftgroeﬂe+";-fx-color: #000000; -fx-background-color:#2E2E2E;");
+					
+				}
+				if(i==spielFeldGroeﬂe) {
+					b.setText(String.valueOf(j));
+					b.setDisable(true);
+					int schriftgroeﬂe= 120/spielFeldGroeﬂe;
+					b.setStyle("-fx-font-size:"+schriftgroeﬂe+";-fx-color: #000000; -fx-background-color:#2E2E2E;");
+				}
 				gridPaneEnemy.add(b, i, j);
 			}
 		}
@@ -564,7 +599,7 @@ public class ControllerKI implements Initializable{
 	 */
 	public void setSpielFeld(int groeﬂe, final ArrayList<Schiff>schiffe,final int[][]spielFeldGegner,final int[][]spielFeldWir) {
 		
-		
+		this.spielFeldGroeﬂe=groeﬂe;
 		Platform.runLater(new Runnable() {
 
 			@Override

@@ -18,17 +18,12 @@ import javafx.stage.Stage;
  *
  */
 public class ControllerSpielAufgeben implements Initializable {
-	/**
-	 * FXML-Attribute
-	 */
+	
 	@FXML
 	private Button buttonAbbrechen;
 	@FXML
 	private Button buttonBestaetigen;
 	
-	/**
-	 * Objekt-Attribute
-	 */
 	private Connection connection;
 	
 	/**

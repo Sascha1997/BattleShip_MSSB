@@ -18,9 +18,6 @@ import javafx.stage.Stage;
  */	
 public class ControllerZurueckZumMenue implements Initializable {
 	
-	/**
-	 * FXML-Attribute
-	 */
 	
 	@FXML
 	private Button spielBeenden;
@@ -29,9 +26,7 @@ public class ControllerZurueckZumMenue implements Initializable {
 	@FXML
 	private Label text;
 
-	/**
-	 * Objektattribute
-	 */
+	
 	private boolean gewonnen;
 	
 	/**

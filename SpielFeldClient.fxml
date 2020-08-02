@@ -119,15 +119,6 @@
             </SplitPane>
             <VBox id="actionsection" stylesheets="@../styles.css">
                <children>
-                  <Button fx:id="fire" mnemonicParsing="false" onAction="#schuss" stylesheets="@../styles.css" text="Feuer" textFill="#fc0505">
-                     <font>
-                        <Font name="System Bold" size="20.0" />
-                     </font>
-                     <styleClass>
-                        <String fx:value="buttonfire" />
-                        <String fx:value="buttonbg" />
-                     </styleClass>
-                  </Button>
                   <HBox id="actionsection" stylesheets="@../styles.css">
                      <children>
                         <Button id="buttonbg" fx:id="spielStarten" minHeight="40.0" mnemonicParsing="false" onAction="#spielStarten" prefHeight="100.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel Starten">
