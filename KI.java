@@ -51,12 +51,17 @@ public class KI extends Thread{
 
             if(!this.turn){
                 this.setup = in.readLine();
-                if(!isOffline)this.ki.setSpielFeldGroeße(this.setup);
+                if(!isOffline) {
+                	this.ki.setspielFeldGroeße(this.setup);
+                }
             }else{
                 this.out.write(this.setup + "\n");
                 this.out.flush();
             }
             
+            if(this.setup.substring(0, 1).equals("l")) {
+            	this.ki.setIsLoaded(true);
+            }
             sleep(2000);
             distribute(this.setup);
             if(this.turn && !in.readLine().equals("confirmed")){
@@ -77,11 +82,26 @@ public class KI extends Thread{
                     sleep(50);
                     play();
                 }else{
-                	
-                    distribute(in.readLine());
+                	String s = in.readLine();
+                	if(s==null) {
+                		if(!isOffline)this.ki.spielAbbruch();
+                		break;
+                	}else {
+                		distribute(s);
+                	}
+                    //distribute(in.readLine());
                 }
 
-                if(this.turn) distribute(in.readLine());
+                if(this.turn) {
+                	String s = in.readLine();
+                	if(s==null) {
+                		if(!isOffline)this.ki.spielAbbruch();
+                		break;
+                	}else {
+                		distribute(s);
+                	}
+                	//distribute(in.readLine());
+                }
             }
         }catch(IOException | InterruptedException e){
             e.printStackTrace();
@@ -91,7 +111,7 @@ public class KI extends Thread{
     private void distribute(String s){
         String[] data = s.split(" ");
         switch(data[0]){
-            case "setup": setUpGame(data);if(!isOffline)this.ki.setZuPlazieren(data[2]+" "+data[3]+" "+data[4]+" "+data[5]);
+            case "setup": setUpGame(data);if(!isOffline)this.ki.setZuPlazieren(data[2]+"      "+data[3]+"      "+data[4]+"      "+data[5]);
                 break;
             case "shot": shotEnemy(data);
                 break;
@@ -146,14 +166,8 @@ public class KI extends Thread{
         this.shipSum = ints[4];
         
         //GetLoadedClient nur wenn KI als Client geladenes Spiel joint
-        if(!isOffline&&this.ki.getLoadedClient()) {
+        if(!isOffline&&this.ki.getLoaded()) {
         	this.ki.setSpielFeld(gameField.length,this.shipsKI,this.enemyField,this.gameField);
-        	
-        }
-        if(!isOffline&&!this.ki.getLoadedClient()) {
-        	this.ki.plaziereSchiffe(this.shipsKI);
-            this.ki.gegnerSpielFeldWiederherstellen(this.enemyField);
-            this.ki.unserSpielFeldWiederherstellen(this.gameField);
         }
         
         if(!this.turn){
@@ -171,7 +185,7 @@ public class KI extends Thread{
         boolean[] bool = {this.hit, this.gameEnd, this.neighboursSet, this.placedShips};
         int[] integer = {this.size, this.shots, this.hits, this.direction, this.shipSum};
 
-        this.f.save(data[1], this.turn, this.gameField, this.enemyField, this.probField, this.availableShipsKI
+        this.f.save(null,data[1], this.turn, this.gameField, this.enemyField, this.probField, this.availableShipsKI
                 , this.availableShipsEnemy, this.cords, this.neighbours, points, this.shipsKI, bool, integer);
     }
 
@@ -207,12 +221,11 @@ public class KI extends Thread{
         }
 
         if(s1 == 0 || s2 == 0){
-            System.out.println("Ki hat beendet");
-            System.out.println("Stats:");
-            System.out.println("Shots: " + this.shots);
-            System.out.println("Hits: " + this.hits);
-            System.out.println("Fehlertreffer: " + (this.shots - this.hits));
-            System.out.println(String.format("Trefferquote: %.2f%%%n", ((double) this.hits / this.shots) * 100));
+        	boolean b=true;
+        	if(s1 == 0) {
+        		b = false;
+        	}
+        	if(!isOffline)this.ki.spielBeendenKI("Shots: " + this.shots, "Hits: " + this.hits, "Fehlertreffer: " + (this.shots - this.hits), String.format("Trefferquote: %.2f%%%n", ((double) this.hits / this.shots) * 100), b);
             this.gameEnd = true;
         }
     }
@@ -238,7 +251,7 @@ public class KI extends Thread{
         placeShips();
         if(!isOffline)this.ki.plaziereSchiffe(this.shipsKI);
         this.placedShips = true;
-        KIHelper.printGame(this.gameField, this.enemyField);
+        //KIHelper.printGame(this.gameField, this.enemyField);
         System.out.println("Confirmed");
 
         if(!this.turn){
@@ -313,7 +326,7 @@ public class KI extends Thread{
 
         switch(data[1]){
             case "0": this.enemyField[this.probPoint.x][this.probPoint.y] = 1;
-                System.out.println(this.probPoint);
+                //System.out.println(this.probPoint);
                 if(!isOffline)this.ki.markiereSchussVorbei(probPoint);
                 this.turn = false;
                 System.out.println("Kein Hit");
@@ -321,7 +334,7 @@ public class KI extends Thread{
                 this.out.flush();
                 break;
             case "1": this.enemyField[this.probPoint.x][this.probPoint.y] = 2;
-                System.out.println(this.probPoint);
+                //System.out.println(this.probPoint);
                 if(!isOffline)this.ki.markiereSchussTreffer(probPoint);
                 System.out.println("Hit");
                 this.turn = true;
@@ -332,7 +345,7 @@ public class KI extends Thread{
                 break;
             case "2": this.hit = false;
                 this.enemyField[this.probPoint.x][this.probPoint.y] = 2;
-                System.out.println(this.probPoint);
+                //System.out.println(this.probPoint);
                 if(!isOffline)this.ki.markiereSchussTreffer(probPoint);
                 System.out.println("Hit - Versenkt");
                 this.turn = true;
@@ -348,7 +361,7 @@ public class KI extends Thread{
 
         if(!this.gameEnd){
             this.probField = KIHelper.patternFinding(this.enemyField, this.availableShipsEnemy);
-            KIHelper.printGame(this.probField, this.enemyField);
+            //KIHelper.printGame(this.probField, this.enemyField);
         }
     }
 
@@ -532,7 +545,7 @@ public class KI extends Thread{
                         w2:
                         while(true) {
                             if(++count > 1000){
-                                KIHelper.printGame(this.gameField, this.enemyField);
+                                //KIHelper.printGame(this.gameField, this.enemyField);
                                 System.out.println("Retry");
                                 KIHelper.setArray(this.gameField, 0);
                                 this.shipsKI.clear();
