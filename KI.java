@@ -79,7 +79,7 @@ public class KI extends Thread{
                 }
 
                 if(this.turn){
-                    sleep(50);
+                    sleep(200);
                     play();
                 }else{
                 	String s = in.readLine();
