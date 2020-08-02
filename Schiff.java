@@ -2,12 +2,14 @@ package application;
 
 import java.awt.Point;
 import java.util.ArrayList;
-
+/**
+ * Schiffsklasse
+ */
 public class Schiff {
-	/**
-	 * Schiffsklasse mit den Attributen Zellorte, Größe, Identifikation, Plazierung
-	 */
 	
+	/**
+	 * Objekt-Attribute
+	 */
 	private ArrayList <String> zellorte;
 	private int groeße;
 	private String ident;

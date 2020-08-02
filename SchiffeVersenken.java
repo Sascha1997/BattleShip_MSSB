@@ -7,12 +7,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
+/**
+ * Spielklasse
+ * 
+ */
 public class SchiffeVersenken {
 	
 	/**
-	 * Spielklasse mit einer Schifflist und einer Verbindung
-	 * 
+	 * Objekt-Attribute
 	 */
 	private ArrayList <Schiff> schiffListe = new ArrayList<Schiff>();
 	private Connection connection;

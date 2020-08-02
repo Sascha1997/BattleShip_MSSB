@@ -24,39 +24,42 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 import ki.KI;
-
+/**
+ * Kontrollerklasse für das Spielfeld, wenn die KI spielt
+ *
+ *
+ */
 public class ControllerKI implements Initializable{
 	
-	private int spielFeldGroeße;
-	
+	/**
+	 * FXML-Attribute
+	 */
 	@FXML
 	private GridPane gridPaneWe;
 	@FXML
 	private GridPane gridPaneEnemy;
-	
 	@FXML
 	private Label zuPlazieren;
-	
 	@FXML
 	private Label spielZug;
-	
 	@FXML
 	private Label versenktWir;
-	
 	@FXML
 	private Label versenktGegner;
 
-	
+	/**
+	 * Objekt-Attribute
+	 */
 	private boolean isLoaded=false;
 	private boolean isClient=false;
+	private int spielFeldGroeße;
 	
-	
+	/**
+	 * Initialize
+	 * Setzen einiger GUI Komponenten und Aufruf zum Generieren des Spielfelds
+	 */
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		if(StarterKlasse.server) {
-			
-		}else {
-			
-		}
+		
 		spielZug.setText("1");
 		versenktWir.setText("0");
 		versenktGegner.setText("0");
@@ -64,19 +67,33 @@ public class ControllerKI implements Initializable{
 		
 	}
 	
-	//Client
+	
+	/**
+	 * Konstruktor Client
+	 * @param spielFeldGroeße
+	 * @param kiModus
+	 * @param isOffline
+	 * @param ip
+	 * @throws IOException
+	 */
 	public ControllerKI(int spielFeldGroeße, int kiModus, boolean isOffline,String ip) throws IOException {
 		this.spielFeldGroeße = spielFeldGroeße;
 		KI ki;
 		this.isClient = true;
-		
 		ki = new KI(new Socket(ip,50000),false,kiModus,this,isOffline);
 		ki.start();
 		
 		
 		
 	}
-	//Server
+	/**
+	 * Konstruktor Server
+	 * @param spielFeldGroeße
+	 * @param server
+	 * @param kiModus
+	 * @param setUp
+	 * @param isOffline
+	 */
 	public ControllerKI(int spielFeldGroeße,boolean server,int kiModus, String setUp,boolean isOffline) {
 		this.spielFeldGroeße = spielFeldGroeße;
 		KI ki;
@@ -90,6 +107,10 @@ public class ControllerKI implements Initializable{
 		
 	}
 	
+	/**
+	 * Settermethode für die Angabe wie viel Schiffe plaziert wurden
+	 * @param setup
+	 */
 	public void setZuPlazieren(final String setup) {
 		
 		Platform.runLater(new Runnable() {
@@ -103,6 +124,10 @@ public class ControllerKI implements Initializable{
 		
 	}
 	
+	/**
+	 * Markierung der Spielzellen wo ein Schiff von der KI plaziert wurde
+	 * @param schiffe
+	 */
 	public void plaziereSchiffe(ArrayList<Schiff>schiffe) {
 		
 		for(int i = 0; i<schiffe.size();i++) {
@@ -129,9 +154,11 @@ public class ControllerKI implements Initializable{
 			}
 		}
 		
-		//Sobald die KI Schiffe plaziert hat kann die Information geholt werden und es geht hier
-		//weiter und sie werden auf der GUI auch plaziert
 	}
+	/**
+	 * Markierung der Zelle, wenn vorbeigeschossen wurde
+	 * @param point
+	 */
 	public void markiereSchussVorbei(Point p) {
 		
 		Platform.runLater(new Runnable() {
@@ -158,6 +185,10 @@ public class ControllerKI implements Initializable{
 			
 		}
 	}
+	/**
+	 * Markierung der Zelle, wenn getroffen wurde
+	 * @param point
+	 */
 	public void markiereSchussTreffer(Point p) {
 		for(Node n : gridPaneEnemy.getChildren()){
 			
@@ -174,6 +205,10 @@ public class ControllerKI implements Initializable{
 		}
 	}
 	
+	/**
+	 * Markierung aller um das Schiff befindlichen Zellen, zur Kennzeichnung, dass dort keines mehr liegen kann
+	 * @param points des versenkten Schiffes
+	 */
 	public void autoFill(ArrayList<Point>points) {
 		
 		Platform.runLater(new Runnable() {
@@ -306,6 +341,10 @@ public class ControllerKI implements Initializable{
 		}
 	}
 	
+	/**
+	 * Methode fürs Laden um das gegnerische Spielfeld wieder herzustellen
+	 * @param spielfeld
+	 */
 	public void gegnerSpielFeldWiederherstellen(int [][] spielfeld) {
 		
 		for(Node n : gridPaneEnemy.getChildren()){
@@ -333,6 +372,10 @@ public class ControllerKI implements Initializable{
 			
 		}
 	}
+	/**
+	 * Methode fürs laden um das eigene Spielfeld wieder herzustellen
+	 * @param spielfeld
+	 */
 	public void unserSpielFeldWiederherstellen(int[][]spielfeld) {
 		for(Node n : gridPaneWe.getChildren()){
 			
@@ -360,7 +403,9 @@ public class ControllerKI implements Initializable{
 		}
 	}
 	
-	
+	/**
+	 * Erhöhen des Versenkt Counters 
+	 */
 	public void erhoeheGegnerVersenkt() {
 		Platform.runLater(new Runnable() {
 
@@ -372,7 +417,10 @@ public class ControllerKI implements Initializable{
 			
 		});
 	}
-	
+	/**
+	 * Markieren des eigenen Feldes wenn der Gegner vorbeigeschossen hat
+	 * @param point
+	 */
 	public void markiereEigenesFeldVorbei(Point p) {
 		for(Node n : gridPaneWe.getChildren()){
 			
@@ -388,7 +436,10 @@ public class ControllerKI implements Initializable{
 			}
 		}
 	}
-	
+	/**
+	 * Markieren des eigenen Feldes wenn der Gegner getroffen hat
+	 * @param point
+	 */
 	public void markiereEigenesFeldTreffer(Point p) {
 		for(Node n : gridPaneWe.getChildren()){
 			
@@ -404,27 +455,12 @@ public class ControllerKI implements Initializable{
 			}
 		}
 	}
-	@FXML
-	private void setZellorte() {
-		
-	}
-	@FXML
-	private void schuss() {
-		
-	}
-	@FXML
-	private void saveGameProcess() {
-		
-	}
-	@FXML
-	private void spielAufgeben() {
-		
-	}
-	@FXML
-	private void spielStarten() {
-		
-	}
-
+	
+	/**
+	 * Erzeugen des Spielfelds der KI und des Gegners
+	 * Zellen relativ zur Spielfeldgröße skalieren
+	 * Gridpane mit Buttons füllen und jedem Button eine Id geben über die er dann angesprochen werden kann
+	 */
 	public void spielFeldGenerieren() {
 
 		/*
@@ -507,6 +543,10 @@ public class ControllerKI implements Initializable{
 		 */
 	}
 	
+	/**
+	 * Setzen der SpielfeldGröße
+	 * @param Spielfeldgröße
+	 */
 	public void setspielFeldGroeße(String s) {
 		
 		String parts[]=s.split(" ");
@@ -515,7 +555,14 @@ public class ControllerKI implements Initializable{
 			this.spielFeldGroeße = Integer.parseInt(parts[1]);
 		}
 	}
-	public void setSpielFeld(int groeÃŸe, final ArrayList<Schiff>schiffe,final int[][]spielFeldGegner,final int[][]spielFeldWir) {
+	/**
+	 * Setzen des Spielfelds beim Laden 
+	 * @param groeße
+	 * @param schiffe
+	 * @param spielFeldGegner
+	 * @param spielFeldWir
+	 */
+	public void setSpielFeld(int groeße, final ArrayList<Schiff>schiffe,final int[][]spielFeldGegner,final int[][]spielFeldWir) {
 		
 		
 		Platform.runLater(new Runnable() {
@@ -533,21 +580,27 @@ public class ControllerKI implements Initializable{
 		
 	}
 	
-	//Wird benÃŸtigt fÃŸr KI join via Load. 
-	public boolean getLoaded() {
-		return this.isLoaded;
-	}
 	
-	public void setIsLoaded(boolean b) {
-		this.isLoaded = b;
-	}
-	
+	/**
+	 * onAction-Methode für den Soundbutton 
+	 * Öffnet das Soundfenster
+	 * @param event
+	 */
 	public void onActionSounds(ActionEvent event) {
 		Stage newStage = new Stage();
 		newStage.setScene(StarterKlasse.music);
 		newStage.show();
 	}
 	
+	/**
+	 * Beenden des Spiels wenn gewonnen/verloren wurde
+	 * Übergabe der Parameter für die Statistik an das Statistikfenster
+	 * @param shots
+	 * @param hits
+	 * @param fehler
+	 * @param quote
+	 * @param b
+	 */
 	public void spielBeendenKI(String shots, String hits, String fehler, String quote,boolean b) {
 		
 		
@@ -575,7 +628,9 @@ public class ControllerKI implements Initializable{
 		});
 		
 	}
-	
+	/**
+	 * Öffnet das Abbruchfenster für die KI, falls der Gegner einfach mitten im Spiel das Spiel verlässt
+	 */
 	public void spielAbbruch() {
 		Platform.runLater(new Runnable() {
 
@@ -598,5 +653,16 @@ public class ControllerKI implements Initializable{
 			}
 			
 		});
+	}
+	
+	/**
+	 * Getter und Setter für die Variable Loaded die an verschiedenen Stellen benötigt wird um die richten Methoden aufzurufen
+	 */
+	public boolean getLoaded() {
+		return this.isLoaded;
+	}
+	
+	public void setIsLoaded(boolean b) {
+		this.isLoaded = b;
 	}
 }

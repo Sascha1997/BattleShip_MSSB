@@ -28,7 +28,6 @@ import javafx.util.Duration;
 
 /**
  * Kontrollerklasse für das Fenster Spiel erstellen
- * @author Matze
  *
  */
 public class ControllerSpielErstellen implements Initializable {

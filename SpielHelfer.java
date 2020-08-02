@@ -3,7 +3,10 @@ package application;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
-
+/**
+ * Spielhelferklasse für unterstützende Operationen
+ *
+ */
 public class SpielHelfer {
 	
 	/**

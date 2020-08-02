@@ -29,8 +29,15 @@ import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+/**
+ * Kontrollerklasse für das Spielfeld, wenn man im Player-Modus ist
+ *
+ */
 public class ControllerSpielFeld implements Initializable{
 	
+	/**
+	 * FXML-Attribute
+	 */
 	private ArrayList<Schiff>schiffListe=new ArrayList<Schiff>();
 	@FXML
 	private Button testButton;
@@ -61,50 +68,47 @@ public class ControllerSpielFeld implements Initializable{
 	@FXML 
 	private Button buttonUndo;
 	
+	/**
+	 * Objekt-Attribute
+	 */
 	private int spielZugCounter;
-	
 	private int versenktWirCounter;
-	
 	private int versenktGegnerCounter;
-	
 	private Button tempButton;
-
 	private SchiffeVersenken spiel;
 	private SpielHelfer spielHelfer;
-	
 	private String zellorte="";
 	private String schiffVerteilung;
-
 	private String colIndex;
     private String rowIndex;
     private String derZug;
     private String shot;
-    
     private int [][]unserSpielfeld;
     private int [][]gegnerSpielfeld;
     private int [][]unserSpielfeldLaden;
     private int [][]gegnerSpielfeldLaden;
-    
     private String[] getroffeneZellen=new String[10];
-    
     private int schiffCounter;
-    private int spielFeldGroeÃŸe;
-    
+    private int spielFeldGroeße;
     private Connection connection;
-    
-    //Gibt an ob Spiel erstellt oder geladen wurde
     private boolean isLoaded;
     private boolean isOffline;
     private boolean wirSindDran;
     private boolean spielGestartet = false;
-    
     private Files file;
-    
     private String schiffMenge;
     private ArrayList<String> allePlazierungen = new ArrayList<String>();
 
-    //Konstruktor Spiel erstellen
-    public ControllerSpielFeld(ArrayList<Schiff> schiffListe, String schiffeVerteilung, SchiffeVersenken spiel,int spielFeldGroeÃŸe, Connection connection, boolean isOffline) {
+    /**
+     * Konstruktor Spiel erstellen
+     * @param schiffListe
+     * @param schiffeVerteilung
+     * @param spiel
+     * @param spielFeldGroeÃŸe
+     * @param connection
+     * @param isOffline
+     */
+    public ControllerSpielFeld(ArrayList<Schiff> schiffListe, String schiffeVerteilung, SchiffeVersenken spiel,int spielFeldGroeße, Connection connection, boolean isOffline) {
     	this.spielHelfer = new SpielHelfer();
     	this.connection=connection;
     	this.schiffVerteilung=schiffeVerteilung;
@@ -117,11 +121,23 @@ public class ControllerSpielFeld implements Initializable{
     		wirSindDran=true;
     	}
     	this.file=new Files();
-    	this.spielFeldGroeÃŸe=spielFeldGroeÃŸe;
+    	this.spielFeldGroeße=spielFeldGroeße;
 
     	
     }
-    //Konstruktor Spiel laden
+    /**
+     * Konstruktor Spiel laden
+     * @param wirSindDran
+     * @param unserSpielfeld
+     * @param gegnerSpielfeld
+     * @param schiffListe
+     * @param versenktWirCounter
+     * @param versenktGegnerCounter
+     * @param spielZugCounter
+     * @param schiffCounter
+     * @param connection
+     * @param isOffline
+     */
     public ControllerSpielFeld(boolean wirSindDran,int[][]unserSpielfeld,int[][]gegnerSpielfeld,ArrayList<Schiff> schiffListe, int versenktWirCounter, int versenktGegnerCounter,int spielZugCounter,int schiffCounter, Connection connection, boolean isOffline) {
     	this.spielHelfer = new SpielHelfer();
     	this.schiffListe=schiffListe;
@@ -137,15 +153,21 @@ public class ControllerSpielFeld implements Initializable{
     	this.versenktWirCounter=versenktWirCounter;
     	this.versenktGegnerCounter=versenktGegnerCounter;
     	this.spielZugCounter=spielZugCounter;
-    	this.spielFeldGroeÃŸe = unserSpielfeld.length;
+    	this.spielFeldGroeße = unserSpielfeld.length;
     }
 
+    /**
+     * Initialize 
+     * Legt Spielfelder an, generiert diese und setzt eine GUI-Komponenten auf den Standardwert
+     * Wenn das Spiel geladen ist, wird das Spiel wieder aufgebaut und auf die alten Spielstände gesetzt
+     * 
+     */
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		spielStarten.setDisable(true);
 		buttonUndo.setVisible(false);
 		ready.setDisable(true);
-		unserSpielfeld = new int[this.spielFeldGroeÃŸe][this.spielFeldGroeÃŸe];
-		gegnerSpielfeld = new int[this.spielFeldGroeÃŸe][this.spielFeldGroeÃŸe];
+		unserSpielfeld = new int[this.spielFeldGroeße][this.spielFeldGroeße];
+		gegnerSpielfeld = new int[this.spielFeldGroeße][this.spielFeldGroeße];
 		if(this.isLoaded) {
 			spielAufbauen(unserSpielfeldLaden,unserSpielfeldLaden,versenktWirCounter,versenktGegnerCounter,spielZugCounter);
 			versenktWir.setText(String.valueOf(this.versenktWirCounter));
@@ -163,6 +185,10 @@ public class ControllerSpielFeld implements Initializable{
 		
 	}
 
+	/**
+	 * setzt das Label auf die zu plazierende Menge 
+	 * ruft die Generierung auf
+	 */
 	public void spielGenerieren() {
 		
 		String []parts=this.schiffVerteilung.split(" ");
@@ -171,7 +197,12 @@ public class ControllerSpielFeld implements Initializable{
 		this.spielFeldGenerieren();
 		
 	}
-
+	
+	/**
+	 * onAction-Methode für den Button plaziere Schiff
+	 * Benutzt das Objekt der Spielhelfer Klasse, um die Plazierung zu prüfen
+	 * Generiert eine entsprechende Notifikation, wenn das Plazieren geklappt hat
+	 */
 	@FXML
 	private void setZellorte() {
 		//b[0] gibt an ob die Plazierung geklappt hat und b[1] ob alle Schiffe plaziert wurden.
@@ -226,7 +257,14 @@ public class ControllerSpielFeld implements Initializable{
 		
 
 	}
-
+	
+	/**
+	 * onAction-Methode für den Button Spiel starten
+	 * Je nachdem ob man als Server oder Client im Spiel ist, wird verzweigt und die entsprechende weitere Methode aufgerufen
+	 * Setzen der letzten default GUI-Komponenten
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public void spielStarten() throws IOException, InterruptedException {
 		
 		buttonUndo.setVisible(false);
@@ -319,7 +357,6 @@ public class ControllerSpielFeld implements Initializable{
 			th.start();
 		}
 		
-		//SpielInformationen Initialisieren, muss im FX Thread gemacht werden
 		if(StarterKlasse.server) {
 			zug.setText("Wir sind dran");
 		}else {
@@ -338,7 +375,13 @@ public class ControllerSpielFeld implements Initializable{
 		
 	}
 	
-	//Zwischen Schuss und Warte auf Gegner wird hin und her gesprungen
+	/**
+	 * onAction-Methode für den Button fire
+	 * Schreibt den entsprechenden Schuss an die Verbindung und verarbeitet dann die Rückantwort 
+	 * mit entsprechenden visuellen Veränderung der Zelle
+	 * @throws IOException
+	 * @throws IllegalStateException
+	 */
 	@FXML
 	private void schuss() throws IOException, IllegalStateException {
 
@@ -391,7 +434,6 @@ public class ControllerSpielFeld implements Initializable{
 		//Button erstmal deaktivieren
 		fire.setDisable(true);
 		
-		//Task der im Extra Thread gestartet wird, in dem auf die Antwort vom Gegner gewartet wird. Beugt einfrieren der OberflÃŸche vor
 		Task<String>task = new Task<String>() {
 
 			@Override
@@ -407,7 +449,7 @@ public class ControllerSpielFeld implements Initializable{
 						}	
 					});
 				}
-				//Answer 1 Makiere das Feld vom Gegner mit GrÃŸn und setze den Button wieder auf Enable fÃŸr nochmal schieÃŸen
+				//Answer 1 Makiere das Feld vom Gegner mit Grün und setze den Button wieder auf Enable für nochmal schieÃŸen
 				if(answer.equals("answer 1")) {
 					
 					gegnerSpielfeld[Integer.parseInt(rowIndex)][Integer.parseInt(colIndex)]=2;
@@ -421,9 +463,9 @@ public class ControllerSpielFeld implements Initializable{
 					
 					tempButton.setId("cellGetroffen");
 					fire.setDisable(false);
-				//Answer 2 ist gleich wie Answer 1 nur dass hier Versenkt wird, die entsprechende Aktuallsierte info wird dann runLater() im FX Thread ergÃŸnzt
+				//Answer 2 ist gleich wie Answer 1 nur dass hier Versenkt wird, die entsprechende Aktuallsierte info wird dann runLater() im FX Thread ergänzt
 				}else if(answer.equals("answer 2")){
-					schiffCounter--; //ZÃŸhler fÃŸr Gegnerschiffe versenkt, zum erkennen wann Spiel vorbei ist
+					schiffCounter--; //Zähler für Gegnerschiffe versenkt, zum erkennen wann Spiel vorbei ist
 					
 					gegnerSpielfeld[Integer.parseInt(rowIndex)][Integer.parseInt(colIndex)]=2;
 					for(int i=0;i<getroffeneZellen.length;i++) {
@@ -467,7 +509,7 @@ public class ControllerSpielFeld implements Initializable{
 							}
 						}	
 					});
-					//Answer 0 wir schreiben PASS an den Gegner, sodass der schieÃŸen darf. Feld wird rot markiert, Zugcounter um 1 erhÃŸht
+					//Answer 0 wir schreiben PASS an den Gegner, sodass der schießen darf. Feld wird rot markiert, Zugcounter um 1 erhöht
 					//Danach gehen wir in die Methode warteAufGegner(); 
 					
 				}else if(answer.equals("answer 0")) {
@@ -522,7 +564,13 @@ public class ControllerSpielFeld implements Initializable{
 		
 		
 	}
-	
+	/**
+	 * Solange wir auf den Gegner warten wird die Schleife durchlaufen
+	 * Schuss vom Gegner wird gelesee und ins richtige Format gebracht
+	 * Danach wird der RateVersuch geprüft und in die entsprechende case verzweigt
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	private void warteAufGegner() throws IOException, InterruptedException {
 		
 		//Hier wird wieder im Task im extra Thread auf dem Gegner sein Spielzug gewartet, dass uns nicht die Gui einfriert
@@ -535,9 +583,7 @@ public class ControllerSpielFeld implements Initializable{
 					int answer=0;
 					fire.setDisable(true);
 					wirSindDran = false;
-					//Solange wir auf den Gegner warten wird die Schleife durchlaufen
-					//Schuss vom Gegner wird gelesee und ins richtige Format gebracht
-					//Danach wird der RateVersuch geprÃŸft und in die entsprechende case verzweigt
+					
 					
 					while(!wirSindDran&&schiffListe.size()>0) {
 						derZug=connection.read();
@@ -660,10 +706,11 @@ public class ControllerSpielFeld implements Initializable{
 		
 		
 	}
-	//PrÃŸft fÃŸr jedes Schiff in der Schiffsliste, ob der Schuss vom Gegner ein Treffer war oder nicht. Gibt entsprechende Info zurÃŸck
-	//Removed dann gleich ein versenktes Schiff
 
-	//Wird bei Versenkt aufgerufen und macht einen Autofill wo keine Schiffe mehr sein kÃŸnnen
+	/**
+	 * Wird bei versenkt aufgerufen und markiert dann alle Zellen um das Schiff herum weil die keine Schiffe mehr sein können
+	 * @param lastShot
+	 */
 	private void checkAutofill(String lastShot) {
 		
 		String[]aussortierteZellen=spielHelfer.adjust(lastShot, getroffeneZellen);
@@ -823,6 +870,10 @@ public class ControllerSpielFeld implements Initializable{
 	}
 	
 	
+	/**
+	 * onAction-Methode für den Button speicher
+	 * Starten des Speicherprozesses indem das Speicherfenster aufgerufen wird
+	 */
 	@FXML
 	private void saveGameProcess() {
 		
@@ -857,6 +908,10 @@ public class ControllerSpielFeld implements Initializable{
 		}
 	}
 	
+	/**
+	 * Speichern des Spiels, wenn das Speichern Bestätigt wurde
+	 * @param speicherName
+	 */
 	public void saveStart(String speicherName) {
 		
 		System.out.println("Speichern angefordert");
@@ -882,6 +937,11 @@ public class ControllerSpielFeld implements Initializable{
 		
 		
 	}
+	/**
+	 * Starten des Prozesses wenn man eine Speicheranfrage bekommen hat
+	 * Ruft das Speicherfenster für die Eingabe des Datennamens auf
+	 * @param id
+	 */
 	private void speicherAnfrage(String id) {
 		
 		FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpeicherAnfrage.fxml"));
@@ -904,6 +964,11 @@ public class ControllerSpielFeld implements Initializable{
 		}
 		
 	}
+	/**
+	 * Speichert das Spiel wenn man eine Speicheranfrage bekommen und den Speichernamen eingegeben hat
+	 * @param speicherName
+	 * @param id
+	 */
 	public void saveStartAnfrage(String speicherName, String id) {
 		
 		file.save(speicherName,Long.parseLong(id), false, unserSpielfeld, gegnerSpielfeld,schiffListe,versenktWirCounter,versenktGegnerCounter,spielZugCounter,schiffCounter,isOffline);
@@ -939,7 +1004,7 @@ public class ControllerSpielFeld implements Initializable{
 					System.out.println("Client Bereit");
 					if(wirSindDran) {
 						if(connection.read().equals("pass")) {
-							System.out.println("Wir kÃŸnnen jetzt starten");
+							System.out.println("Wir können jetzt starten");
 						}
 					}else {
 						warteAufGegner();
@@ -959,6 +1024,10 @@ public class ControllerSpielFeld implements Initializable{
 		
 	}
 	
+	/**
+	 * Hilfsmethode zum Wiederherstellen des Gegnerspielfelds wenn das Spiel geladen wurde
+	 * @param gegnerSpielFeld
+	 */
 	private void gegnerSpielFeldGenerierenLoad(int[][]gegnerSpielFeld) {
 
 		
@@ -985,6 +1054,10 @@ public class ControllerSpielFeld implements Initializable{
 		
 	}
 	
+	/**
+	 * Hilfsmethode zum Wiederherstellen des eigenen Spielfelds wenn das Spiel geladen wurde
+	 * @param unserSpielFeld
+	 */
 	private void unserSpielFeldGenerierenLoad(int[][]unserSpielFeld) {
 		for(Node n : gridPaneWe.getChildren()){
 			
@@ -1011,24 +1084,20 @@ public class ControllerSpielFeld implements Initializable{
 		}
 	}
 	
+	/**
+	 * Hilfsmethode zum Generieren des Spielfelds bei neuem Spiel
+	 * Erzeugt je nach Spielfeldgroeße Buttons für die Zellen, macht diese klickbar und gibt ihnen eine Id
+	 * Es wird sowohl das eigene Spielfeld als auch das Gegnerspielfeld erzegut
+	 */
 	private void spielFeldGenerieren() {
-		/*
-		 * 
-		 * 
-		 * UNSER SPIELFELD
-		 * 
-		 * 
-		 * 
-		 */
-		//Nur wegen Szene Builder hier Erst Vorhandenes 1x1 LÃŸschen dann 10x10 erzeugen
 		
 		
 		gridPaneWe.getColumnConstraints().remove(0);
 		gridPaneWe.getRowConstraints().remove(0);
 		
-		for(int i = 0;i<this.spielFeldGroeÃŸe;i++) {
-			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeÃŸe);
-			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeÃŸe);
+		for(int i = 0;i<this.spielFeldGroeße;i++) {
+			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeße);
+			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeße);
 			
 			gridPaneWe.getColumnConstraints().add(cc);
 			gridPaneWe.getRowConstraints().add(rc);
@@ -1038,17 +1107,16 @@ public class ControllerSpielFeld implements Initializable{
 		gridPaneWe.setGridLinesVisible(true);
 		
 		
-		//Erzeugt 100 verschiedene Buttons ins GridPane, die alle Clickable sind und wenn man Sie anklickt Ihren Index zurÃŸck geben
-		for(int i=0;i<spielFeldGroeÃŸe;i++) {
-			for (int j = 0; j<spielFeldGroeÃŸe;j++) {
+		for(int i=0;i<spielFeldGroeße;i++) {
+			for (int j = 0; j<spielFeldGroeße;j++) {
 				
 				Button b = new Button();
 				b.setId("cell");
-				b.setMinHeight((int)365/spielFeldGroeÃŸe);
-				b.setMinWidth((int)365/spielFeldGroeÃŸe);
+				b.setMinHeight((int)365/spielFeldGroeße);
+				b.setMinWidth((int)365/spielFeldGroeße);
 				b.setOnMouseClicked(new EventHandler <MouseEvent>() {
 
-					//Alle Buttons FÃŸhig machen per Klick diese Sachen auszufÃŸhren
+					
 					@Override
 					public void handle(MouseEvent event) {
 						Node clickedNode = (Node)event.getSource();
@@ -1107,8 +1175,6 @@ public class ControllerSpielFeld implements Initializable{
 							    if(col.length()==1) {
 							    	col="0"+col;
 							    }
-							    
-							    System.out.println("Mouse clicked cell: " + row + " And: " + col);
 								clickedButton.setId("cellMarkiert");
 								zellorte = zellorte+row+col+" ";
 								if(spielHelfer.pruefePlazierung(zellorte, schiffListe)) {
@@ -1116,7 +1182,6 @@ public class ControllerSpielFeld implements Initializable{
 								}else {
 									ready.setDisable(true);
 								}
-								System.out.println("Zellorte: "+zellorte);
 							}
 								
 						}
@@ -1131,24 +1196,15 @@ public class ControllerSpielFeld implements Initializable{
 				gridPaneWe.add(b, i, j);
 			}
 		}
-		/* UNSER SPIELFELD ENDE
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * GEGNER SPIELFELD
-		 * 
-		 */
 		
 		gridPaneEnemy.getColumnConstraints().remove(0);
 		gridPaneEnemy.getRowConstraints().remove(0);
 		
 		
 		
-		for(int i = 0;i<this.spielFeldGroeÃŸe;i++) {
-			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeÃŸe);
-			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeÃŸe);
+		for(int i = 0;i<this.spielFeldGroeße;i++) {
+			ColumnConstraints cc = new ColumnConstraints((int)380/spielFeldGroeße);
+			RowConstraints rc = new RowConstraints((int)380/spielFeldGroeße);
 			
 			gridPaneEnemy.getColumnConstraints().add(cc);
 			gridPaneEnemy.getRowConstraints().add(rc);
@@ -1156,13 +1212,13 @@ public class ControllerSpielFeld implements Initializable{
 		gridPaneEnemy.setAlignment(Pos.CENTER);
 		gridPaneEnemy.setGridLinesVisible(true);
 		
-		for(int i=0;i<spielFeldGroeÃŸe;i++) {
-			for (int j = 0; j<spielFeldGroeÃŸe;j++) {
+		for(int i=0;i<spielFeldGroeße;i++) {
+			for (int j = 0; j<spielFeldGroeße;j++) {
 				
 				Button b = new Button();
 				b.setId("cell");
-				b.setMinHeight((int)365/spielFeldGroeÃŸe);
-				b.setMinWidth((int)365/spielFeldGroeÃŸe);
+				b.setMinHeight((int)365/spielFeldGroeße);
+				b.setMinWidth((int)365/spielFeldGroeße);
 				b.setOnMouseClicked(new EventHandler <MouseEvent>() {
 				
 					
@@ -1206,15 +1262,12 @@ public class ControllerSpielFeld implements Initializable{
 			}
 		}
 		
-		/*
-		 * 
-		 * 
-		 * 
-		 * GEGNERSPIELFELD ENDE
-		 * 
-		 */
 	}
 	
+	/**
+	 * onAction-Methode für den Button Spiel aufgeben
+	 * Ruft das Fenster zum Bestätigen des Aufgebens auf 
+	 */
 	@FXML
 	private void spielAufgeben() {
 		if(!spielGestartet) {
@@ -1241,6 +1294,11 @@ public class ControllerSpielFeld implements Initializable{
 		
 	}
 	
+	/**
+	 * Methode zum markieren des Gegnerschusses je nach Treffer/Vorbei
+	 * @param row
+	 * @param col
+	 */
 	private void markiereGegnerSchuss(int row, int col) {
 		boolean treffer=false;
 		for(Schiff schiff:schiffListe) {
@@ -1273,7 +1331,12 @@ public class ControllerSpielFeld implements Initializable{
 		}
 		
 	}
-
+	
+	/**
+	 * Hilfsmethode um einen Button unklickbar zu machen
+	 * Beispielsweise die eigenen Buttons, wenn das Spiel gestartet ist
+	 * @param buttonMenge
+	 */
 	private void makeButtonsUnclickable(String buttonMenge) {
 		
 		String []parts = buttonMenge.split(" ");
@@ -1294,6 +1357,10 @@ public class ControllerSpielFeld implements Initializable{
 		}
 	}
 	
+	/**
+	 * Methode zum deaktivieren/aktivieren des eigenen Spielfelds
+	 * @param bool
+	 */
 	private void disableOurField(boolean bool) {
 		
 		
@@ -1309,17 +1376,23 @@ public class ControllerSpielFeld implements Initializable{
 		
 	}
 	
-	public void setDerZug(String s) {
-		this.derZug = s;
-	}
+	/**
+	 * onAction-Methode für den Soundbutton
+	 * Öffnet das Fenster mit den Soundeinstellungen
+	 * @param event
+	 */
 
 	public void onActionSounds(ActionEvent event) {
 		Stage newStage = new Stage();
 		newStage.setScene(StarterKlasse.music);
 		newStage.show();
 	}
-	@FXML
 	
+	/**
+	 * onAction-Methode für den Undobutton
+	 * Es wird die Buttonmarkierung zurückgenommen, der Plazierungszähler inkrementiert und die Schiffsliste aktuallisiert
+	 */
+	@FXML
 	private void undoPlazierung() {
 		
 		for(int i=0;i<schiffListe.size();i++) {
@@ -1376,8 +1449,11 @@ public class ControllerSpielFeld implements Initializable{
 		}
 	}
 	
+	/**
+	 * Hilfsmethode zum Deaktivieren eines Buttons
+	 * @param button
+	 */
 	private void disableButton(String button) {
-		System.out.println("BUTTON : "+button);
 		for(Node n : gridPaneWe.getChildren()){
 			Integer rowIndex = GridPane.getRowIndex(n);
 			Integer colIndex = GridPane.getColumnIndex(n);
@@ -1399,5 +1475,11 @@ public class ControllerSpielFeld implements Initializable{
 		
 	}
 	
+	/**
+	 * Setter
+	 */
+	public void setDerZug(String s) {
+		this.derZug = s;
+	}
 	
 }
