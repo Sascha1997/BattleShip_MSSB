@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.controlsfx.control.Notifications;
-
+import eu.hansolo.enzo.notification.Notification.Notifier;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,7 +15,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -24,7 +22,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
-import javafx.util.Duration;
 
 /**
  * Kontrollerklasse für das Fenster Spiel erstellen
@@ -118,31 +115,16 @@ public class ControllerSpielErstellen implements Initializable {
 		
 		
 		if(!radioButtonOfflineModus.isSelected()&&!radioButtonOurAI.isSelected()&&!radioButtonWeVsEnemy.isSelected()) {
-			Notifications.create()
-					.owner(StarterKlasse.primaryStage)
-					.title("Zuerst Modus wählen")
-					.hideAfter(Duration.seconds(1.5))
-					.position(Pos.TOP_CENTER)
-					.showWarning();
-    		System.out.println("Wähle zuerst einen Spielmodus");
+			
+				Notifier.INSTANCE.notifyWarning("Achtung", "Zuerst Modus wählen");
 		}else if (!(textfield1.getText().matches("[0-9]+"))){
-			Notifications.create()
-					.owner(StarterKlasse.primaryStage)
-					.title("Es sind nur Zahlen erlaubt")
-					.hideAfter(Duration.seconds(1.5))
-					.position(Pos.TOP_CENTER)
-					.showWarning();
-			System.out.println("Nur Zahlen Erlaubt");
+			
+				Notifier.INSTANCE.notifyWarning("Achtung", "Es sind nur Zahlen erlaubt");
 			return;
-		}else if(Integer.parseInt(textfield1.getText())>70||
+		}else if(Integer.parseInt(textfield1.getText())>30||
         				Integer.parseInt(textfield1.getText())<5){
-			Notifications.create()
-					.owner(StarterKlasse.primaryStage)
-					.title("Spielfeldgröße außerhalb des erlaubten Bereichs")
-					.hideAfter(Duration.seconds(1.5))
-					.position(Pos.TOP_CENTER)
-					.showWarning();
-			System.out.println("Spielfeldgröße außerhalb des erlaubten Bereichs");
+			
+				Notifier.INSTANCE.notifyWarning("Achtung", "Größe außerhalb des erlaubten Bereichs");
 			return;
 		}else {
 			
@@ -151,7 +133,7 @@ public class ControllerSpielErstellen implements Initializable {
     		spielErstellen.setText("Warte auf Gegner...");
     		spielErstellen.setDisable(true);
     		final String parameterFertig = "setup "+parameter+" "+helfer.kalkuliereSchiffe(Integer.valueOf(parameter));
-    		System.out.println(parameterFertig);
+    		
     		
 			if(radioButtonWeVsEnemy.isSelected()) {
         		

@@ -3,17 +3,14 @@ package application;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.controlsfx.control.Notifications;
-
+import eu.hansolo.enzo.notification.Notification.Notifier;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 /**
  * Kontrollerklasse für das Fenster zum Speichername für die Datei eintragen wenn man eine Speicheranfrage bekommt
  * @author Matze
@@ -24,9 +21,8 @@ public class ControllerSpeicherAnfrage implements Initializable {
 	@FXML 
 	private TextField speicherName;
 	@FXML 
-	
-	
 	private Button speichernBestaetigen;
+	
 	private ControllerSpielFeld csf;
 	private String id;
 	
@@ -71,13 +67,7 @@ public class ControllerSpeicherAnfrage implements Initializable {
 	@FXML
 	private void saveCommit() {
 		
-		Notifications.create()
-		.owner(StarterKlasse.primaryStage)
-		.title("Spiel erfolgreich gespeichert")
-		.graphic(null)
-		.hideAfter(Duration.seconds(1.5))
-		.position(Pos.TOP_CENTER)
-		.showInformation();
+		Notifier.INSTANCE.notifySuccess("Gespeichert", "Das Spiel wurde erfolgreich gespeichert");
 		csf.saveStartAnfrage(speicherName.getText(),this.id);
 		Stage oldStage = (Stage)speichernBestaetigen.getScene().getWindow();
 		oldStage.close();	

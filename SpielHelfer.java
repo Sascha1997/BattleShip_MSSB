@@ -279,7 +279,6 @@ public class SpielHelfer {
 				
 		for(int i=0;i<schiffListe.size();i++) {
 			ArrayList <String> zellorteSchiff = schiffListe.get(i).getZellorte();
-			System.out.println("ZellorteSchiff: "+zellorteSchiff);
 			if(zellorteSchiff!=null) {
 				for(int j=0;j<zellorteSchiff.size();j++) {
 					for(int h=0;h<umfeld.length;h++) {
@@ -343,13 +342,6 @@ public class SpielHelfer {
 		Arrays.sort(rowArray);
 		Arrays.sort(colArray);
 		
-		for(int i = 0;i<rowArray.length;i++) {
-			System.out.println("RowArray: "+rowArray[i]);
-			
-		}
-		for(int i = 0;i<rowArray.length;i++) {
-			System.out.println("colArray: "+colArray[i]);	
-		}
 		
 	
 		boolean b=false,c = false;
@@ -458,7 +450,7 @@ public class SpielHelfer {
 				for(int i=0;i<schiffListe.size();i++) {
 					
 					boolean isTrue=schiffListe.get(i).getIdentification().startsWith("Z")&& !schiffListe.get(i).getIstPlaziert();
-					System.out.println("IsTrue: "+isTrue);
+					
 					
 					if(isTrue) {
 						schiffListe.get(i).setZellorte(al);
@@ -472,7 +464,7 @@ public class SpielHelfer {
 				for(int i=0;i<schiffListe.size();i++) {
 					
 					boolean isTrue=schiffListe.get(i).getIdentification().startsWith("D")&& !schiffListe.get(i).getIstPlaziert();
-					System.out.println("IsTrue: "+isTrue);
+					
 					if(isTrue) {
 						schiffListe.get(i).setZellorte(al);
 						schiffListe.get(i).setIstPlaziert(true);
@@ -485,7 +477,7 @@ public class SpielHelfer {
 				for(int i=0;i<schiffListe.size();i++) {
 					
 					boolean isTrue=schiffListe.get(i).getIdentification().startsWith("V")&& !schiffListe.get(i).getIstPlaziert();
-					System.out.println("IsTrue: "+isTrue);
+					
 					if(isTrue) {
 						schiffListe.get(i).setZellorte(al);
 						schiffListe.get(i).setIstPlaziert(true);
@@ -498,7 +490,7 @@ public class SpielHelfer {
 				for(int i=0;i<schiffListe.size();i++) {
 					
 					boolean isTrue=schiffListe.get(i).getIdentification().startsWith("F")&& !schiffListe.get(i).getIstPlaziert();
-					System.out.println("IsTrue: "+isTrue);
+					
 					if(isTrue) {
 						schiffListe.get(i).setZellorte(al);
 						schiffListe.get(i).setIstPlaziert(true);

@@ -48,7 +48,8 @@ public class ControllerStartMenue implements Initializable {
 	private Label label3;
 	@FXML
 	private ComboBox<String>comboBox;
-	
+	@FXML
+	private Label label4;
 	
 	private SchiffeVersenken spiel;
 	private String spielfeld;
@@ -65,14 +66,17 @@ public class ControllerStartMenue implements Initializable {
     	connection = new Connection();
     	spiel = new SchiffeVersenken(connection);
     	
-        label1.setText(connection.getIp());
+        
         if(StarterKlasse.server) {
+        	label1.setText(connection.getIp());
         	label2.setText("Wir sind Server");
         	buttonSpielSuchen.setDisable(true);
         	checkBoxKI.setVisible(false);
         	textfieldIP.setVisible(false);
         }else {
         	label2.setText("Wir sind Client");
+        	label4.setVisible(false);
+        	label1.setVisible(false);
         	buttonerstellen.setDisable(true);
         	buttonSpielLaden.setDisable(true);
         	
@@ -201,9 +205,9 @@ public class ControllerStartMenue implements Initializable {
 				@Override
 				protected String call() throws Exception {
 					spielfeld=connection.read();
+					
 			    	if(spielfeld.substring(0, 1).equals("l")) {
 			    		String parts[]=spielfeld.split(" ");
-			    		System.out.println("Altes Spiel Laden");
 			    		file.load(Long.parseLong(parts[1]));
 			    		Platform.runLater(new Runnable(){
 							@Override

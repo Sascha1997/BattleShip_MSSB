@@ -66,7 +66,6 @@ public class SchiffeVersenken {
 	 * @param stage
 	 */
 	public void spielBeenden(boolean gewonnen, Stage stage) {
-		System.out.println("Spiel ist nun Beendet");
 		this.connection.closeConnection();
 		FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("ZurueckZumMenue.fxml"));
 		ControllerZurueckZumMenue czzm = new ControllerZurueckZumMenue(gewonnen);
@@ -87,7 +86,6 @@ public class SchiffeVersenken {
 	 * Aufruf des Spielabbruchfensters
 	 */
 	public void spielAbbruch() {
-		System.out.println("SpielAbbruch");
 		FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielAbbruch.fxml"));
 		ControllerSpielAbbruch csa = new ControllerSpielAbbruch(connection);
 		
@@ -110,7 +108,6 @@ public class SchiffeVersenken {
 	 */
 	public void spielAufgeben() {
 		
-		System.out.println("SpielAufgeben");
 		FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("SpielAufgeben.fxml"));
 		ControllerSpielAufgeben csa = new ControllerSpielAufgeben(connection);
 		

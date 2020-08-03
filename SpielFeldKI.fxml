@@ -61,7 +61,7 @@
                <children>
                   <VBox alignment="TOP_CENTER">
                      <children>
-                        <Label styleClass="labelBlack" text="Versenkt:" />
+                        <Label minHeight="30.0" minWidth="140.0" prefHeight="30.0" prefWidth="140.0" styleClass="labelBlack" text="Versenkt:" />
                         <Label fx:id="versenktGegner" contentDisplay="CENTER" lineSpacing="20.0" styleClass="labelBlack" text="Versenkt">
                            <font>
                               <Font size="25.0" />
@@ -77,7 +77,7 @@
                   </VBox>
                   <VBox alignment="TOP_CENTER">
                      <children>
-                        <Label styleClass="labelBlack" text="Versenkt:" />
+                        <Label minHeight="30.0" minWidth="140.0" prefHeight="30.0" prefWidth="140.0" styleClass="labelBlack" text="Versenkt:" />
                         <Label fx:id="versenktWir" contentDisplay="CENTER" lineSpacing="20.0" styleClass="labelBlack" text="Versenkt">
                            <font>
                               <Font size="25.0" />
@@ -109,7 +109,7 @@
             </GridPane>
          </items>
       </SplitPane>
-      <Button layoutX="10.0" layoutY="10.0" maxHeight="30.0" maxWidth="30.0" mnemonicParsing="false" onAction="#onActionSounds" prefHeight="30.0" prefWidth="30.0" styleClass="buttonbg" stylesheets="@../styles.css" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+      <Button layoutX="10.0" layoutY="10.0" maxHeight="40.0" maxWidth="50.0" minHeight="40.0" minWidth="50.0" mnemonicParsing="false" onAction="#onActionSounds" prefHeight="40.0" prefWidth="50.0" styleClass="buttonbg" stylesheets="@../styles.css" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <graphic>
             <ImageView fitHeight="42.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
                <image>

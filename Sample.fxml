@@ -9,47 +9,54 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="bg" prefHeight="720.0" prefWidth="1080.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox id="bg" fx:id="vb1" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1080.0" scaleShape="false" stylesheets="@../styles.css">
+      <Label id="gameTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="341.0" stylesheets="@../styles.css" text="Battleship ">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+      <VBox id="gameMenu" alignment="CENTER" layoutX="361.0" layoutY="43.0" maxWidth="360.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="494.0" prefWidth="360.0" stylesheets="@../styles.css">
          <children>
-            <Label id="gameTitle" alignment="CENTER" contentDisplay="CENTER" stylesheets="@../styles.css" text="Battleship ">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Label>
-            <Label fx:id="label1" prefHeight="26.0" stylesheets="@../styles.css" text="Label" visible="false" />
-            <Label fx:id="label2" text="Label" visible="false" />
-            <VBox id="gameMenu" alignment="CENTER" maxWidth="360.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="375.0" prefWidth="360.0" stylesheets="@../styles.css">
-               <children>
-                  <TextField id="text-field" fx:id="textfieldIP" prefHeight="26.0" prefWidth="704.0" promptText="Gegner IP-Adresse" styleClass="text-field" stylesheets="@../styles.css" />
-                  <Label fx:id="label3" prefHeight="6.0" prefWidth="147.0" textFill="#d31616">
-                     <VBox.margin>
-                        <Insets left="4.0" />
-                     </VBox.margin>
-                  </Label>
-                  <CheckBox fx:id="checkBoxKI" mnemonicParsing="false" onAction="#checkBoxClick" prefHeight="22.0" prefWidth="209.0" styleClass="labelBlackSmall" stylesheets="@../styles.css" text="Mit der KI spielen" />
-                  <ComboBox fx:id="comboBox" prefHeight="26.0" prefWidth="366.0" promptText="Schwierigkeit einstellen" stylesheets="@../styles.css" />
-                  <Button id="buttonbg" fx:id="buttonerstellen" mnemonicParsing="false" onAction="#onActionSpielErstellen" prefHeight="50.0" prefWidth="150.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel erstellen">
-                     <font>
-                        <Font name="System Bold Italic" size="18.0" />
-                     </font>
-                  </Button>
-                  <Button fx:id="buttonSpielLaden" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onActionSpielLaden" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel laden" textAlignment="CENTER">
-                     <font>
-                        <Font name="System Bold" size="21.0" />
-                     </font>
-                  </Button>
-                  <Button fx:id="buttonSpielSuchen" mnemonicParsing="false" onAction="#onActionSpielSuchen" prefHeight="50.0" prefWidth="150.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel suchen">
-                     <font>
-                        <Font name="System Bold Italic" size="18.0" />
-                     </font>
-                  </Button>
-               </children>
+            <VBox alignment="CENTER" spacing="10.0">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
             </VBox>
+            <TextField id="text-field" fx:id="textfieldIP" prefHeight="26.0" prefWidth="704.0" promptText="Gegner IP-Adresse" styleClass="text-field" stylesheets="@../styles.css" />
+            <Label fx:id="label3" prefHeight="6.0" prefWidth="147.0" styleClass="labelRedSmall" stylesheets="@../styles.css" textFill="#d31616">
+               <VBox.margin>
+                  <Insets left="4.0" />
+               </VBox.margin>
+            </Label>
+            <CheckBox fx:id="checkBoxKI" mnemonicParsing="false" onAction="#checkBoxClick" prefHeight="22.0" prefWidth="209.0" styleClass="labelBlackSmall" stylesheets="@../styles.css" text="Mit der KI spielen" />
+            <ComboBox fx:id="comboBox" prefHeight="26.0" prefWidth="366.0" promptText="Schwierigkeit einstellen" stylesheets="@../styles.css" />
+            <HBox alignment="CENTER_RIGHT" prefHeight="0.0" prefWidth="360.0">
+               <children>
+                  <Label fx:id="label4" styleClass="labelWhite" stylesheets="@../styles.css" text="IP-Adresse: " />
+                  <Label fx:id="label1" prefHeight="30.0" prefWidth="178.0" styleClass="labelWhite" stylesheets="@../styles.css" text="Label" />
+                  <Label fx:id="label2" maxHeight="1.0" maxWidth="1.0" text="Label" visible="false" />
+               </children>
+            </HBox>
+            <Button id="buttonbg" fx:id="buttonerstellen" mnemonicParsing="false" onAction="#onActionSpielErstellen" prefHeight="50.0" prefWidth="150.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel erstellen">
+               <font>
+                  <Font name="System Bold Italic" size="18.0" />
+               </font>
+            </Button>
+            <Button fx:id="buttonSpielLaden" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onActionSpielLaden" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel laden" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="21.0" />
+               </font>
+            </Button>
+            <Button fx:id="buttonSpielSuchen" mnemonicParsing="false" onAction="#onActionSpielSuchen" prefHeight="50.0" prefWidth="150.0" styleClass="buttonbg" stylesheets="@../styles.css" text="Spiel suchen">
+               <font>
+                  <Font name="System Bold Italic" size="18.0" />
+               </font>
+            </Button>
          </children>
       </VBox>
       <Button maxHeight="30.0" maxWidth="30.0" mnemonicParsing="false" onAction="#onActionSounds" prefHeight="30.0" prefWidth="30.0" styleClass="buttonbg" stylesheets="@../styles.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">

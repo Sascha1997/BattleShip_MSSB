@@ -19,7 +19,7 @@
             <Font name="System Bold" size="18.0" />
          </font>
       </Button>
-      <Label id="gameTitle" layoutX="309.0" layoutY="123.0" stylesheets="@../styles.css" text="Battleship" />
+      <Label id="gameTitle" layoutX="352.0" layoutY="121.0" stylesheets="@../styles.css" text="Battleship" />
       <Button layoutX="10.0" layoutY="10.0" maxHeight="30.0" maxWidth="30.0" mnemonicParsing="false" onAction="#onActionSounds" prefHeight="30.0" prefWidth="30.0" styleClass="buttonbg" stylesheets="@../styles.css">
          <graphic>
             <ImageView fitHeight="42.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">

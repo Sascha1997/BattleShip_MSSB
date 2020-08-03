@@ -99,9 +99,7 @@ public class ControllerSpielLaden implements Initializable {
 					public void handle(MouseEvent arg0) {
 						
 						buttonSpielLaden.setDisable(false);
-						System.out.println(b.getText());
 						loadID = Long.parseLong(file.getID());
-						System.out.println(loadID);
 					}
 					
 				});

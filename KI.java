@@ -51,11 +51,13 @@ public class KI extends Thread{
 
             if(!this.turn){
                 this.setup = in.readLine();
+                System.out.println("<-- "+setup);
                 if(!isOffline) {
                 	this.ki.setspielFeldGroeße(this.setup);
                 }
             }else{
                 this.out.write(this.setup + "\n");
+                System.out.println("--> "+this.setup);
                 this.out.flush();
             }
             
@@ -64,8 +66,9 @@ public class KI extends Thread{
             }
             sleep(2000);
             distribute(this.setup);
-            if(this.turn && !in.readLine().equals("confirmed")){
-                System.out.println("Something is wrong");
+            String st=in.readLine();
+            System.out.println("<-- "+st);
+            if(this.turn && !st.equals("confirmed")){
                 System.exit(0);
             }
 
@@ -83,6 +86,7 @@ public class KI extends Thread{
                     play();
                 }else{
                 	String s = in.readLine();
+                	System.out.println("<-- "+s);
                 	if(s==null) {
                 		if(!isOffline)this.ki.spielAbbruch();
                 		break;
@@ -94,6 +98,7 @@ public class KI extends Thread{
 
                 if(this.turn) {
                 	String s = in.readLine();
+                	System.out.println("<-- "+s);
                 	if(s==null) {
                 		if(!isOffline)this.ki.spielAbbruch();
                 		break;
@@ -121,11 +126,13 @@ public class KI extends Thread{
                 break;
             case "save": save(data);
                 this.out.write("pass\n");
+                System.out.println("--> pass");
                 this.out.flush();
                 break;
             case "pass": return;
-            default: System.out.println("Falsche Eingabe");
+            default: 
                 this.out.write("pass\n");
+                System.out.println("--> pass");
                 this.out.flush();
         }
         
@@ -172,6 +179,7 @@ public class KI extends Thread{
         
         if(!this.turn){
             this.out.write("confirmed\n");
+            System.out.println("--> confirmed");
             this.out.flush();
         }
     }
@@ -251,11 +259,11 @@ public class KI extends Thread{
         placeShips();
         if(!isOffline)this.ki.plaziereSchiffe(this.shipsKI);
         this.placedShips = true;
-        //KIHelper.printGame(this.gameField, this.enemyField);
-        System.out.println("Confirmed");
+        
 
         if(!this.turn){
             this.out.write("confirmed\n");
+            System.out.println("--> confirmed");
             this.out.flush();
         }
     }
@@ -313,12 +321,14 @@ public class KI extends Thread{
             this.turn = false;
         }
         this.out.write(line + "\n");
+        System.out.println("--> "+line);
         this.out.flush();
     }
 
     private void kiShot(){
         this.shots++;
         this.out.write("shot " + this.probPoint.x + " " + this.probPoint.y + "\n");
+        System.out.println("--> "+"shot " + this.probPoint.x + " " + this.probPoint.y);
         this.out.flush();
     }
 
@@ -326,17 +336,17 @@ public class KI extends Thread{
 
         switch(data[1]){
             case "0": this.enemyField[this.probPoint.x][this.probPoint.y] = 1;
-                //System.out.println(this.probPoint);
+                
                 if(!isOffline)this.ki.markiereSchussVorbei(probPoint);
                 this.turn = false;
-                System.out.println("Kein Hit");
                 this.out.write("pass\n");
+                System.out.println("--> pass");
                 this.out.flush();
                 break;
             case "1": this.enemyField[this.probPoint.x][this.probPoint.y] = 2;
-                //System.out.println(this.probPoint);
+               
                 if(!isOffline)this.ki.markiereSchussTreffer(probPoint);
-                System.out.println("Hit");
+                
                 this.turn = true;
                 this.cords.add(new Point(this.probPoint));
                 if(this.cords.size() == 2) setDirection();
@@ -345,9 +355,9 @@ public class KI extends Thread{
                 break;
             case "2": this.hit = false;
                 this.enemyField[this.probPoint.x][this.probPoint.y] = 2;
-                //System.out.println(this.probPoint);
+                
                 if(!isOffline)this.ki.markiereSchussTreffer(probPoint);
-                System.out.println("Hit - Versenkt");
+               
                 this.turn = true;
                 neighbours.clear();
                 neighboursSet = false;
@@ -545,8 +555,7 @@ public class KI extends Thread{
                         w2:
                         while(true) {
                             if(++count > 1000){
-                                //KIHelper.printGame(this.gameField, this.enemyField);
-                                System.out.println("Retry");
+                              
                                 KIHelper.setArray(this.gameField, 0);
                                 this.shipsKI.clear();
                                 continue w1;

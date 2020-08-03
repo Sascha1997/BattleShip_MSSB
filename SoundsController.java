@@ -1,12 +1,12 @@
 package application;
 
+import java.io.File;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
@@ -14,8 +14,9 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
+/**
+ * Controllerklasse des Fensters, das aufgeht, wenn man den Soundbutton klickt
+ */
 
 public class SoundsController extends Parent {
     private static double volume = 1;
@@ -25,10 +26,17 @@ public class SoundsController extends Parent {
     private static boolean off = false;
     public static boolean effekte = true;
 
+    /**
+     * die Funktion getVolume() gibt den aktuellen double Wert der Lautstärke zurück
+     *
+     */
+
     public static double getVolume() {
         return volume;
     }
-
+    /**
+     * Konstruktor Sounds Controller
+     */
     public SoundsController(){
         String path = new File("src/assets/bgmusic.wav").getAbsolutePath();
         Media me = new Media(new File(path).toURI().toString());
@@ -36,12 +44,19 @@ public class SoundsController extends Parent {
         mp.setCycleCount(MediaPlayer.INDEFINITE);
         mp.play();
     }
-
+    /**
+     * Über den Back Button kann man das Musikfenster verlassen und zu dem vorherigen Bildschirm zurückkehren
+     * @param actionEvent
+     */
     public void back(ActionEvent actionEvent) {
         Stage oldStage = (Stage)btnBack.getScene().getWindow();
         oldStage.close();
     }
 
+    /**
+     * Über die Methode changeVolume regelt man über den Schieberegler die Lautstärke der Hintergrundmusik und der Soundeffekte
+     * @param mouseEvent
+     */
     public void changeVolume(MouseEvent mouseEvent) {
         volumeSlider.setValue(mp.getVolume() * 100);
         volumeSlider.valueProperty().addListener(new InvalidationListener() {
@@ -53,11 +68,18 @@ public class SoundsController extends Parent {
         });
     }
 
+    /**
+     * @return
+     */
     @Override
     public Node getStyleableNode() {
         return null;
     }
 
+    /**
+     * Über den On/Off Button kann man die Hintergrundmusik ein und ausschalten
+     * @param event
+     */
     public void onOffMusik(ActionEvent event) {
         if (off) {
             mp.play();
@@ -68,7 +90,10 @@ public class SoundsController extends Parent {
         }
 
     }
-
+    /**
+     * Über den Effekte Button kann man die Soundeffekte ein und ausschalten
+     * @param event
+     */
     public void onOffEffekte(ActionEvent event) {
         if (effekte) {
             effekte = false;

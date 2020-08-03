@@ -228,88 +228,94 @@ public class ControllerKI implements Initializable{
 						int rowInt = points.get(i).x+1;
 						int colInt = points.get(i).y;
 						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
-							Button b = (Button)n;
-							b.setId("cell");
-							b.setStyle("-fx-background-color: #FF0000");
+						
+						if(rowIndex==null||columnIndex==null||rowIndex.intValue()>=spielFeldGroeﬂe||columnIndex.intValue()>=spielFeldGroeﬂe) {
+							
+						}else {
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								Button b = (Button)n;
+								b.setId("cell");
+								b.setStyle("-fx-background-color: #FF0000");
+							}
+							
+							rowInt = points.get(i).x-1;
+							colInt = points.get(i).y;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								Button b = (Button)n;
+								b.setId("cell");
+								b.setStyle("-fx-background-color: #FF0000");
+							}
+							rowInt = points.get(i).x;
+							colInt = points.get(i).y;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								Button b = (Button)n;
+								b.setId("cell");
+								b.setStyle("-fx-background-color: #FF0000");
+							}
+							
+							rowInt = points.get(i).x+1;
+							colInt = points.get(i).y+1;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								Button b = (Button)n;
+								b.setId("cell");
+								b.setStyle("-fx-background-color: #FF0000");
+							}
+							
+							rowInt = points.get(i).x;
+							colInt = points.get(i).y+1;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								Button b = (Button)n;
+								b.setId("cell");
+								b.setStyle("-fx-background-color: #FF0000");
+							}
+							rowInt = points.get(i).x-1;
+							colInt = points.get(i).y+1;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								Button b = (Button)n;
+								b.setId("cell");
+								b.setStyle("-fx-background-color: #FF0000");
+							}
+							rowInt = points.get(i).x-1;
+							colInt = points.get(i).y-1;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {;
+								Button b = (Button)n;
+								b.setId("cell");
+								b.setStyle("-fx-background-color: #FF0000");
+							}
+							rowInt = points.get(i).x+1;
+							colInt = points.get(i).y-1;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								Button b = (Button)n;
+								b.setId("cell");
+								b.setStyle("-fx-background-color: #FF0000");
+							}
+							
+							rowInt = points.get(i).x;
+							colInt = points.get(i).y-1;
+							
+							if (rowIndex != null && rowIndex.intValue() == rowInt
+									  && columnIndex != null && columnIndex.intValue() == colInt) {
+								Button b = (Button)n;
+								b.setId("cell");
+								b.setStyle("-fx-background-color: #FF0000");
+							}
 						}
 						
-						rowInt = points.get(i).x-1;
-						colInt = points.get(i).y;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
-							Button b = (Button)n;
-							b.setId("cell");
-							b.setStyle("-fx-background-color: #FF0000");
-						}
-						rowInt = points.get(i).x;
-						colInt = points.get(i).y;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
-							Button b = (Button)n;
-							b.setId("cell");
-							b.setStyle("-fx-background-color: #FF0000");
-						}
-						
-						rowInt = points.get(i).x+1;
-						colInt = points.get(i).y+1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
-							Button b = (Button)n;
-							b.setId("cell");
-							b.setStyle("-fx-background-color: #FF0000");
-						}
-						
-						rowInt = points.get(i).x;
-						colInt = points.get(i).y+1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
-							Button b = (Button)n;
-							b.setId("cell");
-							b.setStyle("-fx-background-color: #FF0000");
-						}
-						rowInt = points.get(i).x-1;
-						colInt = points.get(i).y+1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
-							Button b = (Button)n;
-							b.setId("cell");
-							b.setStyle("-fx-background-color: #FF0000");
-						}
-						rowInt = points.get(i).x-1;
-						colInt = points.get(i).y-1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {;
-							Button b = (Button)n;
-							b.setId("cell");
-							b.setStyle("-fx-background-color: #FF0000");
-						}
-						rowInt = points.get(i).x+1;
-						colInt = points.get(i).y-1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
-							Button b = (Button)n;
-							b.setId("cell");
-							b.setStyle("-fx-background-color: #FF0000");
-						}
-						
-						rowInt = points.get(i).x;
-						colInt = points.get(i).y-1;
-						
-						if (rowIndex != null && rowIndex.intValue() == rowInt
-								  && columnIndex != null && columnIndex.intValue() == colInt) {
-							Button b = (Button)n;
-							b.setId("cell");
-							b.setStyle("-fx-background-color: #FF0000");
-						}
 						
 						
 					}
@@ -585,7 +591,6 @@ public class ControllerKI implements Initializable{
 	public void setspielFeldGroeﬂe(String s) {
 		
 		String parts[]=s.split(" ");
-		System.out.println("PARTS[1] "+parts[1]);
 		if(!(parts[0].substring(0,1).equals("l"))) {
 			this.spielFeldGroeﬂe = Integer.parseInt(parts[1]);
 		}
@@ -637,9 +642,7 @@ public class ControllerKI implements Initializable{
 	 * @param b
 	 */
 	public void spielBeendenKI(String shots, String hits, String fehler, String quote,boolean b) {
-		
-		
-		
+				
 		Platform.runLater(new Runnable() {
 
 			@Override

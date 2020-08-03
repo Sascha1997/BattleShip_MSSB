@@ -3,11 +3,14 @@ package application;
 import java.io.IOException;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 /**
  * Starterklasse
  *
@@ -39,6 +42,13 @@ public class StarterKlasse extends Application{
     public void start(final Stage primaryStage) throws Exception{
     	
     	StarterKlasse.primaryStage = primaryStage;
+    	
+    	 primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+             public void handle(WindowEvent we) {
+            	 Platform.exit();
+             }
+         });
+    
     	FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ServerOrClient.fxml"));
     	ControllerServerOrClient ccos = new ControllerServerOrClient();
     	fxmlLoader.setController(ccos);

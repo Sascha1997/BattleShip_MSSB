@@ -126,6 +126,7 @@ public class Connection {
 			e.printStackTrace();
 			return false;
 		}
+		System.out.println("--> "+s);
 		return true;
 	}
 	/**
@@ -135,12 +136,13 @@ public class Connection {
 	public String read() {
 		String s;
 		try {
-			s= this.in.readLine();
+			s= this.in.readLine().toLowerCase();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
+		System.out.println("<-- "+s);
 		return s;
 	}
 	
